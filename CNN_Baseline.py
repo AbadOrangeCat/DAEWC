@@ -35,8 +35,8 @@ EPOCHS = 5
 BATCH_SIZE = 64
 
 # Adjust paths here
-PATH_FAKE = './news/fake.csv'
-PATH_REAL = './news/true.csv'
+PATH_FAKE = './news/Fake.csv'
+PATH_REAL = './news/True.csv'
 PATH_COVID_FAKE = './covid/fakeNews.csv'
 PATH_COVID_REAL = './covid/trueNews.csv'
 

@@ -49,8 +49,8 @@ FISHER_BATCH_SIZE = 64
 CALIBRATE_THRESHOLD = True  # if True, pick threshold that maximizes F1 on the validation set for reporting
 
 # Adjust data paths here
-PATH_FAKE = './news/fake.csv'
-PATH_REAL = './news/true.csv'
+PATH_FAKE = './news/Fake.csv'
+PATH_REAL = './news/Frue.csv'
 PATH_COVID_FAKE = './covid/fakeNews.csv'
 PATH_COVID_REAL = './covid/trueNews.csv'
 
