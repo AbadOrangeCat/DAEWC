@@ -50,7 +50,7 @@ CALIBRATE_THRESHOLD = True  # if True, pick threshold that maximizes F1 on the v
 
 # Adjust data paths here
 PATH_FAKE = './news/Fake.csv'
-PATH_REAL = './news/Frue.csv'
+PATH_REAL = './news/True.csv'
 PATH_COVID_FAKE = './covid/fakeNews.csv'
 PATH_COVID_REAL = './covid/trueNews.csv'
 
