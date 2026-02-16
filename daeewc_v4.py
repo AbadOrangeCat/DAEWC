@@ -1246,6 +1246,7 @@ def main():
                 rep.head_tgt.trainable_variables
             )
             opt_r = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+            opt_r.build(train_vars)
 
             src_joint_ds = make_tf_dataset(src_train_x, src_train_y, BATCH_ADAPT, True, seed + 111, True)
             tgt_joint_ds = make_tf_dataset(tgt_fs_x, tgt_fs_y, BATCH_ADAPT, True, seed + 222, True)
