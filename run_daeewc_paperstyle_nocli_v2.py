@@ -229,8 +229,8 @@ def split_train_dev_test(
     texts: List[str],
     labels: np.ndarray,
     seed: int,
-    test_size: float = TEST_SIZE,
-    dev_size: float = DEV_SIZE
+    test_size: float,
+    dev_size: float
 ):
     """Split into train/dev/test.
 
