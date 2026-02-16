@@ -542,7 +542,11 @@ def estimate_fisher_plain(
         for (k, _v), g in zip(protected.items(), grads):
             if g is None:
                 continue
+            # Embedding gradient is often IndexedSlices (sparse)
+            if isinstance(g, tf.IndexedSlices):
+                g = tf.convert_to_tensor(g)  # densify to Tensor
             fisher_acc[k] += (g.numpy().astype(np.float32) ** 2)
+
         n_batches += 1
 
     if n_batches == 0:
