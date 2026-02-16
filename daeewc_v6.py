@@ -1,26 +1,3 @@
-# daeewc_v6_dominant_noargs.py
-# -*- coding: utf-8 -*-
-"""DAEWC v6 DOMINANT (news -> covid)
-
-- No CLI args; edit CONFIG only.
-- Data paths fixed as provided.
-
-Goal: make **DAEWC** strongest on this benchmark *while keeping independent adapters*:
-when a new domain arrives, you only train a new domain adapter + target head; the backbone
-(and other domains' adapters/heads) remain frozen.
-
-DAEWC v5 boosts:
-  1) True independent target adapter (no shared adapter weights).
-  2) FixMatch-style semi-supervised adaptation on unlabeled target-train pool
-     (target train split minus K-shot labeled subset), with EMA teacher.
-  3) Stronger residual adapter block (LayerNorm + bottleneck MLP + residual scale).
-
-To disable unlabeled adaptation (strict labeled-only): set DAEWC_USE_UNLABELED = False.
-
-Outputs:
-  - results_daeewc_v6_dominant_raw.csv
-  - results_daeewc_v6_dominant_summary.csv
-"""
 
 from __future__ import annotations
 
