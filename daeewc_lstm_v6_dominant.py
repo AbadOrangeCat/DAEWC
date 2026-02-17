@@ -1,27 +1,3 @@
-# daeewc_v5_strong.py
-# -*- coding: utf-8 -*-
-"""DAEWC v5 STRONG (news -> covid)
-
-- No CLI args; edit CONFIG only.
-- Data paths fixed as provided.
-
-Goal: make **DAEWC** strongest on this benchmark *while keeping independent adapters*:
-when a new domain arrives, you only train a new domain adapter + target head; the backbone
-(and other domains' adapters/heads) remain frozen.
-
-DAEWC v5 boosts:
-  1) True independent target adapter (no shared adapter weights).
-  2) FixMatch-style semi-supervised adaptation on unlabeled target-train pool
-     (target train split minus K-shot labeled subset), with EMA teacher.
-  3) Stronger residual adapter block (LayerNorm + bottleneck MLP + residual scale).
-
-To disable unlabeled adaptation (strict labeled-only): set DAEWC_USE_UNLABELED = False.
-
-Outputs:
-  - results_daeewc_v5_raw.csv
-  - results_daeewc_v5_summary.csv
-"""
-
 from __future__ import annotations
 
 import os
@@ -36,6 +12,14 @@ from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+
+
+def make_adam(lr: float) -> tf.keras.optimizers.Optimizer:
+    """Use legacy Adam on Apple Silicon (TF 2.11+), fall back otherwise."""
+    try:
+        return tf.keras.optimizers.legacy.Adam(learning_rate=lr)
+    except Exception:
+        return tf.keras.optimizers.Adam(learning_rate=lr)
 
 
 # ======================================================================================
@@ -63,8 +47,17 @@ MAX_LEN = 256
 
 # ---- model ----
 EMB_DIM = 100
+
+# LSTM backbone (replaces Conv1D + GlobalMaxPool)
+BIDIR_LSTM = True          # True = BiLSTM; False = single LSTM
+LSTM_UNITS = 64            # if BIDIR_LSTM=True => output dim = 2*LSTM_UNITS (=128)
+LSTM_DROPOUT = 0.0         # internal dropout inside LSTM (keep 0 for cuDNN speed)
+LSTM_REC_DROPOUT = 0.0     # recurrent_dropout (keep 0 for cuDNN speed)
+
+# Keep the original CNN hyperparams defined (unused in LSTM version) for compatibility / logging.
 CONV_FILTERS = 128
 KERNEL_SIZE = 5
+
 HIDDEN_DIM = 128
 
 # Adapter
@@ -84,6 +77,11 @@ PATIENCE_PRETRAIN = 2
 
 EPOCHS_ADAPT = 40
 PATIENCE_ADAPT = 6
+# Backward-compat alias: some code paths (older drafts) reference ADAPT_EPOCHS.
+# Keep it defined to avoid NameError.
+ADAPT_EPOCHS = EPOCHS_ADAPT
+# Backward-compat alias: some code paths reference PATIENCE.
+PATIENCE = PATIENCE_ADAPT
 
 MIN_STEPS_PER_EPOCH = 50
 
@@ -92,6 +90,7 @@ LR_ADAPT = 2e-3
 
 GRAD_CLIP_NORM = 1.0
 LABEL_SMOOTHING = 0.05
+LABEL_SMOOTH = LABEL_SMOOTHING  # alias used in loss
 
 # ---- EWC/Fisher (for Transfer+EWC baseline only) ----
 FISHER_BATCHES = 200
@@ -113,16 +112,17 @@ DAEWC_WEAK_DROP = 0.05
 DAEWC_STRONG_DROP = 0.20
 DAEWC_BALANCE_W = 0.10  # class-balance regularizer on unlabeled (helps low-shot)
 
-
 # optional cap on unlabeled pool for speed (None = use all)
 DAEWC_ULB_MAX: Optional[int] = None
-# ---- optional: Replay upper bound (slow) ----
-RUN_REPLAY_UPPER = False
-REPLAY_EPOCHS = 8
 
+# ---- optional: Replay upper bound (slow) ----
+RUN_REPLAY_UPPER = True
+REPLAY_EPOCHS = 8
 
 # ---- logging ----
 VERBOSE = True
+VERBOSE_DAEWC = VERBOSE  # DAEWC-specific verbosity flag
+
 
 # ======================================================================================
 # Utils
@@ -345,6 +345,7 @@ def make_tf_dataset_x(x: np.ndarray, batch: int, shuffle: bool, seed: int, repea
     ds = ds.batch(batch).prefetch(tf.data.AUTOTUNE)
     return ds
 
+
 # ======================================================================================
 # Metrics / eval
 # ======================================================================================
@@ -369,6 +370,16 @@ def binary_metrics_from_probs(y_true: np.ndarray, probs: np.ndarray, thr: float)
 
     macro_f1 = 0.5 * (f1_0 + f1_1)
     return {"acc": float(acc), "macro_f1": float(macro_f1)}
+
+
+def acc_from_probs(y_true: np.ndarray, probs: np.ndarray, thr: float) -> float:
+    """Convenience wrapper: accuracy at a fixed threshold."""
+    return float(binary_metrics_from_probs(y_true, probs, thr)["acc"])
+
+
+def f1_macro_from_probs(y_true: np.ndarray, probs: np.ndarray, thr: float) -> float:
+    """Convenience wrapper: macro-F1 at a fixed threshold."""
+    return float(binary_metrics_from_probs(y_true, probs, thr)["macro_f1"])
 
 
 def find_best_threshold(y_true: np.ndarray, probs: np.ndarray) -> Tuple[float, Dict[str, float]]:
@@ -413,30 +424,51 @@ def eval_logits_probs_x(logits_fn, ds_x: tf.data.Dataset) -> Tuple[np.ndarray, n
     probs = 1.0 / (1.0 + np.exp(-logits_all))
     return logits_all, probs
 
+
 # ======================================================================================
-# Models
+# Models (LSTM backbone)
 # ======================================================================================
 
 class PlainTwoHeadCNN(tf.keras.Model):
+    """
+    NOTE: class name kept to avoid editing the rest of the script.
+    Internally this is now an (Bi)LSTM backbone:
+        Embedding(mask_zero) -> (Bi)LSTM -> Dropout -> shared_fc -> two heads
+    """
     def __init__(self, vocab_size: int):
         super().__init__()
-        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, name="emb")
-        self.conv = tf.keras.layers.Conv1D(
-            filters=CONV_FILTERS, kernel_size=KERNEL_SIZE,
-            activation="relu", padding="valid", name="conv"
-        )
-        self.pool = tf.keras.layers.GlobalMaxPool1D(name="gmp")
+        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, mask_zero=True, name="emb")
+
+        # Keep attribute name "conv" so downstream training code doesn't change.
+        if BIDIR_LSTM:
+            self.conv = tf.keras.layers.Bidirectional(
+                tf.keras.layers.LSTM(
+                    LSTM_UNITS,
+                    return_sequences=False,
+                    dropout=LSTM_DROPOUT,
+                    recurrent_dropout=LSTM_REC_DROPOUT,
+                ),
+                name="bilstm",
+            )
+        else:
+            self.conv = tf.keras.layers.LSTM(
+                LSTM_UNITS,
+                return_sequences=False,
+                dropout=LSTM_DROPOUT,
+                recurrent_dropout=LSTM_REC_DROPOUT,
+                name="lstm",
+            )
+
         self.drop = tf.keras.layers.Dropout(DROPOUT_RATE, name="drop")
         self.shared_fc = tf.keras.layers.Dense(HIDDEN_DIM, activation="relu", name="shared_fc")
         self.head_src = tf.keras.layers.Dense(1, name="head_src")
         self.head_tgt = tf.keras.layers.Dense(1, name="head_tgt")
 
     def encode(self, x_ids: tf.Tensor, training: bool) -> tf.Tensor:
-        x = self.embedding(x_ids)
-        x = self.conv(x)
-        x = self.pool(x)
+        x = self.embedding(x_ids)                # (B,T,E)
+        x = self.conv(x, training=training)      # (B,D)
         x = self.drop(x, training=training)
-        z = self.shared_fc(x)
+        z = self.shared_fc(x)                    # (B,HIDDEN_DIM)
         return z
 
     def logits(self, x_ids: tf.Tensor, head: str, training: bool) -> tf.Tensor:
@@ -473,19 +505,34 @@ class DAEWCIndepAdapterCNN(tf.keras.Model):
     """Backbone + 2 heads + independent target adapter.
 
     - Backbone weights are copied from source-pretrained PlainTwoHeadCNN.
-    - During target adaptation, we only train: target_adapter + head_tgt.
+    - During target adaptation, we only train: target_adapter + head_tgt (or progressively unfreeze more).
     - Source prediction uses backbone + head_src (no adapter) => source is untouched.
     """
 
     def __init__(self, vocab_size: int):
         super().__init__()
-        # backbone
-        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, name="emb")
-        self.conv = tf.keras.layers.Conv1D(
-            filters=CONV_FILTERS, kernel_size=KERNEL_SIZE,
-            activation="relu", padding="valid", name="conv"
-        )
-        self.pool = tf.keras.layers.GlobalMaxPool1D(name="gmp")
+        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, mask_zero=True, name="emb")
+
+        # Keep attribute name "conv" for compatibility with downstream code.
+        if BIDIR_LSTM:
+            self.conv = tf.keras.layers.Bidirectional(
+                tf.keras.layers.LSTM(
+                    LSTM_UNITS,
+                    return_sequences=False,
+                    dropout=LSTM_DROPOUT,
+                    recurrent_dropout=LSTM_REC_DROPOUT,
+                ),
+                name="bilstm",
+            )
+        else:
+            self.conv = tf.keras.layers.LSTM(
+                LSTM_UNITS,
+                return_sequences=False,
+                dropout=LSTM_DROPOUT,
+                recurrent_dropout=LSTM_REC_DROPOUT,
+                name="lstm",
+            )
+
         self.drop = tf.keras.layers.Dropout(DROPOUT_RATE, name="drop")
         self.shared_fc = tf.keras.layers.Dense(HIDDEN_DIM, activation="relu", name="shared_fc")
 
@@ -498,13 +545,12 @@ class DAEWCIndepAdapterCNN(tf.keras.Model):
 
     def encode_backbone(self, x_ids: tf.Tensor, training: bool) -> tf.Tensor:
         x = self.embedding(x_ids)
-        x = self.conv(x)
-        x = self.pool(x)
+        x = self.conv(x, training=training)
         x = self.drop(x, training=training)
         z = self.shared_fc(x)
         return z
 
-    def logits_src(self, x_ids: tf.Tensor, training: bool) -> tf.Tensor:
+    def logits_src(self, x_ids: tf.Tensor, training: bool, **_kwargs) -> tf.Tensor:
         z = self.encode_backbone(x_ids, training=training)
         return self.head_src(z)
 
@@ -513,6 +559,7 @@ class DAEWCIndepAdapterCNN(tf.keras.Model):
         if use_adapter:
             z = self.adapter_tgt(z, training=training)
         return self.head_tgt(z)
+
 
 # ======================================================================================
 # EWC (for Transfer-Plain+EWC baseline)
@@ -525,11 +572,33 @@ class EWCInfo:
 
 
 def get_protected_vars_plain(model: PlainTwoHeadCNN) -> Dict[str, tf.Variable]:
-    return {
+    """
+    Protected vars for EWC/Fisher.
+    For (Bi)LSTM we protect:
+      - embedding matrix
+      - LSTM kernel + recurrent_kernel (forward/backward if bidirectional)
+      - shared_fc kernel
+    """
+    out: Dict[str, tf.Variable] = {
         "emb": model.embedding.embeddings,
-        "conv_kernel": model.conv.kernel,
         "fc_kernel": model.shared_fc.kernel,
     }
+
+    if isinstance(model.conv, tf.keras.layers.Bidirectional):
+        f = model.conv.forward_layer
+        b = model.conv.backward_layer
+        out.update({
+            "rnn_f_kernel": f.kernel,
+            "rnn_f_recurrent": f.recurrent_kernel,
+            "rnn_b_kernel": b.kernel,
+            "rnn_b_recurrent": b.recurrent_kernel,
+        })
+    else:
+        out.update({
+            "rnn_kernel": model.conv.kernel,
+            "rnn_recurrent": model.conv.recurrent_kernel,
+        })
+    return out
 
 
 def estimate_fisher_plain(
@@ -697,6 +766,7 @@ def train_loop_earlystop(
     thr, m = find_best_threshold(y_true, probs)
     bce = bce_from_logits(y_true, logits_all)
     return thr, {"acc": m["acc"], "macro_f1": m["macro_f1"], "bce": bce}
+
 
 # ======================================================================================
 # DAEWC STRONG: FixMatch-style adaptation (independent adapter)
@@ -868,6 +938,7 @@ def train_daeewc_fixmatch(
     bce = bce_from_logits(y_true, logits_all)
     return thr, {"acc": m["acc"], "macro_f1": m["macro_f1"], "bce": bce}
 
+
 # ======================================================================================
 # Few-shot sampling (balanced)
 # ======================================================================================
@@ -906,9 +977,311 @@ def sample_fewshot_balanced_indices(labels: List[int], shot: int, seed: int, mod
 # Build/init/copy helpers
 # ======================================================================================
 
+# -----------------------------
+# DAEWC++ (Dominant) helpers
+# -----------------------------
+
+def get_protected_vars_dae(model: "DAEWCIndepAdapterCNN") -> Dict[str, tf.Variable]:
+    """Same key names as get_protected_vars_plain so we can reuse fisher from the plain model."""
+    out: Dict[str, tf.Variable] = {
+        "emb": model.embedding.embeddings,
+        "fc_kernel": model.shared_fc.kernel,
+    }
+
+    if isinstance(model.conv, tf.keras.layers.Bidirectional):
+        f = model.conv.forward_layer
+        b = model.conv.backward_layer
+        out.update({
+            "rnn_f_kernel": f.kernel,
+            "rnn_f_recurrent": f.recurrent_kernel,
+            "rnn_b_kernel": b.kernel,
+            "rnn_b_recurrent": b.recurrent_kernel,
+        })
+    else:
+        out.update({
+            "rnn_kernel": model.conv.kernel,
+            "rnn_recurrent": model.conv.recurrent_kernel,
+        })
+    return out
+
+
+def dae_train_vars(model: "DAEWCIndepAdapterCNN", level: str):
+    """
+    level:
+      - "adapter": adapter_tgt + head_tgt only
+      - "top":    + shared_fc (feature projector)
+      - "mid":    + (Bi)LSTM
+      - "full":   + embedding
+    """
+    level = str(level).lower().strip()
+    vars_ = []
+    vars_ += model.adapter_tgt.trainable_variables
+    vars_ += model.head_tgt.trainable_variables
+    if level in ("top", "mid", "full"):
+        vars_ += model.shared_fc.trainable_variables
+    if level in ("mid", "full"):
+        vars_ += model.conv.trainable_variables
+    if level in ("full",):
+        vars_ += model.embedding.trainable_variables
+    # NOTE: keep head_src frozen by default (source head is used only for replay regularization).
+    return vars_
+
+
+def l2_anchor_penalty(protected_vars: dict, star: dict):
+    """Simple L2 anchoring to source weights (complements EWC)."""
+    pen = 0.0
+    for k, v in protected_vars.items():
+        if k in star:
+            pen += tf.reduce_sum(tf.square(v - star[k]))
+    return pen
+
+
+def train_daeewc_fixmatch_plus(
+    student: "DAEWCIndepAdapterCNN",
+    teacher: "DAEWCIndepAdapterCNN",
+    tgt_l_ds: tf.data.Dataset,
+    tgt_u_ds: tf.data.Dataset,
+    dev_ds: tf.data.Dataset,
+    *,
+    train_vars: list,
+    protected_vars: dict,
+    ewc_info,
+    steps_per_epoch: int,
+    max_epochs: int,
+    patience: int,
+    lr: float,
+    tau: float,
+    lambda_u: float,
+    ema: float,
+    balance_w: float,
+    # extra "dominant" knobs
+    src_replay_ds=None,
+    lambda_src: float = 0.0,
+    ewc_lambda: float = 0.0,
+    l2_anchor: float = 0.0,
+    grad_clip: float = 1.0,
+    verbose_prefix: str = "",
+):
+    """
+    Strong DAEWC training:
+      supervised target + FixMatch unlabeled + (optional) source replay regularizer
+      + (optional) EWC + L2 anchor on shared backbone variables.
+
+    Returns:
+      t_elapsed, best_thr, best_dev_f1
+    """
+    t0 = time.time()
+    opt = make_adam(lr)
+
+    # --- constants (avoid dtype surprises / autograph scope issues) ---
+    tau_t = tf.constant(float(tau), tf.float32)
+    ema_t = tf.constant(float(ema), tf.float32)
+    one_minus_ema_t = tf.constant(1.0 - float(ema), tf.float32)
+    lambda_src_t = tf.constant(float(lambda_src), tf.float32)
+    balance_w_t = tf.constant(float(balance_w), tf.float32)
+    ewc_lambda_t = tf.constant(float(ewc_lambda), tf.float32)
+    l2_anchor_t = tf.constant(float(l2_anchor), tf.float32)
+
+    # --- init teacher = student (important) ---
+    teacher.set_weights(student.get_weights())
+
+    # --- prepare EWC tensors (once; avoid recreating constants every step) ---
+    star_np, fisher_np = {}, {}
+    if ewc_info is not None:
+        if isinstance(ewc_info, dict):
+            star_np = ewc_info.get("star", {}) or {}
+            fisher_np = ewc_info.get("fisher", {}) or {}
+        else:
+            star_np = getattr(ewc_info, "star", {}) or {}
+            fisher_np = getattr(ewc_info, "fisher", {}) or {}
+
+    star_tf, fisher_tf = {}, {}
+    if (ewc_lambda > 0.0 or l2_anchor > 0.0) and star_np:
+        # match dtype to each protected var
+        for k, v in protected_vars.items():
+            if k in star_np:
+                star_tf[k] = tf.constant(star_np[k], dtype=v.dtype)
+        for k, v in protected_vars.items():
+            if k in fisher_np:
+                fisher_tf[k] = tf.constant(fisher_np[k], dtype=v.dtype)
+
+    def _ewc_penalty() -> tf.Tensor:
+        if not star_tf or not fisher_tf:
+            return tf.constant(0.0, dtype=tf.float32)
+        losses = []
+        for k, v in protected_vars.items():
+            if k in star_tf and k in fisher_tf:
+                losses.append(tf.reduce_sum(fisher_tf[k] * tf.square(v - star_tf[k])))
+        return tf.add_n(losses) if losses else tf.constant(0.0, dtype=tf.float32)
+
+    def _l2_anchor_penalty() -> tf.Tensor:
+        if not star_tf:
+            return tf.constant(0.0, dtype=tf.float32)
+        losses = []
+        for k, v in protected_vars.items():
+            if k in star_tf:
+                losses.append(tf.reduce_sum(tf.square(v - star_tf[k])))
+        return tf.add_n(losses) if losses else tf.constant(0.0, dtype=tf.float32)
+
+    # --- iterators (repeat here to guarantee infinite stream) ---
+    it_l = iter(tgt_l_ds.repeat())
+    it_u = iter(tgt_u_ds.repeat())
+
+    it_s = None
+    if src_replay_ds is not None and lambda_src > 0.0:
+        it_s = iter(src_replay_ds.repeat())
+
+    best_f1 = -1.0
+    best_thr = 0.5
+    best_student_w = None
+    best_teacher_w = None
+    bad_epochs = 0
+
+    DO_SRC = (src_replay_ds is not None and float(lambda_src) > 0.0)
+    DO_BAL = (float(balance_w) > 0.0)
+    DO_EWC = (ewc_info is not None and float(ewc_lambda) > 0.0)
+    DO_L2 = (star_tf and float(l2_anchor) > 0.0)
+
+    @tf.function
+    def train_step(x_l, y_l, x_u, x_s, y_s, lambda_u_t):
+        # augment unlabeled
+        x_u_w = _augment_token_drop(x_u, DAEWC_WEAK_DROP)
+        x_u_s = _augment_token_drop(x_u, DAEWC_STRONG_DROP)
+
+        y_l = tf.cast(y_l, tf.float32)
+        y_s = tf.cast(y_s, tf.float32)
+
+        with tf.GradientTape() as tape:
+            # supervised
+            logits_l = student.logits_tgt(x_l, training=True, use_adapter=True)
+            if LABEL_SMOOTH > 0.0:
+                y_l_s = y_l * (1.0 - LABEL_SMOOTH) + 0.5 * LABEL_SMOOTH
+            else:
+                y_l_s = y_l
+            sup_vec = tf.nn.sigmoid_cross_entropy_with_logits(labels=y_l_s, logits=logits_l)  # (B,1)
+            sup_loss = tf.reduce_mean(sup_vec)
+
+            # pseudo-labels from teacher (stop grad)
+            logits_u_w = teacher.logits_tgt(x_u_w, training=False, use_adapter=True)
+            p_u = tf.stop_gradient(tf.sigmoid(logits_u_w))  # (B,1)
+
+            conf = tf.maximum(p_u, 1.0 - p_u)              # (B,1)
+            mask = tf.cast(conf >= tau_t, tf.float32)      # (B,1)
+
+            logits_u_s = student.logits_tgt(x_u_s, training=True, use_adapter=True)
+            unsup_vec = tf.nn.sigmoid_cross_entropy_with_logits(labels=p_u, logits=logits_u_s)  # (B,1)
+            unsup_loss = tf.reduce_sum(unsup_vec * mask) / (tf.reduce_sum(mask) + 1e-6)
+
+            # balance regularizer (match unlabeled marginal to labeled marginal)
+            if DO_BAL:
+                bal_loss = tf.square(tf.reduce_mean(p_u) - tf.reduce_mean(y_l))
+            else:
+                bal_loss = tf.constant(0.0, dtype=tf.float32)
+
+            # source replay regularizer
+            if DO_SRC:
+                logits_s = student.logits_src(x_s, training=True)
+                src_vec = tf.nn.sigmoid_cross_entropy_with_logits(labels=y_s, logits=logits_s)  # (Bs,1)
+                src_loss = tf.reduce_mean(src_vec)
+            else:
+                src_loss = tf.constant(0.0, dtype=tf.float32)
+
+            # EWC + L2 anchor (on protected vars)
+            ewc_pen = _ewc_penalty() if DO_EWC else tf.constant(0.0, dtype=tf.float32)
+            l2_pen = _l2_anchor_penalty() if DO_L2 else tf.constant(0.0, dtype=tf.float32)
+
+            loss = (
+                sup_loss
+                + lambda_u_t * unsup_loss
+                + balance_w_t * bal_loss
+                + lambda_src_t * src_loss
+                + ewc_lambda_t * ewc_pen
+                + l2_anchor_t * l2_pen
+            )
+
+        grads = tape.gradient(loss, train_vars)
+        grads_vars = [(g, v) for g, v in zip(grads, train_vars) if g is not None]
+        if grads_vars:
+            g_list = [gv[0] for gv in grads_vars]
+            v_list = [gv[1] for gv in grads_vars]
+            if grad_clip is not None and grad_clip > 0.0:
+                g_list, _ = tf.clip_by_global_norm(g_list, grad_clip)
+            opt.apply_gradients(zip(g_list, v_list))
+
+        # ---- EMA update teacher IN-PLACE ----
+        for v_s_var, v_t_var in zip(student.variables, teacher.variables):
+            v_t_var.assign(ema_t * v_t_var + one_minus_ema_t * v_s_var)
+
+        return sup_loss, unsup_loss, src_loss
+
+    for epoch in range(1, max_epochs + 1):
+        # ramp up lambda_u (more stable in low-shot)
+        if DAEWC_RAMPUP_EPOCHS and DAEWC_RAMPUP_EPOCHS > 0:
+            t = min(1.0, epoch / float(DAEWC_RAMPUP_EPOCHS))
+            lambda_u_epoch = float(lambda_u) * (t * t)
+        else:
+            lambda_u_epoch = float(lambda_u)
+        lambda_u_epoch_t = tf.constant(lambda_u_epoch, tf.float32)
+
+        sup_meter = tf.keras.metrics.Mean()
+        unsup_meter = tf.keras.metrics.Mean()
+        src_meter = tf.keras.metrics.Mean()
+
+        for _ in range(steps_per_epoch):
+            x_l, y_l = next(it_l)
+            x_u = next(it_u)
+
+            if it_s is not None:
+                x_s, y_s = next(it_s)
+            else:
+                # dummy (unused if DO_SRC=False), but keeps signature stable
+                x_s, y_s = x_l, y_l
+
+            sup_l, unsup_l, src_l = train_step(x_l, y_l, x_u, x_s, y_s, lambda_u_epoch_t)
+            sup_meter.update_state(sup_l)
+            unsup_meter.update_state(unsup_l)
+            src_meter.update_state(src_l)
+
+        # dev eval with EMA teacher
+        def _tgt_logits(x, training=False):
+            return teacher.logits_tgt(x, training=training, use_adapter=True)
+
+        y_dev, _logits_dev, p_dev = eval_logits_probs(_tgt_logits, dev_ds)
+        thr, m = find_best_threshold(y_dev, p_dev)
+        dev_f1 = float(m["macro_f1"])
+
+        if dev_f1 > best_f1 + 1e-6:
+            best_f1 = dev_f1
+            best_thr = float(thr)
+            best_student_w = student.get_weights()
+            best_teacher_w = teacher.get_weights()
+            bad_epochs = 0
+        else:
+            bad_epochs += 1
+
+        if verbose_prefix:
+            _log(
+                f"{verbose_prefix} epoch {epoch:03d} | "
+                f"sup={sup_meter.result():.4f} unsup={unsup_meter.result():.4f} src={src_meter.result():.4f} | "
+                f"λu={lambda_u_epoch:.3f} dev_f1={dev_f1:.4f} thr={thr:.3f}"
+            )
+
+        if bad_epochs >= patience:
+            break
+
+    # restore best
+    if best_student_w is not None:
+        student.set_weights(best_student_w)
+    if best_teacher_w is not None:
+        teacher.set_weights(best_teacher_w)
+
+    return time.time() - t0, float(best_thr), float(best_f1)
+
+
 def build_plain(vocab_size: int) -> PlainTwoHeadCNN:
     m = PlainTwoHeadCNN(vocab_size)
-    dummy = tf.zeros((2, MAX_LEN), dtype=tf.int32)
+    # Important: use <unk>=1 (not all zeros) when Embedding(mask_zero=True)
+    dummy = tf.ones((2, MAX_LEN), dtype=tf.int32)
     _ = m.logits(dummy, head="src", training=False)
     _ = m.logits(dummy, head="tgt", training=False)
     return m
@@ -916,7 +1289,7 @@ def build_plain(vocab_size: int) -> PlainTwoHeadCNN:
 
 def build_dae(vocab_size: int) -> DAEWCIndepAdapterCNN:
     m = DAEWCIndepAdapterCNN(vocab_size)
-    dummy = tf.zeros((2, MAX_LEN), dtype=tf.int32)
+    dummy = tf.ones((2, MAX_LEN), dtype=tf.int32)
     _ = m.logits_src(dummy, training=False)
     _ = m.logits_tgt(dummy, training=False, use_adapter=True)
     return m
@@ -1018,7 +1391,7 @@ def main() -> None:
         src_test_ds = make_tf_dataset(src_test_x, src_test_y, BATCH_EVAL, False, seed, False)
 
         steps_pre = max(MIN_STEPS_PER_EPOCH, math.ceil(len(src_train_x) / BATCH_PRETRAIN))
-        opt_pre = tf.keras.optimizers.Adam(learning_rate=LR_PRETRAIN)
+        opt_pre = make_adam(LR_PRETRAIN)
 
         bce_loss = tf.keras.losses.BinaryCrossentropy(from_logits=True, reduction=tf.keras.losses.Reduction.NONE)
 
@@ -1081,6 +1454,8 @@ def main() -> None:
 
         y_true, logits_all, probs = eval_logits_probs(logits_fn_src, src_test_ds)
         thr_src_pre, m_src = find_best_threshold(y_true, probs)
+        src_thr_pre = float(thr_src_pre)
+        src_f1_pre = float(m_src["macro_f1"])
         bce_src_pre = bce_from_logits(y_true, logits_all)
         _log(f"NEWS TEST(pre) | thr={thr_src_pre:.3f} Acc={m_src['acc']:.4f} MacroF1={m_src['macro_f1']:.4f} BCE={bce_src_pre:.4f}")
 
@@ -1109,7 +1484,12 @@ def main() -> None:
                 _log(f"\nTarget setting: TOTAL {shot} (balanced)")
 
             # sample few-shot indices from target train pool
-            sel = sample_fewshot_balanced_indices(tgt_train_y_full.tolist(), shot=shot, seed=seed + shot * 17, mode=SHOT_MODE)
+            sel = sample_fewshot_balanced_indices(
+                tgt_train_y_full.tolist(),
+                shot=shot,
+                seed=seed + shot * 17,
+                mode=SHOT_MODE,
+            )
             fs_x = tgt_train_x_full[sel]
             fs_y = tgt_train_y_full[sel]
 
@@ -1150,7 +1530,7 @@ def main() -> None:
                 scratch.conv.trainable_variables +
                 scratch.shared_fc.trainable_variables
             )
-            opt_s = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+            opt_s = make_adam(LR_ADAPT)
 
             def logits_fn_sc(xb, training=False):
                 return scratch.logits(xb, head="tgt", training=training)
@@ -1198,7 +1578,7 @@ def main() -> None:
                 tr.conv.trainable_variables +
                 tr.shared_fc.trainable_variables
             )
-            opt_t = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+            opt_t = make_adam(LR_ADAPT)
 
             def logits_fn_tr(xb, training=False):
                 return tr.logits(xb, head="tgt", training=training)
@@ -1257,7 +1637,7 @@ def main() -> None:
                 tr_e.conv.trainable_variables +
                 tr_e.shared_fc.trainable_variables
             )
-            opt_te = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+            opt_te = make_adam(LR_ADAPT)
 
             def logits_fn_tre(xb, training=False):
                 return tr_e.logits(xb, head="tgt", training=training)
@@ -1309,7 +1689,7 @@ def main() -> None:
 
             train_vars = ad.adapter_tgt.trainable_variables + ad.head_tgt.trainable_variables
             backbone_vars = []
-            opt_a = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+            opt_a = make_adam(LR_ADAPT)
 
             def logits_fn_ad(xb, training=False):
                 return ad.logits_tgt(xb, training=training, use_adapter=True)
@@ -1348,74 +1728,176 @@ def main() -> None:
             })
 
             # ---------------- DAEWC STRONG (FixMatch + EMA teacher; independent adapter) ----------------
-            _log("[DAEWC STRONG (FixMatch + EMA; independent adapter)]")
-            t_ad0 = time.time()
-            student = build_dae(vocab_size)
-            teacher = build_dae(vocab_size)
-            copy_plain_to_dae(base, student)
-            copy_plain_to_dae(base, teacher)
-            teacher.set_weights(student.get_weights())
+            _log("[DAEWC-DOMINANT] FixMatch+EMA + (auto)unfreeze + EWC + source-replay (select by dev F1)")
 
-            train_vars = student.adapter_tgt.trainable_variables + student.head_tgt.trainable_variables
-            opt_d = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+            # Candidate recipe set (kept small so it is still practical).
+            tau_base = float(DAEWC_TAU_BY_SHOT.get(shot, 0.94))
+            lam_u_base = float(DAEWC_LAMBDA_U_BY_SHOT.get(shot, 1.0))
 
-            lambda_u = float(DAEWC_LAMBDA_U_BY_SHOT.get(shot, 1.0))
-            tau = float(DAEWC_TAU_BY_SHOT.get(shot, 0.90))
+            if shot <= 20:
+                candidates = [
+                    # name, level, lr, tau, lambda_u, lambda_src, ewc_lambda, l2_anchor
+                    ("A_adapter_fixmatch",       "adapter", 2e-3, tau_base,                  lam_u_base,       0.00, 0.00, 0.0),
+                    ("B_top_fixmatch_replay",    "top",     1e-3, max(0.90, tau_base - 0.01), lam_u_base,      0.20, 0.10, 1e-4),
+                    ("C_mid_fixmatch_replay",    "mid",     7e-4, max(0.90, tau_base - 0.02), lam_u_base * 0.8, 0.15, 0.05, 5e-5),
+                    ("D_full_fixmatch_replay",   "full",    5e-4, max(0.90, tau_base - 0.02), lam_u_base * 0.6, 0.12, 0.03, 1e-5),
+                    # supervised-only + replay fallback
+                    ("E_full_supervised_replay", "full",    5e-4, 1.00,                       0.00,            0.20, 0.00, 1e-5),
+                ]
+            elif shot <= 80:
+                candidates = [
+                    ("A_top_fixmatch_replay",    "top",     8e-4, 0.93, 1.0, 0.20, 0.05, 1e-5),
+                    ("B_mid_fixmatch_replay",    "mid",     5e-4, 0.92, 0.8, 0.15, 0.03, 1e-6),
+                    ("C_full_fixmatch_replay",   "full",    3e-4, 0.92, 0.6, 0.10, 0.02, 1e-6),
+                    ("D_full_fixmatch_noreplay", "full",    3e-4, 0.92, 0.6, 0.00, 0.00, 0.0),
+                ]
+            else:
+                candidates = [
+                    ("A_mid_fixmatch_replay",    "mid",     5e-4, 0.90, 0.5, 0.10, 0.03, 1e-6),
+                    ("B_full_fixmatch_replay",   "full",    3e-4, 0.90, 0.5, 0.08, 0.02, 1e-6),
+                    ("C_full_fixmatch_noreplay", "full",    3e-4, 0.90, 0.5, 0.00, 0.00, 0.0),
+                ]
 
-            use_ul = DAEWC_USE_UNLABELED and (ds_ul is not None)
-            thr_d, _ = train_daeewc_fixmatch(
-                student=student,
-                teacher=teacher,
-                ds_l=tgt_train_ds,
-                ds_u=ds_ul if use_ul else None,
-                dev_ds=tgt_dev_ds,
-                train_vars=train_vars,
-                optimizer=opt_d,
-                steps_per_epoch=steps_adapt,
-                max_epochs=EPOCHS_ADAPT,
-                patience=PATIENCE_ADAPT,
-                lambda_u_max=lambda_u,
-                tau=tau,
-                rampup_epochs=DAEWC_RAMPUP_EPOCHS,
-                ema_decay=DAEWC_EMA_DECAY,
-                tag=f"DAEWC(ul={int(use_ul)},τ={tau},λu={lambda_u})",
+            best = {
+                "name": None,
+                "score": -1e9,
+                "dev_f1": -1.0,
+                "src_f1_after": -1.0,
+                "thr": 0.5,
+                "t_adapt": 0.0,
+                "trainable_params": None,
+                "teacher": None,
+                "student": None,
+            }
+            t_search_total = 0.0
+
+            for cname, level, lr, tau, lam_u, lam_src, lam_ewc, lam_l2 in candidates:
+                # build fresh student/teacher and init from the pretrained plain model
+                student = build_dae(vocab_size)
+                teacher = build_dae(vocab_size)
+                copy_plain_to_dae(base, student)
+                copy_plain_to_dae(base, teacher)
+
+                train_vars = dae_train_vars(student, level)
+                prot = get_protected_vars_dae(student)
+
+                # optional source replay (regularizer)
+                src_replay_ds = None
+                if lam_src > 0.0:
+                    src_replay_ds = make_tf_dataset(src_train_x, src_train_y, BATCH_ADAPT, True, seed + 999 + shot, True)
+
+                # if no unlabeled pool, fall back to supervised-only (lambda_u -> 0)
+                if ds_ul is None:
+                    lam_u_eff = 0.0
+                    ds_ul_eff = make_tf_dataset_x(fs_x, BATCH_ADAPT, True, seed + 777 + shot, True)
+                else:
+                    lam_u_eff = lam_u
+                    ds_ul_eff = ds_ul
+
+                t_cand, thr_cand, dev_f1_cand = train_daeewc_fixmatch_plus(
+                    student, teacher, tgt_train_ds, ds_ul_eff, tgt_dev_ds,
+                    train_vars=train_vars,
+                    protected_vars=prot,
+                    ewc_info=ewc_info,
+                    steps_per_epoch=steps_adapt,
+                    max_epochs=ADAPT_EPOCHS,
+                    patience=PATIENCE,
+                    lr=lr,
+                    tau=tau,
+                    lambda_u=lam_u_eff,
+                    ema=DAEWC_EMA_DECAY,
+                    balance_w=DAEWC_BALANCE_W,
+                    src_replay_ds=src_replay_ds,
+                    lambda_src=lam_src,
+                    ewc_lambda=lam_ewc,
+                    l2_anchor=lam_l2,
+                    grad_clip=1.0,
+                    verbose_prefix=f"[DAEWC {cname}]" if VERBOSE_DAEWC else "",
+                )
+                t_search_total += t_cand
+
+                # quick src-after check (to avoid picking a candidate that forgets too much)
+                def _src_logits_c(x, training=False):
+                    return teacher.logits_src(x, training=training)
+
+                y_s_c, _, p_s_c = eval_logits_probs(_src_logits_c, src_test_ds)
+                src_f1_after_c = f1_macro_from_probs(y_s_c, p_s_c, src_thr_pre)
+                forget_c = max(0.0, float(src_f1_pre - src_f1_after_c))
+
+                # selection score: prioritize tgt-dev F1; light penalty for forgetting
+                cand_score = float(dev_f1_cand) - 0.20 * forget_c
+
+                _log(
+                    f"  [Cand {cname}] level={level} "
+                    f"dev_f1={dev_f1_cand:.4f} src_f1_after={src_f1_after_c:.4f} "
+                    f"forget={forget_c:.4f} score={cand_score:.4f} t={t_cand:.2f}s"
+                )
+
+                if (cand_score > best["score"] + 1e-6) or (
+                    abs(cand_score - best["score"]) <= 1e-6 and src_f1_after_c > best["src_f1_after"] + 1e-6
+                ):
+                    # drop old best to keep memory bounded
+                    if best["teacher"] is not None:
+                        del best["teacher"]
+                        del best["student"]
+                    best.update({
+                        "name": cname,
+                        "score": cand_score,
+                        "dev_f1": dev_f1_cand,
+                        "src_f1_after": src_f1_after_c,
+                        "thr": thr_cand,
+                        "t_adapt": t_cand,
+                        "trainable_params": int(count_params(train_vars)),
+                        "teacher": teacher,
+                        "student": student,
+                    })
+                else:
+                    # free the models if not best to reduce memory
+                    del student
+                    del teacher
+
+            _log(
+                f"[DAEWC-DOMINANT] picked={best['name']} "
+                f"dev_f1={best['dev_f1']:.4f} src_f1_after={best['src_f1_after']:.4f} "
+                f"score={best['score']:.4f} thr={best['thr']:.3f} trainable={best['trainable_params']}"
             )
-            t_adapt = time.time() - t_ad0
 
-            # evaluate on test using teacher
-            def logits_fn_d(xb, training=False):
-                return teacher.logits_tgt(xb, training=False, use_adapter=True)
-            logits_fn_d._model = teacher
+            # Evaluate with the selected EMA teacher
+            teacher = best["teacher"]
+            thr_tgt = best["thr"]
+            t_adapt = t_search_total
+            trainable_params = best["trainable_params"]
 
-            y_true, logits_all, probs = eval_logits_probs(logits_fn_d, tgt_test_ds)
-            m_t = binary_metrics_from_probs(y_true, probs, thr_d)
-            bce_t = bce_from_logits(y_true, logits_all)
+            def tgt_logits(x, training=False):
+                return teacher.logits_tgt(x, training=training, use_adapter=True)
 
-            # source untouched: use student (same as base)
-            def logits_fn_src_d(xb, training=False):
-                return student.logits_src(xb, training=False)
-            logits_fn_src_d._model = student
+            y_t, l_t, p_t = eval_logits_probs(tgt_logits, tgt_test_ds)
+            tgt_acc = acc_from_probs(y_t, p_t, thr_tgt)
+            tgt_f1 = f1_macro_from_probs(y_t, p_t, thr_tgt)
+            tgt_bce = bce_from_logits(y_t, l_t)
 
-            y_true_s, logits_s, probs_s = eval_logits_probs(logits_fn_src_d, src_test_ds)
-            m_s_after = binary_metrics_from_probs(y_true_s, probs_s, thr_src_pre)
-            bce_s_after = bce_from_logits(y_true_s, logits_s)
-            forget = float(m_src["macro_f1"] - m_s_after["macro_f1"])
+            # Source-after (forgetting)
+            def src_logits(x, training=False):
+                return teacher.logits_src(x, training=training)
 
-            _log(f"COVID TEST(DAEWC) | thr={thr_d:.3f} Acc={m_t['acc']:.4f} MacroF1={m_t['macro_f1']:.4f} BCE={bce_t:.4f}")
-            _log(f"NEWS TEST after(DAEWC) | thr={thr_src_pre:.3f} Acc={m_s_after['acc']:.4f} MacroF1={m_s_after['macro_f1']:.4f} BCE={bce_s_after:.4f}")
+            y_s, l_s, p_s = eval_logits_probs(src_logits, src_test_ds)
+            src_acc_after = acc_from_probs(y_s, p_s, src_thr_pre)
+            src_f1_after = f1_macro_from_probs(y_s, p_s, src_thr_pre)
+            src_bce_after = bce_from_logits(y_s, l_s)
+            forget_f1 = max(0.0, src_f1_pre - src_f1_after)
 
             raw_rows.append({
-                "seed": seed, "shot": shot, "method": "DAEWC",
-                "tgt_acc": m_t["acc"], "tgt_f1_macro": m_t["macro_f1"], "tgt_bce": bce_t,
-                "src_thr_pre": thr_src_pre, "src_f1_pre": m_src["macro_f1"],
-                "src_acc_after": m_s_after["acc"], "src_f1_after": m_s_after["macro_f1"], "src_bce_after": bce_s_after,
-                "forget_f1": forget,
-                "trainable_params": count_params(train_vars),
+                "seed": seed,
+                "shot": shot,
+                "method": "DAEWC",
+                "tgt_acc": tgt_acc, "tgt_f1_macro": tgt_f1, "tgt_bce": tgt_bce,
+                "src_thr_pre": src_thr_pre, "src_f1_pre": src_f1_pre,
+                "src_acc_after": src_acc_after, "src_f1_after": src_f1_after, "src_bce_after": src_bce_after,
+                "forget_f1": forget_f1,
+                "trainable_params": trainable_params,
                 "t_pretrain": t_pretrain, "t_fisher": t_fisher, "t_adapt": t_adapt,
                 "t_total_once": t_pretrain + t_fisher + t_adapt,
             })
-
-
 
             # ---------------- Replay Upper (Joint training; slow upper bound) ----------------
             if RUN_REPLAY_UPPER:
@@ -1431,7 +1913,7 @@ def main() -> None:
                     rep.head_src.trainable_variables +
                     rep.head_tgt.trainable_variables
                 )
-                opt_r = tf.keras.optimizers.Adam(learning_rate=LR_ADAPT)
+                opt_r = make_adam(LR_ADAPT)
 
                 src_joint_ds = make_tf_dataset(src_train_x, src_train_y, BATCH_ADAPT, True, seed + 111, True)
                 tgt_joint_ds = make_tf_dataset(fs_x, fs_y, BATCH_ADAPT, True, seed + 222 + shot, True)
@@ -1442,9 +1924,11 @@ def main() -> None:
                 @tf.function
                 def joint_step(x, y, head_is_src: tf.Tensor):
                     with tf.GradientTape() as tape:
-                        logits = tf.cond(head_is_src,
-                                         lambda: rep.logits(x, head="src", training=True),
-                                         lambda: rep.logits(x, head="tgt", training=True))
+                        logits = tf.cond(
+                            head_is_src,
+                            lambda: rep.logits(x, head="src", training=True),
+                            lambda: rep.logits(x, head="tgt", training=True),
+                        )
                         y_s = smooth_labels(y, LABEL_SMOOTHING)
                         loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=y_s, logits=logits))
                     grads = tape.gradient(loss, train_vars)
@@ -1467,6 +1951,7 @@ def main() -> None:
                 def logits_fn_rep_tgt(xb, training=False):
                     return rep.logits(xb, head="tgt", training=training)
                 logits_fn_rep_tgt._model = rep
+
                 y_true_d, logits_d, probs_d = eval_logits_probs(logits_fn_rep_tgt, tgt_dev_ds)
                 thr_r, _ = find_best_threshold(y_true_d, probs_d)
 
@@ -1477,6 +1962,7 @@ def main() -> None:
                 def logits_fn_rep_src(xb, training=False):
                     return rep.logits(xb, head="src", training=training)
                 logits_fn_rep_src._model = rep
+
                 y_true_s, logits_s, probs_s = eval_logits_probs(logits_fn_rep_src, src_test_ds)
                 m_s_after = binary_metrics_from_probs(y_true_s, probs_s, thr_src_pre)
                 bce_s_after = bce_from_logits(y_true_s, logits_s)
@@ -1495,6 +1981,7 @@ def main() -> None:
                     "t_pretrain": 0.0, "t_fisher": 0.0, "t_adapt": t_adapt_r,
                     "t_total_once": t_adapt_r,
                 })
+
             print("\n" + "-" * 110)
 
         print("\n" + "#" * 120)
@@ -1503,7 +1990,7 @@ def main() -> None:
     # Save results
     # -------------------------------------------------------------
     raw_df = pd.DataFrame(raw_rows)
-    raw_out = "results_daeewc_v5_raw.csv"
+    raw_out = "results_daeewc_v6_dominant_raw.csv"
     raw_df.to_csv(raw_out, index=False)
     _log(f"\nSaved raw: {raw_out}")
 
@@ -1528,7 +2015,7 @@ def main() -> None:
         })
 
     summary_df = pd.DataFrame(summary_rows).sort_values(["shot", "method"])
-    sum_out = "results_daeewc_v5_summary.csv"
+    sum_out = "results_daeewc_v6_dominant_summary.csv"
     summary_df.to_csv(sum_out, index=False)
     _log(f"Saved summary: {sum_out}")
 

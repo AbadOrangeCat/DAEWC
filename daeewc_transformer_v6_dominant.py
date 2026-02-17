@@ -1,27 +1,3 @@
-# daeewc_v5_strong.py
-# -*- coding: utf-8 -*-
-"""DAEWC v5 STRONG (news -> covid)
-
-- No CLI args; edit CONFIG only.
-- Data paths fixed as provided.
-
-Goal: make **DAEWC** strongest on this benchmark *while keeping independent adapters*:
-when a new domain arrives, you only train a new domain adapter + target head; the backbone
-(and other domains' adapters/heads) remain frozen.
-
-DAEWC v5 boosts:
-  1) True independent target adapter (no shared adapter weights).
-  2) FixMatch-style semi-supervised adaptation on unlabeled target-train pool
-     (target train split minus K-shot labeled subset), with EMA teacher.
-  3) Stronger residual adapter block (LayerNorm + bottleneck MLP + residual scale).
-
-To disable unlabeled adaptation (strict labeled-only): set DAEWC_USE_UNLABELED = False.
-
-Outputs:
-  - results_daeewc_v5_raw.csv
-  - results_daeewc_v5_summary.csv
-"""
-
 from __future__ import annotations
 
 import os
@@ -71,8 +47,6 @@ MAX_LEN = 256
 
 # ---- model ----
 EMB_DIM = 100
-CONV_FILTERS = 128
-KERNEL_SIZE = 5
 HIDDEN_DIM = 128
 
 # Adapter
@@ -81,6 +55,13 @@ ADAPTER_DROPOUT = 0.10
 
 # Backbone dropout
 DROPOUT_RATE = 0.10
+
+# ---- transformer backbone ----
+# NOTE: EMB_DIM must be divisible by TF_NUM_HEADS
+TF_NUM_LAYERS = 2
+TF_NUM_HEADS = 5          # 100 % 5 == 0
+TF_FF_DIM = 256
+TF_ATTN_DROPOUT = 0.10
 
 # ---- training ----
 BATCH_PRETRAIN = 64
@@ -98,8 +79,6 @@ ADAPT_EPOCHS = EPOCHS_ADAPT
 # Backward-compat alias: some code paths reference PATIENCE.
 PATIENCE = PATIENCE_ADAPT
 
-
-
 MIN_STEPS_PER_EPOCH = 50
 
 LR_PRETRAIN = 1e-3
@@ -107,6 +86,7 @@ LR_ADAPT = 2e-3
 
 GRAD_CLIP_NORM = 1.0
 LABEL_SMOOTHING = 0.05
+LABEL_SMOOTH = LABEL_SMOOTHING  # alias used in loss
 
 # ---- EWC/Fisher (for Transfer+EWC baseline only) ----
 FISHER_BATCHES = 200
@@ -128,16 +108,17 @@ DAEWC_WEAK_DROP = 0.05
 DAEWC_STRONG_DROP = 0.20
 DAEWC_BALANCE_W = 0.10  # class-balance regularizer on unlabeled (helps low-shot)
 
-
 # optional cap on unlabeled pool for speed (None = use all)
 DAEWC_ULB_MAX: Optional[int] = None
+
 # ---- optional: Replay upper bound (slow) ----
 RUN_REPLAY_UPPER = True
 REPLAY_EPOCHS = 8
 
-
 # ---- logging ----
 VERBOSE = True
+VERBOSE_DAEWC = VERBOSE  # DAEWC-specific verbosity flag
+
 
 # ======================================================================================
 # Utils
@@ -168,10 +149,10 @@ def normalize_text(s: str) -> str:
     if s is None:
         return ""
     s = str(s).lower()
-    s = re.sub(r"http\S+|www\.\S+", " <url> ", s)
-    s = re.sub(r"\d+", " <num> ", s)
-    s = re.sub(r"[^a-z<>\s]+", " ", s)
-    s = re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"http\\S+|www\\.\\S+", " <url> ", s)
+    s = re.sub(r"\\d+", " <num> ", s)
+    s = re.sub(r"[^a-z<>\\s]+", " ", s)
+    s = re.sub(r"\\s+", " ", s).strip()
     return s
 
 
@@ -360,6 +341,7 @@ def make_tf_dataset_x(x: np.ndarray, batch: int, shuffle: bool, seed: int, repea
     ds = ds.batch(batch).prefetch(tf.data.AUTOTUNE)
     return ds
 
+
 # ======================================================================================
 # Metrics / eval
 # ======================================================================================
@@ -384,6 +366,16 @@ def binary_metrics_from_probs(y_true: np.ndarray, probs: np.ndarray, thr: float)
 
     macro_f1 = 0.5 * (f1_0 + f1_1)
     return {"acc": float(acc), "macro_f1": float(macro_f1)}
+
+
+def acc_from_probs(y_true: np.ndarray, probs: np.ndarray, thr: float) -> float:
+    """Convenience wrapper: accuracy at a fixed threshold."""
+    return float(binary_metrics_from_probs(y_true, probs, thr)["acc"])
+
+
+def f1_macro_from_probs(y_true: np.ndarray, probs: np.ndarray, thr: float) -> float:
+    """Convenience wrapper: macro-F1 at a fixed threshold."""
+    return float(binary_metrics_from_probs(y_true, probs, thr)["macro_f1"])
 
 
 def find_best_threshold(y_true: np.ndarray, probs: np.ndarray) -> Tuple[float, Dict[str, float]]:
@@ -428,30 +420,177 @@ def eval_logits_probs_x(logits_fn, ds_x: tf.data.Dataset) -> Tuple[np.ndarray, n
     probs = 1.0 / (1.0 + np.exp(-logits_all))
     return logits_all, probs
 
+
 # ======================================================================================
-# Models
+# Models (Transformer backbone; keep names for minimal edits)
 # ======================================================================================
 
+class MaskedGlobalMaxPool1D(tf.keras.layers.Layer):
+    """GlobalMaxPool1D that ignores padded positions (mask=False)."""
+    def __init__(self, name="gmp"):
+        super().__init__(name=name)
+
+    def call(self, x: tf.Tensor, mask: Optional[tf.Tensor] = None) -> tf.Tensor:
+        # x: (B, T, C), mask: (B, T) bool
+        if mask is None:
+            return tf.reduce_max(x, axis=1)
+
+        mask_f = tf.cast(mask, x.dtype)           # (B,T)
+        mask_e = mask_f[..., None]                # (B,T,1)
+        very_neg = tf.cast(-1e9, x.dtype)
+
+        x_masked = tf.where(mask_e > 0, x, very_neg)
+        pooled = tf.reduce_max(x_masked, axis=1)  # (B,C)
+
+        has_any = tf.reduce_any(tf.cast(mask, tf.bool), axis=1)  # (B,)
+        pooled = tf.where(has_any[:, None], pooled, tf.zeros_like(pooled))
+        return pooled
+
+
+class MultiHeadSelfAttention(tf.keras.layers.Layer):
+    def __init__(self, d_model: int, num_heads: int, dropout: float, name: str):
+        super().__init__(name=name)
+        if d_model % num_heads != 0:
+            raise ValueError(f"d_model({d_model}) must be divisible by num_heads({num_heads})")
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.depth = d_model // num_heads
+
+        self.q_dense = tf.keras.layers.Dense(d_model, use_bias=False, name=f"{name}_q")
+        self.k_dense = tf.keras.layers.Dense(d_model, use_bias=False, name=f"{name}_k")
+        self.v_dense = tf.keras.layers.Dense(d_model, use_bias=False, name=f"{name}_v")
+        self.out_dense = tf.keras.layers.Dense(d_model, use_bias=False, name=f"{name}_o")
+        self.drop = tf.keras.layers.Dropout(dropout, name=f"{name}_drop")
+
+    def _split_heads(self, x: tf.Tensor) -> tf.Tensor:
+        # x: (B,T,d_model) -> (B,H,T,depth)
+        b = tf.shape(x)[0]
+        t = tf.shape(x)[1]
+        x = tf.reshape(x, (b, t, self.num_heads, self.depth))
+        return tf.transpose(x, perm=(0, 2, 1, 3))
+
+    def _merge_heads(self, x: tf.Tensor) -> tf.Tensor:
+        # x: (B,H,T,depth) -> (B,T,d_model)
+        x = tf.transpose(x, perm=(0, 2, 1, 3))
+        b = tf.shape(x)[0]
+        t = tf.shape(x)[1]
+        return tf.reshape(x, (b, t, self.d_model))
+
+    def call(self, x: tf.Tensor, mask: Optional[tf.Tensor] = None, training: bool = False) -> tf.Tensor:
+        # x: (B,T,d_model), mask: (B,T) bool True=valid
+        q = self._split_heads(self.q_dense(x))
+        k = self._split_heads(self.k_dense(x))
+        v = self._split_heads(self.v_dense(x))
+
+        scale = tf.cast(tf.math.sqrt(tf.cast(self.depth, tf.float32)), x.dtype)
+        scores = tf.matmul(q, k, transpose_b=True) / scale  # (B,H,T,T)
+
+        if mask is not None:
+            mask_k = tf.cast(mask, x.dtype)[:, None, None, :]  # (B,1,1,T)
+            scores = scores + (1.0 - mask_k) * tf.cast(-1e9, x.dtype)
+
+        weights = tf.nn.softmax(scores, axis=-1)
+        weights = self.drop(weights, training=training)
+
+        out = tf.matmul(weights, v)      # (B,H,T,depth)
+        out = self._merge_heads(out)     # (B,T,d_model)
+        out = self.out_dense(out)
+
+        if mask is not None:
+            out = out * tf.cast(mask, out.dtype)[..., None]
+        return out
+
+
+class TransformerEncoderBlock(tf.keras.layers.Layer):
+    def __init__(self, d_model: int, num_heads: int, ff_dim: int,
+                 dropout: float, attn_dropout: float, name: str):
+        super().__init__(name=name)
+        self.ln1 = tf.keras.layers.LayerNormalization(epsilon=1e-6, name=f"{name}_ln1")
+        self.attn = MultiHeadSelfAttention(d_model, num_heads, attn_dropout, name=f"{name}_mha")
+        self.drop1 = tf.keras.layers.Dropout(dropout, name=f"{name}_drop1")
+
+        self.ln2 = tf.keras.layers.LayerNormalization(epsilon=1e-6, name=f"{name}_ln2")
+        self.ff1 = tf.keras.layers.Dense(ff_dim, activation=tf.nn.gelu, name=f"{name}_ff1")
+        self.ff_drop = tf.keras.layers.Dropout(dropout, name=f"{name}_ffdrop")
+        self.ff2 = tf.keras.layers.Dense(d_model, activation=None, name=f"{name}_ff2")
+        self.drop2 = tf.keras.layers.Dropout(dropout, name=f"{name}_drop2")
+
+    def call(self, x: tf.Tensor, mask: Optional[tf.Tensor] = None, training: bool = False) -> tf.Tensor:
+        h = self.ln1(x)
+        h = self.attn(h, mask=mask, training=training)
+        h = self.drop1(h, training=training)
+        x = x + h
+
+        h2 = self.ln2(x)
+        h2 = self.ff1(h2)
+        h2 = self.ff_drop(h2, training=training)
+        h2 = self.ff2(h2)
+        h2 = self.drop2(h2, training=training)
+        x = x + h2
+        return x
+
+
+class TransformerEncoderStack(tf.keras.layers.Layer):
+    """Transformer encoder stack with trainable positional embeddings.
+
+    We assign it to model.conv to minimize code changes.
+    """
+    def __init__(self, d_model: int, num_heads: int, ff_dim: int, num_layers: int,
+                 max_len: int, dropout: float, attn_dropout: float, name: str = "tx"):
+        super().__init__(name=name)
+        self.d_model = d_model
+        self.max_len = max_len
+        self.pos_emb = tf.keras.layers.Embedding(max_len, d_model, name=f"{name}_pos")
+        self.drop = tf.keras.layers.Dropout(dropout, name=f"{name}_drop")
+        self.blocks = [
+            TransformerEncoderBlock(d_model, num_heads, ff_dim, dropout, attn_dropout, name=f"{name}_blk{i}")
+            for i in range(num_layers)
+        ]
+
+    @property
+    def kernel(self) -> tf.Variable:
+        # For backward-compat with get_protected_vars_plain() expecting model.conv.kernel
+        return self.blocks[0].attn.out_dense.kernel
+
+    def call(self, x: tf.Tensor, mask: Optional[tf.Tensor] = None, training: bool = False) -> tf.Tensor:
+        t = tf.shape(x)[1]
+        pos_ids = tf.range(t)
+        pos = self.pos_emb(pos_ids)[None, :, :]  # (1,T,d_model)
+        x = x + tf.cast(pos, x.dtype)
+        x = self.drop(x, training=training)
+        for blk in self.blocks:
+            x = blk(x, mask=mask, training=training)
+        return x
+
+
 class PlainTwoHeadCNN(tf.keras.Model):
+    """Transformer backbone + 2 heads (src/tgt). Kept class name for minimal edits."""
     def __init__(self, vocab_size: int):
         super().__init__()
-        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, name="emb")
-        self.conv = tf.keras.layers.Conv1D(
-            filters=CONV_FILTERS, kernel_size=KERNEL_SIZE,
-            activation="relu", padding="valid", name="conv"
+        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, mask_zero=True, name="emb")
+        self.conv = TransformerEncoderStack(
+            d_model=EMB_DIM,
+            num_heads=TF_NUM_HEADS,
+            ff_dim=TF_FF_DIM,
+            num_layers=TF_NUM_LAYERS,
+            max_len=MAX_LEN,
+            dropout=DROPOUT_RATE,
+            attn_dropout=TF_ATTN_DROPOUT,
+            name="tx"
         )
-        self.pool = tf.keras.layers.GlobalMaxPool1D(name="gmp")
+        self.pool = MaskedGlobalMaxPool1D(name="gmp")
         self.drop = tf.keras.layers.Dropout(DROPOUT_RATE, name="drop")
         self.shared_fc = tf.keras.layers.Dense(HIDDEN_DIM, activation="relu", name="shared_fc")
         self.head_src = tf.keras.layers.Dense(1, name="head_src")
         self.head_tgt = tf.keras.layers.Dense(1, name="head_tgt")
 
     def encode(self, x_ids: tf.Tensor, training: bool) -> tf.Tensor:
-        x = self.embedding(x_ids)
-        x = self.conv(x)
-        x = self.pool(x)
+        x = self.embedding(x_ids)                   # (B,T,D)
+        mask = self.embedding.compute_mask(x_ids)   # (B,T) bool
+        x = self.conv(x, mask=mask, training=training)
+        x = self.pool(x, mask=mask)                 # (B,D)
         x = self.drop(x, training=training)
-        z = self.shared_fc(x)
+        z = self.shared_fc(x)                       # (B,HIDDEN_DIM)
         return z
 
     def logits(self, x_ids: tf.Tensor, head: str, training: bool) -> tf.Tensor:
@@ -485,22 +624,28 @@ class AdapterBlock(tf.keras.layers.Layer):
 
 
 class DAEWCIndepAdapterCNN(tf.keras.Model):
-    """Backbone + 2 heads + independent target adapter.
+    """Transformer backbone + 2 heads + independent target adapter.
 
     - Backbone weights are copied from source-pretrained PlainTwoHeadCNN.
-    - During target adaptation, we only train: target_adapter + head_tgt.
+    - During target adaptation, we only train: target_adapter + head_tgt (plus optional unfreezing).
     - Source prediction uses backbone + head_src (no adapter) => source is untouched.
     """
 
     def __init__(self, vocab_size: int):
         super().__init__()
         # backbone
-        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, name="emb")
-        self.conv = tf.keras.layers.Conv1D(
-            filters=CONV_FILTERS, kernel_size=KERNEL_SIZE,
-            activation="relu", padding="valid", name="conv"
+        self.embedding = tf.keras.layers.Embedding(vocab_size, EMB_DIM, mask_zero=True, name="emb")
+        self.conv = TransformerEncoderStack(
+            d_model=EMB_DIM,
+            num_heads=TF_NUM_HEADS,
+            ff_dim=TF_FF_DIM,
+            num_layers=TF_NUM_LAYERS,
+            max_len=MAX_LEN,
+            dropout=DROPOUT_RATE,
+            attn_dropout=TF_ATTN_DROPOUT,
+            name="tx"
         )
-        self.pool = tf.keras.layers.GlobalMaxPool1D(name="gmp")
+        self.pool = MaskedGlobalMaxPool1D(name="gmp")
         self.drop = tf.keras.layers.Dropout(DROPOUT_RATE, name="drop")
         self.shared_fc = tf.keras.layers.Dense(HIDDEN_DIM, activation="relu", name="shared_fc")
 
@@ -513,13 +658,14 @@ class DAEWCIndepAdapterCNN(tf.keras.Model):
 
     def encode_backbone(self, x_ids: tf.Tensor, training: bool) -> tf.Tensor:
         x = self.embedding(x_ids)
-        x = self.conv(x)
-        x = self.pool(x)
+        mask = self.embedding.compute_mask(x_ids)
+        x = self.conv(x, mask=mask, training=training)
+        x = self.pool(x, mask=mask)
         x = self.drop(x, training=training)
         z = self.shared_fc(x)
         return z
 
-    def logits_src(self, x_ids: tf.Tensor, training: bool) -> tf.Tensor:
+    def logits_src(self, x_ids: tf.Tensor, training: bool, **_kwargs) -> tf.Tensor:
         z = self.encode_backbone(x_ids, training=training)
         return self.head_src(z)
 
@@ -528,6 +674,7 @@ class DAEWCIndepAdapterCNN(tf.keras.Model):
         if use_adapter:
             z = self.adapter_tgt(z, training=training)
         return self.head_tgt(z)
+
 
 # ======================================================================================
 # EWC (for Transfer-Plain+EWC baseline)
@@ -713,6 +860,7 @@ def train_loop_earlystop(
     bce = bce_from_logits(y_true, logits_all)
     return thr, {"acc": m["acc"], "macro_f1": m["macro_f1"], "bce": bce}
 
+
 # ======================================================================================
 # DAEWC STRONG: FixMatch-style adaptation (independent adapter)
 # ======================================================================================
@@ -793,14 +941,12 @@ def train_daeewc_fixmatch(
                 mask = tf.cast(conf >= tf.cast(tau, conf.dtype), conf.dtype)
 
                 # sharpen a bit (optional, mild)
-                # p' = p^2 / (p^2 + (1-p)^2)
                 p2 = probs_w * probs_w
                 q2 = (1.0 - probs_w) * (1.0 - probs_w)
                 probs_sharp = tf.stop_gradient(p2 / (p2 + q2 + 1e-8))
 
                 logits_s = student.logits_tgt(x_u_s, training=True, use_adapter=True)
                 loss_u_vec = bce_loss(probs_sharp, logits_s)
-                # mask is (B,1) broadcast
                 loss_u = tf.reduce_sum(loss_u_vec * mask) / (tf.reduce_sum(mask) + 1e-6)
 
             loss = loss_sup + lambda_u * loss_u + tf.cast(DAEWC_BALANCE_W, loss_sup.dtype) * loss_bal
@@ -826,7 +972,6 @@ def train_daeewc_fixmatch(
                 lambda_u = lambda_u_max
             else:
                 t = min(1.0, epoch / float(rampup_epochs))
-                # smooth ramp (squared)
                 lambda_u = lambda_u_max * (t * t)
 
         lambda_u_t = tf.constant(lambda_u, dtype=tf.float32)
@@ -883,6 +1028,7 @@ def train_daeewc_fixmatch(
     bce = bce_from_logits(y_true, logits_all)
     return thr, {"acc": m["acc"], "macro_f1": m["macro_f1"], "bce": bce}
 
+
 # ======================================================================================
 # Few-shot sampling (balanced)
 # ======================================================================================
@@ -918,13 +1064,8 @@ def sample_fewshot_balanced_indices(labels: List[int], shot: int, seed: int, mod
 
 
 # ======================================================================================
-# Build/init/copy helpers
-# ======================================================================================
-
-
-# -----------------------------
 # DAEWC++ (Dominant) helpers
-# -----------------------------
+# ======================================================================================
 
 def get_protected_vars_dae(model: "DAEWCIndepAdapterCNN"):
     """Same key names as get_protected_vars_plain so we can reuse fisher from the plain model."""
@@ -953,7 +1094,6 @@ def dae_train_vars(model: "DAEWCIndepAdapterCNN", level: str):
         vars_ += model.conv.trainable_variables
     if level in ("full",):
         vars_ += model.embedding.trainable_variables
-    # NOTE: keep head_src frozen by default (source head is used only for replay regularization).
     return vars_
 
 
@@ -1001,20 +1141,64 @@ def train_daeewc_fixmatch_plus(
       t_elapsed, best_thr, best_dev_f1
     """
     t0 = time.time()
-
     opt = make_adam(lr)
 
-    # EMA init
-    ema_w = [tf.identity(v) for v in student.variables]
-    for v_s, v_t in zip(student.variables, teacher.variables):
-        v_t.assign(v_s)
+    # --- constants (avoid dtype surprises / autograph scope issues) ---
+    tau_t = tf.constant(float(tau), tf.float32)
+    ema_t = tf.constant(float(ema), tf.float32)
+    one_minus_ema_t = tf.constant(1.0 - float(ema), tf.float32)
+    lambda_src_t = tf.constant(float(lambda_src), tf.float32)
+    balance_w_t = tf.constant(float(balance_w), tf.float32)
+    ewc_lambda_t = tf.constant(float(ewc_lambda), tf.float32)
+    l2_anchor_t = tf.constant(float(l2_anchor), tf.float32)
 
+    # --- init teacher = student (important) ---
+    teacher.set_weights(student.get_weights())
+
+    # --- prepare EWC tensors (once; avoid recreating constants every step) ---
+    star_np, fisher_np = {}, {}
+    if ewc_info is not None:
+        if isinstance(ewc_info, dict):
+            star_np = ewc_info.get("star", {}) or {}
+            fisher_np = ewc_info.get("fisher", {}) or {}
+        else:
+            star_np = getattr(ewc_info, "star", {}) or {}
+            fisher_np = getattr(ewc_info, "fisher", {}) or {}
+
+    star_tf, fisher_tf = {}, {}
+    if (ewc_lambda > 0.0 or l2_anchor > 0.0) and star_np:
+        for k, v in protected_vars.items():
+            if k in star_np:
+                star_tf[k] = tf.constant(star_np[k], dtype=v.dtype)
+        for k, v in protected_vars.items():
+            if k in fisher_np:
+                fisher_tf[k] = tf.constant(fisher_np[k], dtype=v.dtype)
+
+    def _ewc_penalty() -> tf.Tensor:
+        if not star_tf or not fisher_tf:
+            return tf.constant(0.0, dtype=tf.float32)
+        losses = []
+        for k, v in protected_vars.items():
+            if k in star_tf and k in fisher_tf:
+                losses.append(tf.reduce_sum(fisher_tf[k] * tf.square(v - star_tf[k])))
+        return tf.add_n(losses) if losses else tf.constant(0.0, dtype=tf.float32)
+
+    def _l2_anchor_penalty() -> tf.Tensor:
+        if not star_tf:
+            return tf.constant(0.0, dtype=tf.float32)
+        losses = []
+        for k, v in protected_vars.items():
+            if k in star_tf:
+                losses.append(tf.reduce_sum(tf.square(v - star_tf[k])))
+        return tf.add_n(losses) if losses else tf.constant(0.0, dtype=tf.float32)
+
+    # --- iterators (repeat here to guarantee infinite stream) ---
     it_l = iter(tgt_l_ds.repeat())
     it_u = iter(tgt_u_ds.repeat())
-    it_s = iter(src_replay_ds.repeat()) if src_replay_ds is not None else None
 
-    # for class-balance regularizer: target labeled batch mean
-    bce = tf.keras.losses.BinaryCrossentropy(from_logits=True, reduction=tf.keras.losses.Reduction.NONE)
+    it_s = None
+    if src_replay_ds is not None and lambda_src > 0.0:
+        it_s = iter(src_replay_ds.repeat())
 
     best_f1 = -1.0
     best_thr = 0.5
@@ -1022,78 +1206,85 @@ def train_daeewc_fixmatch_plus(
     best_teacher_w = None
     bad_epochs = 0
 
-    # cache anchor target
-    star = ewc_info["star"] if (ewc_info is not None and "star" in ewc_info) else {}
-    fisher = ewc_info["fisher"] if (ewc_info is not None and "fisher" in ewc_info) else {}
+    DO_SRC = (src_replay_ds is not None and float(lambda_src) > 0.0)
+    DO_BAL = (float(balance_w) > 0.0)
+    DO_EWC = (ewc_info is not None and float(ewc_lambda) > 0.0)
+    DO_L2  = (star_tf and float(l2_anchor) > 0.0)
 
     @tf.function
-    def train_step(x_l, y_l, x_u):
-        # Augmentations
+    def train_step(x_l, y_l, x_u, x_s, y_s, lambda_u_t):
         x_u_w = _augment_token_drop(x_u, DAEWC_WEAK_DROP)
         x_u_s = _augment_token_drop(x_u, DAEWC_STRONG_DROP)
 
+        y_l = tf.cast(y_l, tf.float32)
+        y_s = tf.cast(y_s, tf.float32)
+
         with tf.GradientTape() as tape:
-            # Supervised target
             logits_l = student.logits_tgt(x_l, training=True, use_adapter=True)
-            y_l = tf.cast(y_l, tf.float32)
             if LABEL_SMOOTH > 0.0:
                 y_l_s = y_l * (1.0 - LABEL_SMOOTH) + 0.5 * LABEL_SMOOTH
             else:
                 y_l_s = y_l
-            sup_loss = tf.reduce_mean(bce(y_l_s, logits_l))
+            sup_vec = tf.nn.sigmoid_cross_entropy_with_logits(labels=y_l_s, logits=logits_l)
+            sup_loss = tf.reduce_mean(sup_vec)
 
-            # FixMatch unsupervised
             logits_u_w = teacher.logits_tgt(x_u_w, training=False, use_adapter=True)
-            p_u = tf.sigmoid(logits_u_w)
+            p_u = tf.stop_gradient(tf.sigmoid(logits_u_w))
+
             conf = tf.maximum(p_u, 1.0 - p_u)
-            mask = tf.cast(conf >= tau, tf.float32)
+            mask = tf.cast(conf >= tau_t, tf.float32)
 
             logits_u_s = student.logits_tgt(x_u_s, training=True, use_adapter=True)
-            # Use *soft* pseudo-labels for stability
-            unsup_loss = bce(tf.stop_gradient(p_u), logits_u_s)
-            unsup_loss = tf.reduce_sum(unsup_loss * mask) / (tf.reduce_sum(mask) + 1e-6)
+            unsup_vec = tf.nn.sigmoid_cross_entropy_with_logits(labels=p_u, logits=logits_u_s)
+            unsup_loss = tf.reduce_sum(unsup_vec * mask) / (tf.reduce_sum(mask) + 1e-6)
 
-            # class-balance regularizer (match unlabeled marginal to labeled marginal)
-            if balance_w > 0.0:
-                mean_u = tf.reduce_mean(p_u)
-                mean_l = tf.reduce_mean(y_l)
-                bal_loss = tf.square(mean_u - mean_l)
+            if DO_BAL:
+                bal_loss = tf.square(tf.reduce_mean(p_u) - tf.reduce_mean(y_l))
             else:
-                bal_loss = 0.0
+                bal_loss = tf.constant(0.0, dtype=tf.float32)
 
-            # Optional source replay regularizer (keeps source head performance while backbone moves)
-            if it_s is not None and lambda_src > 0.0:
-                x_s, y_s = next(it_s)
+            if DO_SRC:
                 logits_s = student.logits_src(x_s, training=True)
-                src_loss = tf.reduce_mean(bce(tf.cast(y_s, tf.float32), logits_s))
+                src_vec = tf.nn.sigmoid_cross_entropy_with_logits(labels=y_s, logits=logits_s)
+                src_loss = tf.reduce_mean(src_vec)
             else:
-                src_loss = 0.0
+                src_loss = tf.constant(0.0, dtype=tf.float32)
 
-            # Optional EWC + anchor on protected vars
-            if ewc_info is not None and ewc_lambda > 0.0:
-                ewc_pen = ewc_penalty(protected_vars, star, fisher)
-            else:
-                ewc_pen = 0.0
-            if l2_anchor > 0.0 and star:
-                anch_pen = l2_anchor_penalty(protected_vars, star)
-            else:
-                anch_pen = 0.0
+            ewc_pen = _ewc_penalty() if DO_EWC else tf.constant(0.0, dtype=tf.float32)
+            l2_pen  = _l2_anchor_penalty() if DO_L2 else tf.constant(0.0, dtype=tf.float32)
 
-            loss = sup_loss + lambda_u * unsup_loss + balance_w * bal_loss + lambda_src * src_loss + ewc_lambda * ewc_pen + l2_anchor * anch_pen
+            loss = (
+                sup_loss
+                + lambda_u_t * unsup_loss
+                + balance_w_t * bal_loss
+                + lambda_src_t * src_loss
+                + ewc_lambda_t * ewc_pen
+                + l2_anchor_t * l2_pen
+            )
 
         grads = tape.gradient(loss, train_vars)
-        if grad_clip is not None and grad_clip > 0.0:
-            grads = [tf.clip_by_norm(g, grad_clip) if g is not None else None for g in grads]
-        opt.apply_gradients([(g, v) for g, v in zip(grads, train_vars) if g is not None])
+        grads_vars = [(g, v) for g, v in zip(grads, train_vars) if g is not None]
+        if grads_vars:
+            g_list = [gv[0] for gv in grads_vars]
+            v_list = [gv[1] for gv in grads_vars]
+            if grad_clip is not None and grad_clip > 0.0:
+                g_list, _ = tf.clip_by_global_norm(g_list, grad_clip)
+            opt.apply_gradients(zip(g_list, v_list))
 
-        # EMA update
-        for i, (v_s, v_t) in enumerate(zip(student.variables, teacher.variables)):
-            ema_w[i] = ema * ema_w[i] + (1.0 - ema) * v_s
-            v_t.assign(ema_w[i])
+        # EMA update teacher
+        for v_s_var, v_t_var in zip(student.variables, teacher.variables):
+            v_t_var.assign(ema_t * v_t_var + one_minus_ema_t * v_s_var)
 
         return sup_loss, unsup_loss, src_loss
 
     for epoch in range(1, max_epochs + 1):
+        if DAEWC_RAMPUP_EPOCHS and DAEWC_RAMPUP_EPOCHS > 0:
+            t = min(1.0, epoch / float(DAEWC_RAMPUP_EPOCHS))
+            lambda_u_epoch = float(lambda_u) * (t * t)
+        else:
+            lambda_u_epoch = float(lambda_u)
+        lambda_u_epoch_t = tf.constant(lambda_u_epoch, tf.float32)
+
         sup_meter = tf.keras.metrics.Mean()
         unsup_meter = tf.keras.metrics.Mean()
         src_meter = tf.keras.metrics.Mean()
@@ -1101,22 +1292,27 @@ def train_daeewc_fixmatch_plus(
         for _ in range(steps_per_epoch):
             x_l, y_l = next(it_l)
             x_u = next(it_u)
-            sup_l, unsup_l, src_l = train_step(x_l, y_l, x_u)
+
+            if it_s is not None:
+                x_s, y_s = next(it_s)
+            else:
+                x_s, y_s = x_l, y_l
+
+            sup_l, unsup_l, src_l = train_step(x_l, y_l, x_u, x_s, y_s, lambda_u_epoch_t)
             sup_meter.update_state(sup_l)
             unsup_meter.update_state(unsup_l)
             src_meter.update_state(src_l)
 
-        # Dev eval with EMA teacher
         def _tgt_logits(x, training=False):
             return teacher.logits_tgt(x, training=training, use_adapter=True)
 
-        y_dev, _, p_dev = eval_logits_probs(_tgt_logits, dev_ds)
+        y_dev, _logits_dev, p_dev = eval_logits_probs(_tgt_logits, dev_ds)
         thr, m = find_best_threshold(y_dev, p_dev)
-        dev_f1 = m["f1_macro"]
+        dev_f1 = float(m["macro_f1"])
 
         if dev_f1 > best_f1 + 1e-6:
             best_f1 = dev_f1
-            best_thr = thr
+            best_thr = float(thr)
             best_student_w = student.get_weights()
             best_teacher_w = teacher.get_weights()
             bad_epochs = 0
@@ -1124,12 +1320,15 @@ def train_daeewc_fixmatch_plus(
             bad_epochs += 1
 
         if verbose_prefix:
-            _log(f"{verbose_prefix} epoch {epoch:03d} | sup={sup_meter.result():.4f} unsup={unsup_meter.result():.4f} src={src_meter.result():.4f} | dev_f1={dev_f1:.4f} thr={thr:.3f}")
+            _log(
+                f"{verbose_prefix} epoch {epoch:03d} | "
+                f"sup={sup_meter.result():.4f} unsup={unsup_meter.result():.4f} src={src_meter.result():.4f} | "
+                f"λu={lambda_u_epoch:.3f} dev_f1={dev_f1:.4f} thr={thr:.3f}"
+            )
 
         if bad_epochs >= patience:
             break
 
-    # restore best
     if best_student_w is not None:
         student.set_weights(best_student_w)
     if best_teacher_w is not None:
@@ -1138,9 +1337,13 @@ def train_daeewc_fixmatch_plus(
     return time.time() - t0, float(best_thr), float(best_f1)
 
 
+# ======================================================================================
+# Build/init/copy helpers
+# ======================================================================================
+
 def build_plain(vocab_size: int) -> PlainTwoHeadCNN:
     m = PlainTwoHeadCNN(vocab_size)
-    dummy = tf.zeros((2, MAX_LEN), dtype=tf.int32)
+    dummy = tf.ones((2, MAX_LEN), dtype=tf.int32)  # important: not all-pad when mask_zero=True
     _ = m.logits(dummy, head="src", training=False)
     _ = m.logits(dummy, head="tgt", training=False)
     return m
@@ -1148,7 +1351,7 @@ def build_plain(vocab_size: int) -> PlainTwoHeadCNN:
 
 def build_dae(vocab_size: int) -> DAEWCIndepAdapterCNN:
     m = DAEWCIndepAdapterCNN(vocab_size)
-    dummy = tf.zeros((2, MAX_LEN), dtype=tf.int32)
+    dummy = tf.ones((2, MAX_LEN), dtype=tf.int32)  # important: not all-pad
     _ = m.logits_src(dummy, training=False)
     _ = m.logits_tgt(dummy, training=False, use_adapter=True)
     return m
@@ -1162,11 +1365,9 @@ def copy_plain_to_plain(src: PlainTwoHeadCNN, dst: PlainTwoHeadCNN) -> None:
 
 
 def copy_plain_to_dae(src: PlainTwoHeadCNN, dst: DAEWCIndepAdapterCNN) -> None:
-    # backbone
     dst.embedding.set_weights(src.embedding.get_weights())
     dst.conv.set_weights(src.conv.get_weights())
     dst.shared_fc.set_weights(src.shared_fc.get_weights())
-    # source head
     dst.head_src.set_weights(src.head_src.get_weights())
 
 
@@ -1181,7 +1382,7 @@ def main() -> None:
     src_texts, src_labels = load_pair_as_dataset(PATH_FAKE, PATH_REAL, name="NEWS(src)")
     tgt_texts, tgt_labels = load_pair_as_dataset(PATH_COVID_FAKE, PATH_COVID_REAL, name="COVID(tgt)")
 
-    _log("\n[Exact dedup]")
+    _log("\\n[Exact dedup]")
     src_texts, src_labels, rm_s = exact_dedup(src_texts, src_labels)
     tgt_texts, tgt_labels, rm_t = exact_dedup(tgt_texts, tgt_labels)
     _log(f"  Source removed exact dups: {rm_s}")
@@ -1190,11 +1391,11 @@ def main() -> None:
     src_split = stratified_split(src_texts, src_labels, SPLIT_RATIOS, seed=SPLIT_SEED)
     tgt_split = stratified_split(tgt_texts, tgt_labels, SPLIT_RATIOS, seed=SPLIT_SEED)
 
-    _log("\nSplit sizes:")
+    _log("\\nSplit sizes:")
     _log(f"Source: train={len(src_split['train'][0])} dev={len(src_split['dev'][0])} test={len(src_split['test'][0])}")
     _log(f"Target: train={len(tgt_split['train'][0])} dev={len(tgt_split['dev'][0])} test={len(tgt_split['test'][0])}")
 
-    _log("\nTokenizer: SOURCE-only (paper-strict)")
+    _log("\\nTokenizer: SOURCE-only (paper-strict)")
     token2id = build_vocab_source_only(src_split["train"][0], MAX_VOCAB)
     vocab_size = len(token2id)
     _log(f"Vocab size = {vocab_size} (cap={MAX_VOCAB})")
@@ -1219,16 +1420,16 @@ def main() -> None:
 
     raw_rows: List[Dict[str, Any]] = []
 
-    print("\n" + "#" * 120)
+    print("\\n" + "#" * 120)
 
     for seed in SEEDS:
         set_global_seed(seed)
-        _log(f"\nRUN seed={seed}")
+        _log(f"\\nRUN seed={seed}")
 
         # ------------------------------------------------------------------
         # Stage A: pretrain backbone on NEWS(source)
         # ------------------------------------------------------------------
-        _log("\n[Stage A] Pretrain Plain backbone on NEWS(source)")
+        _log("\\n[Stage A] Pretrain Transformer backbone on NEWS(source)")
         t0 = time.time()
         base = build_plain(vocab_size)
 
@@ -1313,6 +1514,8 @@ def main() -> None:
 
         y_true, logits_all, probs = eval_logits_probs(logits_fn_src, src_test_ds)
         thr_src_pre, m_src = find_best_threshold(y_true, probs)
+        src_thr_pre = float(thr_src_pre)
+        src_f1_pre  = float(m_src["macro_f1"])
         bce_src_pre = bce_from_logits(y_true, logits_all)
         _log(f"NEWS TEST(pre) | thr={thr_src_pre:.3f} Acc={m_src['acc']:.4f} MacroF1={m_src['macro_f1']:.4f} BCE={bce_src_pre:.4f}")
 
@@ -1330,15 +1533,15 @@ def main() -> None:
         )
         t_fisher = time.time() - t1
 
-        print("\n" + "-" * 110)
+        print("\\n" + "-" * 110)
 
         for shot in SHOTS:
             if SHOT_MODE == "per_class":
                 n_total = shot * 2
-                _log(f"\nTarget setting: {shot}-shot/class (n={n_total})")
+                _log(f"\\nTarget setting: {shot}-shot/class (n={n_total})")
             else:
                 n_total = shot
-                _log(f"\nTarget setting: TOTAL {shot} (balanced)")
+                _log(f"\\nTarget setting: TOTAL {shot} (balanced)")
 
             # sample few-shot indices from target train pool
             sel = sample_fewshot_balanced_indices(tgt_train_y_full.tolist(), shot=shot, seed=seed + shot * 17, mode=SHOT_MODE)
@@ -1579,41 +1782,32 @@ def main() -> None:
                 "t_total_once": t_adapt,
             })
 
-            # ---------------- DAEWC STRONG (FixMatch + EMA teacher; independent adapter) ----------------
-
+            # ---------------- DAEWC DOMINANT (FixMatch + EMA teacher; independent adapter) ----------------
             _log("[DAEWC-DOMINANT] FixMatch+EMA + (auto)unfreeze + EWC + source-replay (select by dev F1)")
 
-            # Candidate recipe set (kept small so it is still practical).
-            # Key idea for "dominant" behavior:
-            #   - include strong FixMatch options that can beat plain transfer on tgt
-            #   - but DO NOT over-regularize with huge EWC (it hurts tgt badly in low-shot)
-            #   - include replay + mild anchors to keep src high (low forgetting)
-            # Then we select by a score that prioritizes tgt-dev MacroF1, with a light penalty for forgetting.
             tau_base = float(DAEWC_TAU_BY_SHOT.get(shot, 0.94))
             lam_u_base = float(DAEWC_LAMBDA_U_BY_SHOT.get(shot, 1.0))
 
             if shot <= 20:
                 candidates = [
-                    # name, level, lr, tau, lambda_u, lambda_src, ewc_lambda, l2_anchor
-                    ("A_adapter_fixmatch",      "adapter", 2e-3, tau_base,        lam_u_base,       0.00, 0.00, 0.0),
-                    ("B_top_fixmatch_replay",   "top",     1e-3, max(0.90, tau_base-0.01), lam_u_base, 0.20, 0.10, 1e-4),
-                    ("C_mid_fixmatch_replay",   "mid",     7e-4, max(0.90, tau_base-0.02), lam_u_base*0.8, 0.15, 0.05, 5e-5),
-                    ("D_full_fixmatch_replay",  "full",    5e-4, max(0.90, tau_base-0.02), lam_u_base*0.6, 0.12, 0.03, 1e-5),
-                    # supervised-only + replay fallback (helps if pseudo-labels are noisy)
-                    ("E_full_supervised_replay", "full",   5e-4, 1.00,             0.00,            0.20, 0.00, 1e-5),
+                    ("A_adapter_fixmatch",       "adapter", 2e-3, tau_base,                   lam_u_base,       0.00, 0.00, 0.0),
+                    ("B_top_fixmatch_replay",    "top",     1e-3, max(0.90, tau_base-0.01),    lam_u_base,       0.20, 0.10, 1e-4),
+                    ("C_mid_fixmatch_replay",    "mid",     7e-4, max(0.90, tau_base-0.02),    lam_u_base*0.8,   0.15, 0.05, 5e-5),
+                    ("D_full_fixmatch_replay",   "full",    5e-4, max(0.90, tau_base-0.02),    lam_u_base*0.6,   0.12, 0.03, 1e-5),
+                    ("E_full_supervised_replay", "full",    5e-4, 1.00,                        0.00,            0.20, 0.00, 1e-5),
                 ]
             elif shot <= 80:
                 candidates = [
-                    ("A_top_fixmatch_replay",   "top",     8e-4, 0.93, 1.0, 0.20, 0.05, 1e-5),
-                    ("B_mid_fixmatch_replay",   "mid",     5e-4, 0.92, 0.8, 0.15, 0.03, 1e-6),
-                    ("C_full_fixmatch_replay",  "full",    3e-4, 0.92, 0.6, 0.10, 0.02, 1e-6),
-                    ("D_full_fixmatch_noreplay", "full",   3e-4, 0.92, 0.6, 0.00, 0.00, 0.0),
+                    ("A_top_fixmatch_replay",    "top",     8e-4, 0.93, 1.0, 0.20, 0.05, 1e-5),
+                    ("B_mid_fixmatch_replay",    "mid",     5e-4, 0.92, 0.8, 0.15, 0.03, 1e-6),
+                    ("C_full_fixmatch_replay",   "full",    3e-4, 0.92, 0.6, 0.10, 0.02, 1e-6),
+                    ("D_full_fixmatch_noreplay", "full",    3e-4, 0.92, 0.6, 0.00, 0.00, 0.0),
                 ]
             else:
                 candidates = [
-                    ("A_mid_fixmatch_replay",   "mid",     5e-4, 0.90, 0.5, 0.10, 0.03, 1e-6),
-                    ("B_full_fixmatch_replay",  "full",    3e-4, 0.90, 0.5, 0.08, 0.02, 1e-6),
-                    ("C_full_fixmatch_noreplay", "full",   3e-4, 0.90, 0.5, 0.00, 0.00, 0.0),
+                    ("A_mid_fixmatch_replay",    "mid",     5e-4, 0.90, 0.5, 0.10, 0.03, 1e-6),
+                    ("B_full_fixmatch_replay",   "full",    3e-4, 0.90, 0.5, 0.08, 0.02, 1e-6),
+                    ("C_full_fixmatch_noreplay", "full",    3e-4, 0.90, 0.5, 0.00, 0.00, 0.0),
                 ]
 
             best = {
@@ -1630,7 +1824,6 @@ def main() -> None:
             t_search_total = 0.0
 
             for cname, level, lr, tau, lam_u, lam_src, lam_ewc, lam_l2 in candidates:
-                # build fresh student/teacher and init from the pretrained plain model
                 student = build_dae(vocab_size)
                 teacher = build_dae(vocab_size)
                 copy_plain_to_dae(base, student)
@@ -1639,13 +1832,10 @@ def main() -> None:
                 train_vars = dae_train_vars(student, level)
                 prot = get_protected_vars_dae(student)
 
-                # optional source replay (regularizer)
                 src_replay_ds = None
                 if lam_src > 0.0:
-                    # Use same batch size as adaptation, and keep it shuffled + repeated.
                     src_replay_ds = make_tf_dataset(src_train_x, src_train_y, BATCH_ADAPT, True, seed + 999 + shot, True)
 
-                # if no unlabeled pool, fall back to supervised-only (lambda_u -> 0)
                 if ds_ul is None:
                     lam_u_eff = 0.0
                     ds_ul_eff = make_tf_dataset_x(fs_x, BATCH_ADAPT, True, seed + 777 + shot, True)
@@ -1675,15 +1865,13 @@ def main() -> None:
                 )
                 t_search_total += t_cand
 
-                # quick src-after check (to avoid picking a candidate that forgets too much)
                 def _src_logits_c(x, training=False):
-                    return teacher.logits_src(x, training=training, use_adapter=False)
+                    return teacher.logits_src(x, training=training)
 
                 y_s_c, _, p_s_c = eval_logits_probs(_src_logits_c, src_test_ds)
                 src_f1_after_c = f1_macro_from_probs(y_s_c, p_s_c, src_thr_pre)
                 forget_c = max(0.0, float(src_f1_pre - src_f1_after_c))
 
-                # selection score: prioritize tgt-dev F1; light penalty for forgetting
                 cand_score = float(dev_f1_cand) - 0.20 * forget_c
 
                 _log(
@@ -1695,7 +1883,6 @@ def main() -> None:
                 if (cand_score > best["score"] + 1e-6) or (
                     abs(cand_score - best["score"]) <= 1e-6 and src_f1_after_c > best["src_f1_after"] + 1e-6
                 ):
-                    # drop old best to keep memory bounded
                     if best["teacher"] is not None:
                         del best["teacher"]
                         del best["student"]
@@ -1711,7 +1898,6 @@ def main() -> None:
                         "student": student,
                     })
                 else:
-                    # free the models if not best to reduce memory
                     del student
                     del teacher
 
@@ -1721,7 +1907,6 @@ def main() -> None:
                 f"score={best['score']:.4f} thr={best['thr']:.3f} trainable={best['trainable_params']}"
             )
 
-            # Evaluate with the selected EMA teacher
             teacher = best["teacher"]
             thr_tgt = best["thr"]
             t_adapt = t_search_total
@@ -1735,7 +1920,6 @@ def main() -> None:
             tgt_f1 = f1_macro_from_probs(y_t, p_t, thr_tgt)
             tgt_bce = bce_from_logits(y_t, l_t)
 
-            # Source-after (forgetting)
             def src_logits(x, training=False):
                 return teacher.logits_src(x, training=training)
 
@@ -1745,7 +1929,7 @@ def main() -> None:
             src_bce_after = bce_from_logits(y_s, l_s)
             forget_f1 = max(0.0, src_f1_pre - src_f1_after)
 
-            rows.append({
+            raw_rows.append({
                 "seed": seed,
                 "shot": shot,
                 "method": "DAEWC",
@@ -1757,6 +1941,7 @@ def main() -> None:
                 "t_pretrain": t_pretrain, "t_fisher": t_fisher, "t_adapt": t_adapt,
                 "t_total_once": t_pretrain + t_fisher + t_adapt,
             })
+
             # ---------------- Replay Upper (Joint training; slow upper bound) ----------------
             if RUN_REPLAY_UPPER:
                 _log("[Replay Upper (Joint training; slow)]")
@@ -1803,7 +1988,6 @@ def main() -> None:
 
                 t_adapt_r = time.time() - t_ad0
 
-                # threshold from dev
                 def logits_fn_rep_tgt(xb, training=False):
                     return rep.logits(xb, head="tgt", training=training)
                 logits_fn_rep_tgt._model = rep
@@ -1835,17 +2019,18 @@ def main() -> None:
                     "t_pretrain": 0.0, "t_fisher": 0.0, "t_adapt": t_adapt_r,
                     "t_total_once": t_adapt_r,
                 })
-            print("\n" + "-" * 110)
 
-        print("\n" + "#" * 120)
+            print("\\n" + "-" * 110)
+
+        print("\\n" + "#" * 120)
 
     # -------------------------------------------------------------
     # Save results
     # -------------------------------------------------------------
     raw_df = pd.DataFrame(raw_rows)
-    raw_out = "results_daeewc_v6_dominant_raw.csv"
+    raw_out = "results_daeewc_transformer_v6_dominant_raw.csv"
     raw_df.to_csv(raw_out, index=False)
-    _log(f"\nSaved raw: {raw_out}")
+    _log(f"\\nSaved raw: {raw_out}")
 
     def ci95(x: np.ndarray) -> float:
         x = np.array(x, dtype=np.float64)
@@ -1868,20 +2053,20 @@ def main() -> None:
         })
 
     summary_df = pd.DataFrame(summary_rows).sort_values(["shot", "method"])
-    sum_out = "results_daeewc_v6_dominant_summary.csv"
+    sum_out = "results_daeewc_transformer_v6_dominant_summary.csv"
     summary_df.to_csv(sum_out, index=False)
     _log(f"Saved summary: {sum_out}")
 
-    print("\n=== Pivot: Target Macro-F1 (mean) ===")
+    print("\\n=== Pivot: Target Macro-F1 (mean) ===")
     print(summary_df.pivot(index="shot", columns="method", values="tgt_f1_macro_mean").to_string(float_format=lambda x: f"{x:.6f}"))
 
-    print("\n=== Pivot: Forgetting (ΔSrc Macro-F1 = pre - after; lower is better) ===")
+    print("\\n=== Pivot: Forgetting (ΔSrc Macro-F1 = pre - after; lower is better) ===")
     print(summary_df.pivot(index="shot", columns="method", values="forget_f1_mean").to_string(float_format=lambda x: f"{x:.6f}"))
 
-    print("\n=== Pivot: Adapt time (s, mean) ===")
+    print("\\n=== Pivot: Adapt time (s, mean) ===")
     print(summary_df.pivot(index="shot", columns="method", values="adapt_time_mean_s").to_string(float_format=lambda x: f"{x:.3f}"))
 
-    print("\nDone.")
+    print("\\nDone.")
 
 
 if __name__ == "__main__":
