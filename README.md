@@ -2,7 +2,7 @@
 
 This repository contains the reference code for our research on **cross-domain fake news detection under extreme label scarcity**.
 
-In plain terms: when a sudden event happens (e.g., a pandemic), fake news appears immediately, but **labeled training data is scarce**. Models trained on an older domain (e.g., political news) often fail on the new domain (e.g., medical claims). Even worse, if we fine-tune the model on the new domain, it may **forget** what it learned before.  
+In plain terms: when a sudden event happens (e.g., a pandemic), fake news appears immediately, but **labeled training data is scarce**. Models trained on an older domain often fail on the new domain. Even worse, if we fine-tune the model on the new domain, it may **forget** what it learned before.  
 **DAEWC** is designed to handle this situation in a practical and deployable way.
 
 ---
@@ -135,13 +135,13 @@ After the run, the script will save CSV files with aggregated results.
   - `results_daeewc_v6_dominant_raw.csv`
   - `results_daeewc_v6_dominant_summary.csv`
 
+- **LSTM scripts**
+  - `results_daeewc_LSTM_v6_dominant_raw.csv`
+  - `results_daeewc_LSTM_v6_dominant_summary.csv`
+
 - **Transformer script**
   - `results_daeewc_transformer_v6_dominant_raw.csv`
   - `results_daeewc_transformer_v6_dominant_summary.csv`
-
-> Important: `daeewc_cnn.py` and `daeewc_lstm.py` currently write to the **same output filenames**.
-> If you run them in the same folder, one run may overwrite the other.  
-> A simple workaround is to run them in separate directories or rename the output filenames inside the scripts.
 
 ---
 
