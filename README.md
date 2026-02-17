@@ -52,7 +52,7 @@ The code is intentionally kept simple. Each backbone is implemented as a single 
 DAEWC/
 ├─ daeewc_transformer.py   # Transformer backbone experiments
 ├─ daeewc_cnn.py           # CNN backbone experiments
-├─ daeewc_lstm.py          # (Bi)LSTM backbone experiments
+├─ daeewc_lstm.py          # LSTM backbone experiments
 ├─ news/                   # Source-domain CSVs (ISOT-style): Fake.csv, True.csv
 ├─ covid/                  # Target-domain CSVs: fakeNews.csv, trueNews.csv
 ├─ More data/              # Optional extra data (not required for default runs)
@@ -302,19 +302,6 @@ The scripts include several choices meant to make results comparable:
 - Reporting macro-F1, which is robust when classes are imbalanced.
 
 ---
-
-## Citation
-
-If you use this repository in academic work, please cite the paper that introduces DAEWC.
-
-```bibtex
-@article{daewc,
-  title   = {DAEWC: Domain-Aware Adapters with Elastic Weight Consolidation for Cross-Domain Fake News Detection},
-  author  = {Anonymous},
-  year    = {2026},
-  note    = {Manuscript / preprint. Please replace this BibTeX entry with the final one.}
-}
-```
 
 ---
 
