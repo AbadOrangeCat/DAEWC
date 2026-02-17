@@ -330,3 +330,7 @@ Misinformation detection is a dual-use technology. In real deployments:
 - domain shift can create uneven error rates across communities
 
 DAEWC is designed to be more **auditable** (changes are localized in adapters and regularized in the backbone), but it is still not a substitute for careful evaluation and human oversight.
+
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
