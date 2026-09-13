@@ -37,7 +37,13 @@ def verify(args):
             assert {p["id"] for p in preds} == {x["id"] for x in rows if x["domain"] == domain and x["split"] == "test"}
             assert all(lookup[p["id"]]["label"] == p["label"] for p in preds)
             score = metrics([p["label"] for p in preds], [p["probability"] for p in preds], preds[0]["threshold"])
-            assert abs(score["macro_f1"] - r[resultkey]["all"]["macro_f1"]) < 1e-9
+            assert all(abs(score[k] - r[resultkey]["all"][k]) < 1e-9 for k in score)
+            matched_ids = set(manifest['matched_test_ids'][domain])
+            assert all(p['origin_length_matched'] == (p['id'] in matched_ids) for p in preds)
+            matched = [p for p in preds if p['id'] in matched_ids]
+            assert len(matched) == r[resultkey]['matched_n'] == len(matched_ids)
+            matched_score = metrics([p['label'] for p in matched], [p['probability'] for p in matched], preds[0]['threshold'])
+            assert all(abs(matched_score[k] - r[resultkey]['matched'][k]) < 1e-9 for k in matched_score)
         assert abs(r["delta_source_pp"] - (r["source_after"]["all"]["macro_f1"] - r["source_before"]["all"]["macro_f1"])) < 1e-9
         for candidate in r.get("selection_candidates", []):
             assert len(candidate["folds"]) == 2
