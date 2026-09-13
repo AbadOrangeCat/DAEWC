@@ -1,336 +1,136 @@
-# DAEWC: Domain-Aware Adapters with Elastic Weight Consolidation
+# DAEWC revision 2.0.0
 
-This repository contains the reference code for our research on **cross-domain fake news detection under extreme label scarcity**.
+This revision evaluates adaptation of a text classifier under a strict target-label budget. It implements one model with a residual adapter and learned domain feature gate after every BERT block. Elastic weight consolidation (EWC) and a proximity penalty apply only to the shared block biases and LayerNorm scales. The target optimizer receives no source examples, extra target development labels, or unlabelled pool.
 
-In plain terms: when a sudden event happens (e.g., a pandemic), fake news appears immediately, but **labeled training data is scarce**. Models trained on an older domain often fail on the new domain. Even worse, if we fine-tune the model on the new domain, it may **forget** what it learned before.  
-**DAEWC** is designed to handle this situation in a practical and deployable way.
+The model predicts the supplied dataset labels. It does not retrieve evidence or verify a statement against external facts. Known domain identity is required at inference.
 
----
+## What changed
 
-## What problem does DAEWC solve?
+The submitted scripts are preserved in `legacy/` and retired as entry points. Their results cannot support the revised paper: they used political test information in threshold or candidate selection and did not implement the described model. The revised manuscript does not reuse their numerical tables or CNN/LSTM claims.
 
-Fake news detection is usually trained as a **binary text classification** task: given a post/article, predict **real** vs **fake**.
+The primary political source is non-health LIAR, with an explicit binary label mapping and official split roles. The health target is LIAR's `health-care` subject subset. The two other targets use only the `title` fields of FakeNewsNet PolitiFact and GossipCop CSV files. The original ISOT and medical files are used for diagnostics only. The medical files are not identified as CONSTRAINT/Patwa data. The older PolitiFact full-text fake/real files are byte-identical and excluded.
 
-However, real deployments face two connected problems:
+## Environment
 
-- **Domain shift**: the topic, vocabulary, and writing style change across domains (politics → health → entertainment). A model that performs well in one domain can drop sharply in another.
-- **Few-shot learning**: in a new domain, we may only have **tens of labeled examples**, especially early in an event.
-- **Catastrophic forgetting**: after adapting to a new domain, a model may lose accuracy on the original domain.
-
-DAEWC focuses on the **stability–plasticity trade-off**:
-- **Stability** means “do not break what already works.”
-- **Plasticity** means “learn the new domain quickly.”
-
-DAEWC aims to get both.
-
----
-
-## Core idea in one page
-
-DAEWC splits the model into two parts with different roles:
-
-- **Backbone (stable)**: the main encoder that learns general language patterns.
-- **Adapter (plastic)**: a small “plug-in” module that learns domain-specific corrections with few parameters.
-
-To protect the backbone, DAEWC uses:
-
-- **EWC (Elastic Weight Consolidation)**: a regularization method that estimates which backbone weights were important for the source domain, then discourages those weights from moving during adaptation.
-- **Anchor / proximity regularization**: a gentle pull that keeps the backbone close to the source solution.
-
-A helpful analogy is a chef:
-- The **backbone** is the chef’s core cooking skill.
-- The **adapter** is a small spice kit for a new cuisine.
-- **EWC** is the rule “do not change the techniques that are critical.”
-
----
-
-## Repository layout
-
-The code is intentionally kept simple. Each backbone is implemented as a single runnable script.
-
-```text
-DAEWC/
-├─ daeewc_transformer.py   # Transformer backbone experiments
-├─ daeewc_cnn.py           # CNN backbone experiments
-├─ daeewc_lstm.py          # LSTM backbone experiments
-├─ news/                   # Source-domain CSVs (ISOT-style): Fake.csv, True.csv
-├─ covid/                  # Target-domain CSVs: fakeNews.csv, trueNews.csv
-├─ More data/              # Optional extra data (not required for default runs)
-└─ README.md
-```
-
----
-
-## Quick start
-
-This section walks you from “I just cloned the repo” to “I got a result file”.
-
-### 1) Create a Python environment
-
-Any standard Python environment works. A virtual environment is recommended.
+Use Python 3.13 and install `requirements.txt`. The saved environment metadata records exact runtime versions. CPU, Apple MPS, and CUDA are supported. For the additional runners, set `--device cpu` or `--device cuda` when not using their local MPS default. Training and primary evaluation use MPS; the post-fit second-test and objective diagnostics use CPU. Cross-device floating-point results may differ slightly.
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # macOS / Linux
-# .venv\Scripts\activate    # Windows
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pytest -q tests
 ```
 
-### 2) Install dependencies
+## Reproduce the experiments
 
-The scripts are written in **TensorFlow 2 (Keras)** and use only a few common libraries.
+Run these commands from the repository root. The preparation command downloads the original LIAR archive and requires the existing `Moredata/politifact_{real,fake}.csv` and `Moredata/gossipcop_{real,fake}.csv` inputs. Input hashes are recorded and should match the supplied release manifest. Missing fields or malformed rows are errors; the loader never guesses an input column or silently skips CSV errors.
 
 ```bash
-pip install --upgrade pip
-pip install tensorflow pandas numpy
+python -m daewc.data --data-root . --out revision_artifacts/data
+python -m daewc.audit --data-root . --prepared revision_artifacts/data --out revision_artifacts/audit
+python -m daewc.run --config configs/local.json --data revision_artifacts/data --out revision_artifacts/local
 ```
 
-Notes:
-- GPU is optional. The code runs on CPU, but training will be slower.
-- On Apple Silicon, the scripts automatically try `tf.keras.optimizers.legacy.Adam` for compatibility.
+The primary run uses the pinned Google two-layer BERT checkpoint. Configurations are saved before test results are produced. Resume is refused if the configuration, processed data, or training code differs. Each result includes the selected procedure, exact labels, thresholds, trainable parameter names, elapsed training time, full-precision predictions, and a checkpoint checksum.
 
-### 3) Check the datasets
-
-By default, the scripts expect the following files:
-
-- `./news/Fake.csv` and `./news/True.csv` (source domain)
-- `./covid/fakeNews.csv` and `./covid/trueNews.csv` (target domain)
-
-These paths are defined at the top of each script:
-
-```python
-PATH_FAKE = "./news/Fake.csv"
-PATH_REAL = "./news/True.csv"
-PATH_COVID_FAKE = "./covid/fakeNews.csv"
-PATH_COVID_REAL = "./covid/trueNews.csv"
-```
-
-### 4) Run an experiment
-
-Pick one backbone script and run it directly:
+To run the additional protocols, download the checkpoint named in the configuration, then pass its local directory as `MODEL_DIR` below. `MODEL_DIR` must contain `config.json`, `vocab.txt`, and `model.safetensors`; it is not a shell variable created automatically by this repository.
 
 ```bash
-python daeewc_transformer.py
-# or
-python daeewc_cnn.py
-# or
-python daeewc_lstm.py
+python -m daewc.sequential --config configs/local.json --data revision_artifacts/data --single revision_artifacts/local --out revision_artifacts/sequential --model-path MODEL_DIR
+python -m daewc.budget_cv --config configs/local.json --data revision_artifacts/data --single revision_artifacts/local --out revision_artifacts/budget_cv --model-path MODEL_DIR
+python -m daewc.mechanism_sweep --config configs/local.json --data revision_artifacts/data --single revision_artifacts/local --out revision_artifacts/mechanism --model-path MODEL_DIR
+python -m daewc.run --config configs/random_initialization.json --data revision_artifacts/data --out revision_artifacts/random
+python -m daewc.run --config configs/bert_base.json --data revision_artifacts/data --out revision_artifacts/bert_base
 ```
 
-Each script runs:
-- multiple random seeds (default: 5 seeds)
-- multiple few-shot settings (default: 10/20/80/160 shots **per class**)
+The fixed configuration uses one candidate and 80 updates. The budgeted cross-validation protocol uses two folds and three learning-rate multipliers for **every** method, then refits on all 2K labels. These protocols are reported separately. No target development labels enter training or selection. The mechanism sweep reports its complete 3-by-3 grid; it does not choose a replacement DAEWC configuration using test scores.
 
-If you want a faster sanity check, edit the config block at the top of the script, for example:
+## Smaller modules and post-fit evaluation
 
-```python
-SEEDS = [42]
-SHOTS = [10]
+The smaller configuration uses adapter width 2 and domain-vector width 4. It trains 6,154 parameters with the compact encoder, compared with 16,434 for the reference DAEWC and 8,450 for rank-8 LoRA. It is a separately identified exploratory extension. It reuses **exact** primary source checkpoints and Fisher buffers, with checksum provenance; it does not retrain a new source for the paired comparison.
+
+```bash
+python -m daewc.reuse_source --config configs/low_footprint.json --source revision_artifacts/local --data revision_artifacts/data --out revision_artifacts/low_footprint --model-path MODEL_DIR
+python -m daewc.budget_cv --config configs/low_footprint.json --single revision_artifacts/low_footprint --data revision_artifacts/data --out revision_artifacts/low_footprint_cv --model-path MODEL_DIR
+python -m daewc.confirmatory --data revision_artifacts/data --artifacts revision_artifacts --configs configs --out revision_artifacts/confirmation --model-path MODEL_DIR --freeze-only
+python -m daewc.confirmatory --data revision_artifacts/data --artifacts revision_artifacts --configs configs --out revision_artifacts/confirmation --model-path MODEL_DIR
 ```
 
-### 5) Read the outputs
+The second test uses the original target development partitions only after all compared K=80 models have been fitted. Its frozen plan includes all seven reference methods and both smaller methods under both selection protocols, for all domains and seeds. Its labels never enter adaptation, model selection, threshold fitting, or any subsequent model change. This analysis contains 162 post-fit evaluations; it does not add training runs or extra supervision.
 
-After the run, the script will save CSV files with aggregated results.
+The directory `exploratory_repeat_source/` preserves an earlier numerical repeat that independently retrained the source. Source decisions were unchanged, but small floating-point weight differences occurred. Those records are excluded from the paired architecture comparison for this stated procedural reason, with their status retained. They are not silently discarded or selected by performance.
 
-- **CNN / LSTM scripts**
-  - `results_daeewc_v6_dominant_raw.csv`
-  - `results_daeewc_v6_dominant_summary.csv`
+## Tables and independent verification
 
-- **LSTM scripts**
-  - `results_daeewc_LSTM_v6_dominant_raw.csv`
-  - `results_daeewc_LSTM_v6_dominant_summary.csv`
-
-- **Transformer script**
-  - `results_daeewc_transformer_v6_dominant_raw.csv`
-  - `results_daeewc_transformer_v6_dominant_summary.csv`
-
----
-
-## What is implemented in the scripts?
-
-The scripts follow the paper’s workflow in a compact form. Below is a map from the paper-level idea to the code-level steps.
-
-### Stage A: Source pre-training (build a strong backbone)
-
-The model is first trained on the **source domain** (in this repo: `news/`).  
-This produces:
-- a backbone that captures general language cues
-- a source-domain decision threshold (selected on a dev set)
-
-After training, the script estimates a **diagonal Fisher information** on the source domain.  
-This Fisher score is the “importance map” used by EWC.
-
-### Stage B: Few-shot target adaptation (learn the new domain safely)
-
-In the **target domain** (in this repo: `covid/`), the code samples a few labeled examples under a **few-shot** protocol.
-
-Then the script evaluates several adaptation strategies (see next section), including DAEWC.
-
-The goal is:
-- **high target macro-F1** (plasticity)
-- **minimal drop on the source domain** (stability)
-
-### Stage C: Inference (evaluate target + check forgetting)
-
-After adaptation, the script evaluates:
-- target-domain performance (macro-F1, accuracy)
-- source-domain performance after adaptation (to measure forgetting)
-
----
-
-## Methods reported in the result files
-
-The output CSVs include a `method` field. Each value corresponds to a training strategy.
-
-### Baselines
-
-- **Scratch-Plain**  
-  Train only on the target few-shot data, starting from random initialization.  
-  This is the “no transfer learning” baseline.
-
-- **Transfer-Plain**  
-  Pre-train on the source domain, then fine-tune the full model on the target few-shot data.  
-  This often adapts well, but can forget the source domain.
-
-- **Transfer-Plain+EWC**  
-  Same as Transfer-Plain, but adds an EWC penalty on backbone weights.  
-  This improves stability by limiting harmful backbone updates.
-
-- **Adapter-Only**  
-  Freeze the backbone and train only a small target adapter + target head.  
-  This preserves the source domain, but may underfit the target domain.
-
-- **ReplayUpper** (optional, slow)  
-  Jointly trains on source and target during adaptation by mixing batches.  
-  This is used as a practical “upper bound” for stability, but it costs more compute.
-
-### DAEWC (ours)
-
-- **DAEWC**  
-  This repo includes a strong training recipe that reflects the paper’s core idea (adapter + backbone protection) and also supports a practical semi-supervised extension:
-  - **few labeled target samples**
-  - **unlabeled target pool** (the remaining target training examples)
-  - **FixMatch-style pseudo-labeling** (high-confidence teacher predictions become training targets)
-  - **EMA teacher** (an exponential moving average copy of the student weights, used for stable pseudo-labels)
-  - optional **EWC + anchor** when a small part of the backbone is unfrozen
-  - optional **source replay** as an extra stabilizer
-
-If you want the simplest “paper core” comparison, focus on:
-- Adapter-Only (pure adapter training)
-- Transfer-Plain+EWC (backbone fine-tuning with stability regularization)
-
----
-
-## Configuration guide
-
-All important settings are in a **single CONFIG block** at the top of each script.  
-This section explains the most useful knobs to edit.
-
-### Few-shot protocol
-
-You can choose how shots are counted:
-
-- `SHOT_MODE = "per_class"`: `K` labeled examples **per class** (real and fake). Total is `2K`.
-- `SHOT_MODE = "total"`: `K` labeled examples total, sampled in a balanced way.
-
-The actual values are in:
-
-```python
-SHOTS = [10, 20, 80, 160]
-SEEDS = [42, 43, 44, 45, 46]
+```bash
+python -m daewc.summarize --runs revision_artifacts/local --sequential revision_artifacts/sequential --out revision_artifacts/tables/local
+python -m daewc.summarize --runs revision_artifacts/budget_cv --out revision_artifacts/tables/budget_cv
+python -m daewc.verify --data revision_artifacts/data --runs revision_artifacts/local --source revision_artifacts/local --config configs/local.json --model-path MODEL_DIR --out revision_artifacts/verification.json
 ```
 
-### Tokenization and sequence length
+Use the same summary command for the standard BERT, random-initialization, and smaller-module directories. For the extra protocols and the conditional objective diagnostic:
 
-The repo uses a simple **source-only tokenizer**:
-- it builds a vocabulary from the source training split only
-- it keeps the vocabulary fixed for the target domain
-
-Key parameters:
-
-```python
-MAX_VOCAB = 5000
-MAX_LEN = 256
+```bash
+python -m daewc.verify_additional --artifacts revision_artifacts --data revision_artifacts/data --configs configs --confirmation --out revision_artifacts/verification_additional.json
+python -m daewc.stability_diagnostics --config configs/local.json --data revision_artifacts/data --runs revision_artifacts/local --model-path MODEL_DIR --out revision_artifacts/stability
+python scripts/build_tables.py --artifacts revision_artifacts --manuscript manuscript
+python scripts/draw_results.py --artifacts revision_artifacts --manuscript manuscript
+python scripts/draw_architecture.py --manuscript manuscript
 ```
 
-### DAEWC (FixMatch) knobs
+The second-test summary also computes the complete prespecified paired bootstrap comparisons:
 
-If you want to explore the semi-supervised behavior, these are the most relevant parameters:
+```bash
+python -m daewc.second_test_summary --input revision_artifacts/confirmation --out revision_artifacts/tables/confirmation
+python scripts/build_extension_tables.py --artifacts revision_artifacts --manuscript manuscript
+```
 
-- `DAEWC_TAU_BY_SHOT`: confidence threshold for accepting pseudo-labels
-- `DAEWC_LAMBDA_U_BY_SHOT`: weight of unlabeled loss
-- `DAEWC_EMA_DECAY`: EMA teacher smoothing factor
-- `DAEWC_WEAK_DROP` / `DAEWC_STRONG_DROP`: token-drop augmentation strength
-- `DAEWC_ULB_MAX`: optional cap on unlabeled pool size (for speed)
+The objective diagnostic checks the actual deterministic target loss and weighted parameter drift. It does not certify the integrated source-gradient bound or source F1. All 36 reference and all 36 smaller DAEWC runs satisfy the measured objective condition.
 
----
+The verifier recomputes metrics from saved predictions, checks train/test membership and label budgets, verifies checkpoint hashes, and reconstructs one result per method from the source checkpoint plus saved trainable parameters. Do not load untrusted PyTorch checkpoints.
 
-## Using your own data
+The signed retention measure is `source_after_f1 - source_before_f1`, in percentage points. Improvements remain positive for every method. Sensitivity tables include both loss-only and absolute-band rules at 0.5, 1, 2, and 5 percentage points. Seed intervals are conditional on one fixed test set; they are not population-level confidence guarantees.
 
-This repo is designed for research experiments. Still, you can adapt it to new datasets with minimal changes.
+## Sequential validation of smaller modules
 
-### Expected input format
+The smaller configuration also uses all six orders and three seeds, with all four sequential controls. It starts from the exact imported source checkpoints.
 
-Each domain is loaded from **two CSV files**:
-- one file for **fake** samples
-- one file for **real** samples
+```bash
+python -m daewc.sequential --config configs/low_footprint.json --data revision_artifacts/data --single revision_artifacts/low_footprint --out revision_artifacts/sequential_low --model-path MODEL_DIR
+```
 
-The loader tries to find a suitable text column automatically. It prefers:
-- `title` + one of `text/content/body/...`
+## Exact gate precomputation for inference
 
-If those are missing, it falls back to the longest string column.
+A trained gate is constant for a known domain. The exporter stores that feature-scale vector instead of its domain embedding and projection. It preserves the trained prediction function. The smaller architecture's source-relative export contains 5,126 floating-point values (changed shared calibration plus domain modules), versus 8,450 for rank-8 LoRA. The stored domain-specific part contains 1,798 values. These counts exclude the common source model and serialization headers.
 
-Label convention in the code:
-- **fake = 1**
-- **real = 0**
+```bash
+python -m daewc.export_inference --config configs/low_footprint.json --data revision_artifacts/data --runs revision_artifacts/low_footprint --out revision_artifacts/inference_exports --model-path MODEL_DIR
+```
 
-### Practical tips
+All 36 serialized exports were reloaded and checked against the original models on their complete target tests, using CPU and identical batches. Their probabilities match exactly. `daewc.export_inference.load_export` reconstructs an exported model from its source checkpoint and configuration. These exports are for inference; retain the original training checkpoint for further optimization.
 
-To reduce surprises:
-- Keep each CSV in UTF-8 if possible.
-- Make sure the text is not empty after cleaning.
-- If your dataset is short-form (tweets), consider lowering `MAX_LEN`.
+## Artifacts and storage
 
----
+`revision_artifacts/` contains processed records and manifests, source checkpoints and Fisher buffers, run JSON files, source-relative checkpoints, predictions, and tables. Sequential checkpoints are incremental: reconstruction uses the source plus each earlier stage in order. A `training` record lists the exact parameter names in each checkpoint.
 
-## Reproducibility notes
+Peak CUDA allocation is measured only on CUDA. On MPS, the process-lifetime resident-memory maximum is labelled as such and is not presented as a per-run GPU memory peak. Deployment storage counts parameter elements at four bytes each; optimizer states and Fisher buffers must be counted separately if they are retained for later training.
 
-The scripts include several choices meant to make results comparable:
+## Licenses and public release
 
-- **Stratified split** into train/dev/test (default: 70/10/20).
-- **Exact de-duplication** inside each domain to remove repeated texts.
-- **Threshold calibration** on the dev set to maximize macro-F1.
-- Reporting macro-F1, which is robust when classes are imbalanced.
+The repository's existing software license applies to its code. Dataset and pretrained-model licenses remain separate. Input transformations and checksums identify the releases used; the software license does not grant rights to redistribute third-party text. The revised code is prepared locally. A public release and permanent identifier must be created by the authors before claiming that an updated public archive is available.
 
----
+## Rebuilding the complete revision
 
----
+The full local snapshot contains `manuscript/`, the original model files in `models/`, and saved checkpoints. The smaller ZIP contains code, configurations, processed data, predictions, and result records, but omits `.pt` and `model.safetensors` files. Its omission manifest identifies those files. Use the complete local snapshot to reconstruct saved predictions. To retrain from the smaller ZIP, first obtain the pinned initial models and **use a fresh output directory**, such as `rerun/local`; existing result JSON files in `revision_artifacts/` must not be treated as retraining outputs without their matching weights.
 
-## Data sources and acknowledgements
+```bash
+python scripts/download_models.py --out models
+python scripts/verify_release.py --artifacts revision_artifacts
+python -m daewc.verify_additional --artifacts revision_artifacts --data revision_artifacts/data --configs configs --sequence-directory sequential_low --skip-mechanism --out revision_artifacts/verification_sequential_low.json
+python scripts/draw_parameter_comparison.py --artifacts revision_artifacts --manuscript manuscript
+python scripts/build_references.py --metadata-cache reference_sources --manuscript manuscript
+tectonic manuscript/manuscript.tex
+tectonic manuscript/manuscript_marked.tex
+```
 
-This repo follows common practice in fake news detection research and builds on public benchmark datasets.
-
-- **ISOT Fake News Dataset** (True.csv / Fake.csv)  
-  Widely used fake-news benchmark with Reuters-based real news and curated fake news.  
-  See the ISOT dataset readme (University of Victoria):  
-  https://onlineacademiccommunity.uvic.ca/isot/
-
-- **COVID-19 Fake News Dataset (Constraint / Patwa et al.)**  
-  COVID-19 misinformation dataset released for research and shared tasks.  
-  Paper: https://arxiv.org/abs/2011.03327  
-  Official repo: https://github.com/parthpatwa/covid19-fake-news-detection
-
-Please respect the original licenses and terms of use of each dataset.
-
----
-
-## Ethical note
-
-Misinformation detection is a dual-use technology. In real deployments:
-- false positives can suppress legitimate speech
-- domain shift can create uneven error rates across communities
-
-DAEWC is designed to be more **auditable** (changes are localized in adapters and regularized in the backbone), but it is still not a substitute for careful evaluation and human oversight.
-
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+`verify_release.py` requires the full snapshot because it checks source reuse and exported-weight hashes. It checks all final model counts, shared target identifiers across protocols, nested budgets, frozen training code, and the numerical claims about the smaller model. The detailed verification reports also recompute metrics and reconstruct representative checkpoints. Test the implementation with `python -m pytest -q`.

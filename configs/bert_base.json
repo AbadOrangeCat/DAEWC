@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "model_id": "google-bert/bert-base-uncased",
+  "model_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+  "initialization": "pretrained",
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "shots": [
+    80
+  ],
+  "domains": [
+    "health",
+    "public_affairs",
+    "entertainment"
+  ],
+  "methods": [
+    "head",
+    "full",
+    "full_ewc",
+    "adapter",
+    "lora",
+    "lwf",
+    "daewc"
+  ],
+  "ablation_methods": [],
+  "ablation_shots": [],
+  "max_length": 128,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "source_epochs": 5,
+  "source_patience": 2,
+  "source_lr": 5e-05,
+  "weight_decay": 0.01,
+  "adapt_steps": 80,
+  "full_lr": 2e-05,
+  "calibration_lr": 0.0001,
+  "module_lr": 0.001,
+  "gradient_clip": 1.0,
+  "adapter_rank": 16,
+  "adapter_dropout": 0.1,
+  "domain_embedding_dim": 16,
+  "lora_rank": 8,
+  "ewc_lambda": 100.0,
+  "proximity_alpha": 0.1,
+  "fisher_samples": 256,
+  "fisher_damping": 1e-08,
+  "lwf_temperature": 2.0,
+  "lwf_weight": 1.0,
+  "target_threshold": 0.5,
+  "retention_tolerances": [
+    0.5,
+    1.0,
+    2.0,
+    5.0
+  ],
+  "sequential_shots": 80,
+  "sequential_methods": [
+    "daewc",
+    "adapter",
+    "full",
+    "lora"
+  ],
+  "sequential_fisher": "fixed_source_anchor_no_running_update",
+  "protocol": "all_target_labels_within_2K; no_target_dev; fixed_final_step; no_replay; no_unlabeled_pool"
+}
