@@ -44,6 +44,16 @@ def build(manuscript, output):
     for name in ['references.bib', 'highlights.txt']:
         shutil.copy2(manuscript / name, output / name)
     generated = ['DAEWC.tex', 'references.bib', 'highlights.txt', *assets]
+    # Carry the original journal template and its front-matter icons with the paper.
+    template_files = [manuscript / name for name in ('cas-sc.cls', 'cas-common.sty')]
+    template_files += sorted((manuscript / 'thumbnails').glob('*.jpeg'))
+    for source in template_files:
+        if source.is_file():
+            name = str(source.relative_to(manuscript))
+            destination = output / name
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+            generated.append(name)
     manifest = {'main_file': 'DAEWC.tex', 'compiler': 'XeLaTeX',
                 'source_sha256': sources,
                 'files': {name: hashlib.sha256((output / name).read_bytes()).hexdigest()
