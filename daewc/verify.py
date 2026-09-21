@@ -11,6 +11,29 @@ from .protocol import metrics
 from .training import encode, predict
 
 
+def verified_scores(predictions, rows, domain, threshold, matched_ids):
+    """Check each prediction against the frozen protocol before scoring it."""
+    expected = {r["id"]: r for r in rows if r["domain"] == domain and r["split"] == "test"}
+    identifiers = [p["id"] for p in predictions]
+    if len(identifiers) != len(set(identifiers)) or set(identifiers) != set(expected):
+        raise ValueError(f"{domain}: duplicate, missing, or unexpected test identifiers")
+    for prediction in predictions:
+        if prediction["threshold"] != threshold:
+            raise ValueError(f"{domain}: prediction threshold differs from the frozen threshold")
+        probability = prediction["probability"]
+        if not np.isfinite(probability) or not 0 <= probability <= 1:
+            raise ValueError(f"{domain}: invalid probability")
+        if prediction["label"] != expected[prediction["id"]]["label"]:
+            raise ValueError(f"{domain}: prediction label differs from the prepared data")
+        if prediction["origin_length_matched"] != (prediction["id"] in matched_ids):
+            raise ValueError(f"{domain}: incorrect matched-subset membership")
+    matched = [p for p in predictions if p["id"] in matched_ids]
+    def score(records):
+        return metrics([p["label"] for p in records], [p["probability"] for p in records], threshold)
+    return {"all": score(predictions), "matched": score(matched) if matched else None,
+            "matched_n": len(matched)}
+
+
 def verify(args):
     rows = [json.loads(s) for s in (args.data / "records.jsonl").read_text().splitlines()]
     manifest = json.loads((args.data / "manifest.json").read_text())
@@ -19,6 +42,14 @@ def verify(args):
     assert len(lookup) == len(rows)
     assert len({r["cluster"] for r in rows}) == len(rows)
     runs = [json.loads(p.read_text()) for p in (args.runs / "runs").glob("*.json")]
+    source_root = args.source or args.runs
+    sources = {}
+    for seed in {r["seed"] for r in runs}:
+        folder = source_root / f"source_seed{seed}"
+        info = json.loads((folder / "source.json").read_text())
+        predictions = json.loads((folder / "test_predictions.json").read_text())
+        sources[seed] = (info["threshold"], verified_scores(
+            predictions, rows, "source", info["threshold"], set(manifest["matched_test_ids"]["source"])))
     budgets = defaultdict(set)
     for r in runs:
         ids = r["target_label_ids"]
@@ -27,6 +58,9 @@ def verify(args):
         assert sum(lookup[i]["label"] for i in ids) == r["shots_per_class"]
         budgets[(r["domain"], r["shots_per_class"], r["seed"])].add(tuple(sorted(ids)))
         assert r["threshold_target"] == .5
+        source_threshold, source_scores = sources[r["seed"]]
+        assert r["threshold_source"] == source_threshold, r["run_id"]
+        assert r["source_before"] == source_scores, r["run_id"]
         assert r["training"]["target_dev_labels_used"] == 0
         assert not r["training"]["source_replay"] and not r["training"]["unlabeled_target"]
         assert r["training"]["optimizer_steps"] == 80
@@ -34,15 +68,15 @@ def verify(args):
         assert sha256(args.runs / r["checkpoint"]) == r["checkpoint_sha256"]
         for role, domain, resultkey in [("source", "source", "source_after"), ("target", r["domain"], "target")]:
             preds = json.loads((args.runs / "predictions" / f"{r['run_id']}_{role}.json").read_text())
-            assert {p["id"] for p in preds} == {x["id"] for x in rows if x["domain"] == domain and x["split"] == "test"}
-            assert all(lookup[p["id"]]["label"] == p["label"] for p in preds)
-            score = metrics([p["label"] for p in preds], [p["probability"] for p in preds], preds[0]["threshold"])
+            threshold = source_threshold if role == "source" else .5
+            verified = verified_scores(preds, rows, domain, threshold, set(manifest["matched_test_ids"][domain]))
+            score = verified["all"]
             assert all(abs(score[k] - r[resultkey]["all"][k]) < 1e-9 for k in score)
             matched_ids = set(manifest['matched_test_ids'][domain])
             assert all(p['origin_length_matched'] == (p['id'] in matched_ids) for p in preds)
             matched = [p for p in preds if p['id'] in matched_ids]
             assert len(matched) == r[resultkey]['matched_n'] == len(matched_ids)
-            matched_score = metrics([p['label'] for p in matched], [p['probability'] for p in matched], preds[0]['threshold'])
+            matched_score = verified["matched"]
             assert all(abs(matched_score[k] - r[resultkey]['matched'][k]) < 1e-9 for k in matched_score)
         assert abs(r["delta_source_pp"] - (r["source_after"]["all"]["macro_f1"] - r["source_before"]["all"]["macro_f1"])) < 1e-9
         for candidate in r.get("selection_candidates", []):
@@ -93,7 +127,7 @@ def verify(args):
             reproduced.append({"run_id": r["run_id"], "max_probability_error": error})
     result = {"verified_runs": len(runs), "paired_budget_groups": len(budgets), "checkpoint_reconstructions": reproduced,
               "checkpoint_reconstruction_device": args.device if args.model_path else None,
-              "checks": "data and checkpoint SHA-256; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"}
+              "checks": "data and checkpoint SHA-256; unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"}
     print(json.dumps(result, indent=2))
     if args.out: args.out.write_text(json.dumps(result, indent=2))
 

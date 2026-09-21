@@ -134,3 +134,17 @@ tectonic manuscript/manuscript_marked.tex
 ```
 
 `verify_release.py` requires the full snapshot because it checks source reuse and exported-weight hashes. It checks all final model counts, shared target identifiers across protocols, nested budgets, frozen training code, and the numerical claims about the smaller model. The detailed verification reports also recompute metrics and reconstruct representative checkpoints. Test the implementation with `python -m pytest -q`.
+
+## Manuscript synchronization and threshold checks
+
+The verifier checks every prediction's threshold against the saved source-development threshold or the fixed target threshold of 0.5. It rejects duplicate test IDs, non-finite or out-of-range probabilities, and recomputes the pre-adaptation source baseline from the original predictions. For cross-validation runs, pass the source checkpoint directory explicitly with `--source`.
+
+`build_tables.py` also writes the three primary DAEWC source-change macros in `numbers.tex`. Use those macros in the results prose so the prose and tables round the same unrounded seed means. The verifier and reporting changes do not alter training or select new models from test scores.
+
+To prepare the revised manuscript for an existing Overleaf project:
+
+```bash
+python scripts/build_overleaf.py --manuscript manuscript --out overleaf_upload
+```
+
+This flattens the LaTeX inputs into `DAEWC.tex`, copies the four figures, BibTeX file, and Highlights, and writes a checksum manifest. Upload these files through Overleaf and use XeLaTeX. The script performs no upload, publication, or comment posting. Selection comments must be attached in the Overleaf editor.

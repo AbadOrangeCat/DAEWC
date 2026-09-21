@@ -8,6 +8,7 @@ p.add_argument('--artifacts',type=Path,default=project/'revision_artifacts')
 p.add_argument('--manuscript',type=Path,default=project/'manuscript')
 args=p.parse_args()
 from daewc.summarize import summarize,interval,NAMES
+from daewc.reporting import source_change_macros
 root=args.artifacts;out=args.manuscript;tables=out/'tables';tables.mkdir(exist_ok=True)
 for name in ['local','budget_cv','random','bert_base','low_footprint','low_footprint_cv']:
  if (root/name/'runs').exists():summarize(root/name,root/'sequential' if name=='local' else None,root/'tables'/name)
@@ -103,4 +104,6 @@ for lr in [1e-4,1e-3,1e-2]:
 # Portable numerical macros, based on actual primary data.
 r=next(x for x in raw if x['method']=='daewc');sourceinfo=json.loads((root/'local/source_seed42/source.json').read_text())
 (out/'numbers.tex').write_text(f"\\newcommand{{\\TrainableCount}}{{{r['training']['trainable_parameters']:,}}}\n\\newcommand{{\\SharedCalibrationCount}}{{{sourceinfo['calibration_parameters']:,}}}\n\\newcommand{{\\SourceParameterCount}}{{{sourceinfo['total_parameters']:,}}}\n")
+with (out/'numbers.tex').open('a') as stream:
+ stream.write(source_change_macros(raw))
 print('Tables regenerated.',{name:len(list((root/name/'runs').glob('*.json'))) for name in ['local','sequential','budget_cv','random','bert_base','mechanism']})
