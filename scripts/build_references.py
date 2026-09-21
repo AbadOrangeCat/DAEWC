@@ -1,4 +1,4 @@
-import json,re, pathlib
+import html,json,re, pathlib
 import argparse
 project=pathlib.Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser()
@@ -32,7 +32,7 @@ for r in refs:
 refs.sort(key=lambda r:(r['authors'][0][0].lower(),r['year'],r['title']))
 (out/'references_metadata.json').write_text(json.dumps(refs,indent=2,ensure_ascii=False))
 def esc(s):
- return str(s).replace('&',r'\&').replace('%',r'\%').replace('_',r'\_')
+ return html.unescape(str(s)).replace('&',r'\&').replace('%',r'\%').replace('_',r'\_')
 def initials(s):
  return ' '.join('-'.join(x[0]+'.' for x in token.split('-') if x) for token in s.replace('.','').split())
 def author_apa(a):return esc(a[0])+', '+esc(initials(a[1]))
@@ -46,7 +46,7 @@ for r in refs:
   if r.get(k):fields[k]=str(r[k]).replace('–','--') if k=='pages' else str(r[k])
  if r.get('article_number'):fields['eid']=r['article_number']
  if r['type']=='misc':fields['archivePrefix']='arXiv'
- bib.append('@'+r['type']+'{'+r['key']+',\n'+',\n'.join('  '+k+' = {'+v+'}' for k,v in fields.items())+'\n}\n')
+ bib.append('@'+r['type']+'{'+r['key']+',\n'+',\n'.join('  '+k+' = {'+html.unescape(v).replace('&',r'\&')+'}' for k,v in fields.items())+'\n}\n')
  names=[author_apa(a) for a in r['authors']]
  authors=names[0] if len(names)==1 else ', '.join(names[:-1])+r', \& '+names[-1]
  short=esc(r['authors'][0][0])+(r' et~al.' if len(names)>2 else r' \& '+esc(r['authors'][1][0]) if len(names)==2 else '')
