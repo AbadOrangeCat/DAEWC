@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "verification_mode": "saved_predictions",
+  "verified_final_models": 666,
+  "core_code_sha256": "38c0b874770d9e0eaa1fb4cba95bf140b925c8e58edf28edfc68a99399a2ac56",
+  "data_sha256": "158e149cc627268a3590595dcb45d007e2b3afdcbe30a71554b83221fd73aac8",
+  "cross_protocol_paired_budget_groups": 36,
+  "groups": {
+    "local": {
+      "verified_runs": 288,
+      "paired_budget_groups": 36,
+      "checkpoint_reconstructions": [],
+      "verification_mode": "saved_predictions",
+      "checkpoint_hashes_verified": 0,
+      "checkpoint_hashes_not_checked": 288,
+      "checkpoint_reconstruction_device": null,
+      "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+    },
+    "budget_cv": {
+      "verified_runs": 126,
+      "paired_budget_groups": 18,
+      "checkpoint_reconstructions": [],
+      "verification_mode": "saved_predictions",
+      "checkpoint_hashes_verified": 0,
+      "checkpoint_hashes_not_checked": 126,
+      "checkpoint_reconstruction_device": null,
+      "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+    },
+    "random": {
+      "verified_runs": 45,
+      "paired_budget_groups": 9,
+      "checkpoint_reconstructions": [],
+      "verification_mode": "saved_predictions",
+      "checkpoint_hashes_verified": 0,
+      "checkpoint_hashes_not_checked": 45,
+      "checkpoint_reconstruction_device": null,
+      "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+    },
+    "bert_base": {
+      "verified_runs": 63,
+      "paired_budget_groups": 9,
+      "checkpoint_reconstructions": [],
+      "verification_mode": "saved_predictions",
+      "checkpoint_hashes_verified": 0,
+      "checkpoint_hashes_not_checked": 63,
+      "checkpoint_reconstruction_device": null,
+      "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+    },
+    "low_footprint": {
+      "verified_runs": 108,
+      "paired_budget_groups": 36,
+      "checkpoint_reconstructions": [],
+      "verification_mode": "saved_predictions",
+      "checkpoint_hashes_verified": 0,
+      "checkpoint_hashes_not_checked": 108,
+      "checkpoint_reconstruction_device": null,
+      "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+    },
+    "low_footprint_cv": {
+      "verified_runs": 36,
+      "paired_budget_groups": 18,
+      "checkpoint_reconstructions": [],
+      "verification_mode": "saved_predictions",
+      "checkpoint_hashes_verified": 0,
+      "checkpoint_hashes_not_checked": 36,
+      "checkpoint_reconstruction_device": null,
+      "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+    }
+  },
+  "scope": "Recomputed all six final-model groups from saved predictions; checked frozen code, complete designs, thresholds, labels, full and matched metrics, source baselines, and paired budgets.",
+  "limitations": "This does not reconstruct model predictions or verify omitted weights. Historical full-checkpoint reports are retained separately. Sequential, mechanism, export, and second-test evidence is included but is outside this command's numerical recomputation scope."
+}

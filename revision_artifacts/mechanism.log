@@ -1,0 +1,135 @@
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 29867.06it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+s42_health_lr0.0001_lambda0 65.13859275053304 -0.09849937701670797
+s42_health_lr0.0001_lambda100 65.13859275053304 -0.10641383241556213
+s42_health_lr0.0001_lambda10000 65.13859275053304 -0.12338429413613738
+s42_health_lr0.001_lambda0 65.13859275053304 -0.09849937701670797
+s42_health_lr0.001_lambda100 65.13859275053304 -0.15170151656217
+s42_health_lr0.001_lambda10000 65.13859275053304 -0.026523311488318768
+s42_health_lr0.01_lambda0 53.19525132609244 -0.4605474827511671
+s42_health_lr0.01_lambda100 57.5084745762712 -0.24041746053890023
+s42_health_lr0.01_lambda10000 65.43340380549682 -0.13244129802131255
+s42_public_affairs_lr0.0001_lambda0 75.07154213036567 0.22102732623951482
+s42_public_affairs_lr0.0001_lambda100 75.07154213036567 0.1063426552353377
+s42_public_affairs_lr0.0001_lambda10000 75.07154213036567 0.0
+s42_public_affairs_lr0.001_lambda0 75.74193548387098 -0.15170151656217
+s42_public_affairs_lr0.001_lambda100 75.74193548387098 0.008081417214057751
+s42_public_affairs_lr0.001_lambda10000 75.25252525252526 0.0
+s42_public_affairs_lr0.01_lambda0 75.87913382734153 -0.3535939250316815
+s42_public_affairs_lr0.01_lambda100 75.79293128366838 -0.45955481021007927
+s42_public_affairs_lr0.01_lambda10000 71.85011098054576 -0.14188018689776527
+s42_entertainment_lr0.0001_lambda0 55.18362839161301 0.25743862622621805
+s42_entertainment_lr0.0001_lambda100 55.18362839161301 0.14380240880820594
+s42_entertainment_lr0.0001_lambda10000 55.163302914699194 -0.22953673809241337
+s42_entertainment_lr0.001_lambda0 55.665117728991916 0.30662389333068774
+s42_entertainment_lr0.001_lambda100 55.72393278020628 -0.13244129802131255
+s42_entertainment_lr0.001_lambda10000 56.64448371784475 0.0
+s42_entertainment_lr0.01_lambda0 55.99664917039509 0.30053294013868737
+s42_entertainment_lr0.01_lambda100 59.73564991145136 0.11459006621991108
+s42_entertainment_lr0.01_lambda10000 55.213650421338976 0.05941513020732003
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 13205.35it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+s43_health_lr0.0001_lambda0 62.397169394073416 0.37346510559877544
+s43_health_lr0.0001_lambda100 62.397169394073416 0.37346510559877544
+s43_health_lr0.0001_lambda10000 62.397169394073416 0.0
+s43_health_lr0.001_lambda0 67.24342045351062 0.22175361388709547
+s43_health_lr0.001_lambda100 66.06227106227107 -0.05269489565556995
+s43_health_lr0.001_lambda10000 64.86137975499678 -0.3035361752080661
+s43_health_lr0.01_lambda0 56.86621200639892 -0.37881732901838916
+s43_health_lr0.01_lambda100 55.959595959595966 0.2921138193969597
+s43_health_lr0.01_lambda10000 52.957603452652954 -0.20517882805380339
+s43_public_affairs_lr0.0001_lambda0 73.9463601532567 -0.37881732901838916
+s43_public_affairs_lr0.0001_lambda100 73.9463601532567 -0.2747612388937526
+s43_public_affairs_lr0.0001_lambda10000 73.9463601532567 -0.117154269655245
+s43_public_affairs_lr0.001_lambda0 73.46938775510205 -0.7717195841321853
+s43_public_affairs_lr0.001_lambda100 74.48713943559304 -0.794571895450396
+s43_public_affairs_lr0.001_lambda10000 74.48713943559304 -0.1851035113949706
+s43_public_affairs_lr0.01_lambda0 78.21927090391651 0.2585289428996447
+s43_public_affairs_lr0.01_lambda100 76.82301931415057 -0.1046930425199264
+s43_public_affairs_lr0.01_lambda10000 78.39262187088273 0.08749578223510213
+s43_entertainment_lr0.0001_lambda0 52.07034398142765 0.02346817322398209
+s43_entertainment_lr0.0001_lambda100 52.07034398142765 0.11420946350903449
+s43_entertainment_lr0.0001_lambda10000 52.120471487451816 -0.012611294623937397
+s43_entertainment_lr0.001_lambda0 51.82475424620221 0.07143899725064529
+s43_entertainment_lr0.001_lambda100 51.724873745915986 -0.39286653509363134
+s43_entertainment_lr0.001_lambda10000 51.101424731092436 -0.2889587559500697
+s43_entertainment_lr0.01_lambda0 52.3596124640988 -0.8946822122196281
+s43_entertainment_lr0.01_lambda100 55.95217227702871 -0.10068374499829957
+s43_entertainment_lr0.01_lambda10000 60.63164434016362 -0.1211444758545781
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 7554.36it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+s44_health_lr0.0001_lambda0 63.62002567394095 -0.22328570164666672
+s44_health_lr0.0001_lambda100 63.62002567394095 -0.22328570164666672
+s44_health_lr0.0001_lambda10000 63.62002567394095 0.0
+s44_health_lr0.001_lambda0 62.77322404371585 0.13076449581116378
+s44_health_lr0.001_lambda100 62.9251700680272 -0.08170759835750374
+s44_health_lr0.001_lambda10000 62.77322404371585 -0.10905951945414216
+s44_health_lr0.01_lambda0 65.1034005364714 0.9891036115035163
+s44_health_lr0.01_lambda100 65.1034005364714 0.16254627208065386
+s44_health_lr0.01_lambda10000 62.77322404371585 -0.10905951945414216
+s44_public_affairs_lr0.0001_lambda0 76.66110978804477 -0.22328570164666672
+s44_public_affairs_lr0.0001_lambda100 76.66110978804477 -0.22328570164666672
+s44_public_affairs_lr0.0001_lambda10000 76.66110978804477 0.0
+s44_public_affairs_lr0.001_lambda0 76.72024705043945 0.5248607722027216
+s44_public_affairs_lr0.001_lambda100 76.72024705043945 0.0804866993927007
+s44_public_affairs_lr0.001_lambda10000 77.14891361950185 -0.10905951945414216
+s44_public_affairs_lr0.01_lambda0 76.09432172381081 -0.7653545959749408
+s44_public_affairs_lr0.01_lambda100 74.8078868925534 -1.7436529414820967
+s44_public_affairs_lr0.01_lambda10000 76.52694610778443 -0.21235502952273322
+s44_entertainment_lr0.0001_lambda0 60.70221247939178 -0.3233425358545503
+s44_entertainment_lr0.0001_lambda100 60.66657992653363 -0.2146968152606803
+s44_entertainment_lr0.0001_lambda10000 60.790881578355815 -0.10905951945414216
+s44_entertainment_lr0.001_lambda0 61.96876473857911 -0.9912426064870488
+s44_entertainment_lr0.001_lambda100 61.826360979174275 -0.10905951945414216
+s44_entertainment_lr0.001_lambda10000 61.94134063840093 0.004270722698684892
+s44_entertainment_lr0.01_lambda0 58.720421226512485 -1.7349231584170681
+s44_entertainment_lr0.01_lambda100 63.218311710776966 -1.8056418415823288
+s44_entertainment_lr0.01_lambda10000 54.39333164526977 -0.33508680135988556

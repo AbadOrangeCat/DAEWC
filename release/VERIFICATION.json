@@ -1,0 +1,37 @@
+{
+  "snapshot_date": "2026-09-22",
+  "status": "passed",
+  "implementation_tests": {
+    "command": "python -m pytest -q -p no:cacheprovider tests",
+    "passed": 27
+  },
+  "saved_prediction_checks": {
+    "report": "release/SAVED_RESULTS_VERIFICATION.json",
+    "verified_final_models": 666,
+    "new_training_runs": 0,
+    "checkpoint_reconstructions_this_audit": 0
+  },
+  "unchanged_scientific_evidence": {
+    "compared_files": 3452,
+    "changed_files": 0,
+    "baseline": "Previous code-and-evidence bundle file manifest, retained in the local archive."
+  },
+  "weights": "Omitted from this repository; see OMITTED_WEIGHTS.json. Historical full-archive verification reports do not assert that weights are present here.",
+  "manuscript": "Supplied separately; absent from this repository.",
+  "git_tracking": "Evidence and model configuration files are no longer ignored. Weight files, caches, and local outputs remain ignored.",
+  "upload_limits": {
+    "files_above_100_MiB": 0,
+    "files_above_browser_25_MiB": [
+      {
+        "path": "news/Fake.csv",
+        "bytes": 62789876
+      },
+      {
+        "path": "news/True.csv",
+        "bytes": 53561522
+      }
+    ],
+    "recommended_method": "Git or GitHub Desktop"
+  },
+  "limits": "Saved-result verification checks recorded predictions and protocol arithmetic; it does not independently regenerate predictions or certify the scientific conclusions."
+}

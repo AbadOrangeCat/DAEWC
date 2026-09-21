@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_entertainment_k80_s42_head",
+  "group": "fixed_reference",
+  "method": "head",
+  "seed": 42,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 51.86009781857117,
+    "accuracy": 53.56622998544396,
+    "auc": 0.6698497024754887
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "47328d9be6a9499dfbf7ec91b31f44a527eb05ea20f7589dab4aad046ee86095",
+  "trainable_parameters": 258,
+  "selection_or_training_performed": false
+}

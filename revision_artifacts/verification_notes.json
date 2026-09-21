@@ -1,0 +1,15 @@
+{
+  "final_status": "All required verification passed.",
+  "bert_base_reconstruction": "All seven methods reconstructed on MPS, each on the complete health test partition; all maximum probability errors are zero. Full-test and matched-test metric arithmetic checked for all 63 runs.",
+  "earlier_cpu_probe": {
+    "run_id": "entertainment_k80_s42_adapter",
+    "observed_max_probability_difference_from_saved_mps": 1.2934207916259766e-05,
+    "tolerance": 1e-05,
+    "outcome": "The cross-backend probe exceeded this tolerance. Final saved-run reconstruction uses the original MPS backend; CPU and MPS are not claimed to be bitwise interchangeable."
+  },
+  "earlier_mps_probe": "An initial larger-partition reconstruction was interrupted to avoid memory contention with ongoing training. It was replaced after training by the complete health-partition reconstruction for every method. These were verification operations, not failed or omitted training experiments.",
+  "preserved_logs": [
+    "verification_base_reconstruction.log",
+    "verification_base_mps.log"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "fixed_low_footprint_entertainment_k80_s44_daewc",
+  "group": "fixed_low_footprint",
+  "method": "daewc",
+  "seed": 44,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 59.178557737359974,
+    "accuracy": 63.901018922852984,
+    "auc": 0.6967566122440336
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "e2ebf8e4e99f034c50f0a470636cc645648fe5f10b4ccfff5448efb9af7cf470",
+  "trainable_parameters": 6154,
+  "selection_or_training_performed": false
+}

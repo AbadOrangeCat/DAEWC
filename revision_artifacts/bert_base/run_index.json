@@ -1,0 +1,317 @@
+[
+  {
+    "run_id": "health_k80_s42_head",
+    "checkpoint": "checkpoints/health_k80_s42_head.pt",
+    "checkpoint_sha256": "d5b8c50f46579cf77ad651535120a8503f56ee66111397ad7dd230cbed2a53b3"
+  },
+  {
+    "run_id": "health_k80_s42_full",
+    "checkpoint": "checkpoints/health_k80_s42_full.pt",
+    "checkpoint_sha256": "381b6289a6a3020d1f2b323392dc22e4e3a83cd64052390d65359b89f733bed3"
+  },
+  {
+    "run_id": "health_k80_s42_full_ewc",
+    "checkpoint": "checkpoints/health_k80_s42_full_ewc.pt",
+    "checkpoint_sha256": "c0b7fc7004bca7e7184cc3cf01c88002d5ccdc84052618d01ac5c7651f4ed77f"
+  },
+  {
+    "run_id": "health_k80_s42_adapter",
+    "checkpoint": "checkpoints/health_k80_s42_adapter.pt",
+    "checkpoint_sha256": "c934338d21cf7d534df028cb64f7c205b2e8e8871c8958d82b0a07139a33cdb9"
+  },
+  {
+    "run_id": "health_k80_s42_lora",
+    "checkpoint": "checkpoints/health_k80_s42_lora.pt",
+    "checkpoint_sha256": "6b285490db3366e753a2f555a20a51ceab5b94023a46989f9d5ae8b1a83e3151"
+  },
+  {
+    "run_id": "health_k80_s42_lwf",
+    "checkpoint": "checkpoints/health_k80_s42_lwf.pt",
+    "checkpoint_sha256": "e02288aa6dbd96f46a1903f28cb5c9a0aa8e33dd6b12463e38a21d2e168b1442"
+  },
+  {
+    "run_id": "health_k80_s42_daewc",
+    "checkpoint": "checkpoints/health_k80_s42_daewc.pt",
+    "checkpoint_sha256": "2376a1a00bd13ad415e0335bdcd6af6a5a9201cc060ec01da4246e51529f931f"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_head",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_head.pt",
+    "checkpoint_sha256": "d19a8ce10670983fde191b7e615754bf91eed7a88670045ace8d4b7cf2025eba"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_full",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_full.pt",
+    "checkpoint_sha256": "ebc94d64e390a5740fe100648d0d42735b6898cf88b2cc584ac85236989b7d1a"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_full_ewc",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_full_ewc.pt",
+    "checkpoint_sha256": "7a21356545ba3569b4314e50b4869a2e60f9ab84c7e79cc4605c82ae0611339b"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_adapter",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_adapter.pt",
+    "checkpoint_sha256": "f9bef56f3cf5c7f660da2e9d7cd52cb15ae47e3f5fe0471c4c666e509a05c3cc"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_lora",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_lora.pt",
+    "checkpoint_sha256": "1f04b883a003dadcb3738ce113ad25ed00ecbc0def5f6a62fd5744059ba436ca"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_lwf",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_lwf.pt",
+    "checkpoint_sha256": "53ab76f9760e048ac0ad3c2d0b29c524b2fe06875927dfb8ebcb6cc91ea712b8"
+  },
+  {
+    "run_id": "public_affairs_k80_s42_daewc",
+    "checkpoint": "checkpoints/public_affairs_k80_s42_daewc.pt",
+    "checkpoint_sha256": "9bf9d809c9295643da9539d492c34b1a0080ad654395ea07aba947dee6be8762"
+  },
+  {
+    "run_id": "entertainment_k80_s42_head",
+    "checkpoint": "checkpoints/entertainment_k80_s42_head.pt",
+    "checkpoint_sha256": "c32393886640d91fcc5f01f3c5cfb05f5163b582f5b4a0c0d89ffba5473f5022"
+  },
+  {
+    "run_id": "entertainment_k80_s42_full",
+    "checkpoint": "checkpoints/entertainment_k80_s42_full.pt",
+    "checkpoint_sha256": "114fcd7a093ad1e03e087afb3e5179c96211eccf683a5337b66e5f48e7c08806"
+  },
+  {
+    "run_id": "entertainment_k80_s42_full_ewc",
+    "checkpoint": "checkpoints/entertainment_k80_s42_full_ewc.pt",
+    "checkpoint_sha256": "7817716ccca8b47fb58eb956414aa0ab0c0d4b472a7773978ed938788d9bb744"
+  },
+  {
+    "run_id": "entertainment_k80_s42_adapter",
+    "checkpoint": "checkpoints/entertainment_k80_s42_adapter.pt",
+    "checkpoint_sha256": "12b623feced75186c3ccdfd69196b851429b54590c73731a6f76b097dbd9c5a0"
+  },
+  {
+    "run_id": "entertainment_k80_s42_lora",
+    "checkpoint": "checkpoints/entertainment_k80_s42_lora.pt",
+    "checkpoint_sha256": "34961e6280db7bfe534dc6d2e3e3228d15b87fdb0f50ddcc2df29286df10e30c"
+  },
+  {
+    "run_id": "entertainment_k80_s42_lwf",
+    "checkpoint": "checkpoints/entertainment_k80_s42_lwf.pt",
+    "checkpoint_sha256": "a1857cd370f6c924a0aa7fe890519ea693e3db700c80f4b554562abb2c0616ba"
+  },
+  {
+    "run_id": "entertainment_k80_s42_daewc",
+    "checkpoint": "checkpoints/entertainment_k80_s42_daewc.pt",
+    "checkpoint_sha256": "4757762a0d9df5aebfa1b3fc21a56e9f8a007282cbd2cff8ca79cd4723556c09"
+  },
+  {
+    "run_id": "health_k80_s43_head",
+    "checkpoint": "checkpoints/health_k80_s43_head.pt",
+    "checkpoint_sha256": "32ce976522fd5744d58859b721c7c4bc0bbd3fe616e82aac7ed68e0625e72d28"
+  },
+  {
+    "run_id": "health_k80_s43_full",
+    "checkpoint": "checkpoints/health_k80_s43_full.pt",
+    "checkpoint_sha256": "c27b97e86d053475ebac36aba364c3d71ca917a4af22716a830cd6d9a521dfff"
+  },
+  {
+    "run_id": "health_k80_s43_full_ewc",
+    "checkpoint": "checkpoints/health_k80_s43_full_ewc.pt",
+    "checkpoint_sha256": "0bcf825bc5d4285fbd6eeb44689e4fc0962f3274cd092fe20ebb6fdd453bd53e"
+  },
+  {
+    "run_id": "health_k80_s43_adapter",
+    "checkpoint": "checkpoints/health_k80_s43_adapter.pt",
+    "checkpoint_sha256": "2af54f0479e9627102aaf37a95e031f0573dcdb7b7380a125e88c65439293d99"
+  },
+  {
+    "run_id": "health_k80_s43_lora",
+    "checkpoint": "checkpoints/health_k80_s43_lora.pt",
+    "checkpoint_sha256": "82879bce5eab8ffe16bed0c5c508226aeda8f3be5281ebb497680deb45f1b6b9"
+  },
+  {
+    "run_id": "health_k80_s43_lwf",
+    "checkpoint": "checkpoints/health_k80_s43_lwf.pt",
+    "checkpoint_sha256": "5a392ebc019826c3737dece8a93ab35ce55810918f4cb4cad707c0140e8d2895"
+  },
+  {
+    "run_id": "health_k80_s43_daewc",
+    "checkpoint": "checkpoints/health_k80_s43_daewc.pt",
+    "checkpoint_sha256": "2cb5614ff77ac54f4746b9c06e8d5bd25f97af350ea83202ab8aa2935b2bc572"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_head",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_head.pt",
+    "checkpoint_sha256": "60d4a9d975cc0730438b294d80f3c7a203290dd15672b7a1cdce061e95f3362f"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_full",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_full.pt",
+    "checkpoint_sha256": "217b86b8ebcadea827332bdb0c618ecf29d437ba8ffce6f61f6ed0b0ff95e3d3"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_full_ewc",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_full_ewc.pt",
+    "checkpoint_sha256": "50c0a44bab37b77dcb8e0afe33518849fe694bf10a21c19c78ded67fb2cd0730"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_adapter",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_adapter.pt",
+    "checkpoint_sha256": "509722f33951ee1e30ca2503a0a1f71af56365995a1db920b8883012ec15cb07"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_lora",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_lora.pt",
+    "checkpoint_sha256": "ef385ffd19e3d92d0563259391ddfdc829dd207674dcdea71abaf6df675805e4"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_lwf",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_lwf.pt",
+    "checkpoint_sha256": "dd0808a6e9130455f86cb7bd9c9f8628b828d642e0471e92783016579aa1660e"
+  },
+  {
+    "run_id": "public_affairs_k80_s43_daewc",
+    "checkpoint": "checkpoints/public_affairs_k80_s43_daewc.pt",
+    "checkpoint_sha256": "fb1aee356bfb2cda6a0e9d9874abe71da7b525021fc38ea212d1d4672c3cbe34"
+  },
+  {
+    "run_id": "entertainment_k80_s43_head",
+    "checkpoint": "checkpoints/entertainment_k80_s43_head.pt",
+    "checkpoint_sha256": "4eb49a9b44dd19145ac9f03e01869030eedc492b5c7baa59462cfeb5bc481173"
+  },
+  {
+    "run_id": "entertainment_k80_s43_full",
+    "checkpoint": "checkpoints/entertainment_k80_s43_full.pt",
+    "checkpoint_sha256": "db9ba9772db1a46778fb7d2d5b1e15c5cda7a76ee8f9c479e052fe5f698274b1"
+  },
+  {
+    "run_id": "entertainment_k80_s43_full_ewc",
+    "checkpoint": "checkpoints/entertainment_k80_s43_full_ewc.pt",
+    "checkpoint_sha256": "db1877cbd625b77e49bb67019ca892406baad0efe8866d674e7ae17e582ac53e"
+  },
+  {
+    "run_id": "entertainment_k80_s43_adapter",
+    "checkpoint": "checkpoints/entertainment_k80_s43_adapter.pt",
+    "checkpoint_sha256": "c4d8e8b7b16ea35e706aeade0991e22e6f8808f7340cf5f1cae3aaf061a996fe"
+  },
+  {
+    "run_id": "entertainment_k80_s43_lora",
+    "checkpoint": "checkpoints/entertainment_k80_s43_lora.pt",
+    "checkpoint_sha256": "99648a12623608f00a7fa310ad0a19e5a5da013c1d73173f714405377ed8984e"
+  },
+  {
+    "run_id": "entertainment_k80_s43_lwf",
+    "checkpoint": "checkpoints/entertainment_k80_s43_lwf.pt",
+    "checkpoint_sha256": "7f1f5f308032e2746011d3d735e96ecddaba4db1f0cc82285812a2d5fbceb851"
+  },
+  {
+    "run_id": "entertainment_k80_s43_daewc",
+    "checkpoint": "checkpoints/entertainment_k80_s43_daewc.pt",
+    "checkpoint_sha256": "9d632a4a98f0d52d12c375b6f381ad1ddae4f73ac0d59744106dbd03d49bba8c"
+  },
+  {
+    "run_id": "health_k80_s44_head",
+    "checkpoint": "checkpoints/health_k80_s44_head.pt",
+    "checkpoint_sha256": "cf9e8c9d827e97310ae270d6cb935f2d2afdca3d6d31910412ece195edd491de"
+  },
+  {
+    "run_id": "health_k80_s44_full",
+    "checkpoint": "checkpoints/health_k80_s44_full.pt",
+    "checkpoint_sha256": "65d9de4901e1e65066280f424f5fcaf3c38b6b4f0c1f036158e9c75aeac824a0"
+  },
+  {
+    "run_id": "health_k80_s44_full_ewc",
+    "checkpoint": "checkpoints/health_k80_s44_full_ewc.pt",
+    "checkpoint_sha256": "390429adb061f8cf3bfb5fe950918fdd6073ec09a077cda6a066203ebf11df65"
+  },
+  {
+    "run_id": "health_k80_s44_adapter",
+    "checkpoint": "checkpoints/health_k80_s44_adapter.pt",
+    "checkpoint_sha256": "2ad5a541ab1979f2bba80119c231b0791774f4fff14609451e0116d7a4ed2fba"
+  },
+  {
+    "run_id": "health_k80_s44_lora",
+    "checkpoint": "checkpoints/health_k80_s44_lora.pt",
+    "checkpoint_sha256": "e93cf560f864568d12a42df4fd6985157986e47e049b69260a66935e18771143"
+  },
+  {
+    "run_id": "health_k80_s44_lwf",
+    "checkpoint": "checkpoints/health_k80_s44_lwf.pt",
+    "checkpoint_sha256": "7ef83fdc36a7b99b93090762a3c8c3ac7fbdb23d70c7654705597bf098bd8772"
+  },
+  {
+    "run_id": "health_k80_s44_daewc",
+    "checkpoint": "checkpoints/health_k80_s44_daewc.pt",
+    "checkpoint_sha256": "be2cb73cc1478ea655d64e32cab7a65fb22e7e0bc367446737c7a4eb9ab2aa46"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_head",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_head.pt",
+    "checkpoint_sha256": "3858ecd97272ce441a0f707bfd0ac769b933104c5bbe7f6dd492753195464e45"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_full",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_full.pt",
+    "checkpoint_sha256": "1af1f5358a4228b2ab7071528d7d39de83a1156a64885f4ff129c6adfa979850"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_full_ewc",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_full_ewc.pt",
+    "checkpoint_sha256": "3bd7295f9387c2bf2536c097b94a405b6b07b481a234823e625da63a6b2c3531"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_adapter",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_adapter.pt",
+    "checkpoint_sha256": "f67323374022c72a9e88732e7f2f01e4be75e0b3ecd6255c434cca9942579f0a"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_lora",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_lora.pt",
+    "checkpoint_sha256": "9bf50970dcf1a7fbb9e852183516be6d020bffd87268dbccdcf8c3f6395db160"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_lwf",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_lwf.pt",
+    "checkpoint_sha256": "a9f721eca617e0b683f3051680578a2f7d42d6e0a41b619d77ad3f52a0c1417a"
+  },
+  {
+    "run_id": "public_affairs_k80_s44_daewc",
+    "checkpoint": "checkpoints/public_affairs_k80_s44_daewc.pt",
+    "checkpoint_sha256": "3bbf14ba3be520c6017b8ba0e6812bd1742c72be4d337e6e58fbcf1bcc9254d0"
+  },
+  {
+    "run_id": "entertainment_k80_s44_head",
+    "checkpoint": "checkpoints/entertainment_k80_s44_head.pt",
+    "checkpoint_sha256": "70eee69dabd22e53501f34585cf1a4e9b678ec259e3af4d8f84e062b9a88a60c"
+  },
+  {
+    "run_id": "entertainment_k80_s44_full",
+    "checkpoint": "checkpoints/entertainment_k80_s44_full.pt",
+    "checkpoint_sha256": "1585bc7dc86b134f3aae8146f8ffe192848b48172805952e4b00fbbd36f0ab23"
+  },
+  {
+    "run_id": "entertainment_k80_s44_full_ewc",
+    "checkpoint": "checkpoints/entertainment_k80_s44_full_ewc.pt",
+    "checkpoint_sha256": "ccd76577823ff540ab2663adb140d97d60def3e856b794f2379be4cec3c933b9"
+  },
+  {
+    "run_id": "entertainment_k80_s44_adapter",
+    "checkpoint": "checkpoints/entertainment_k80_s44_adapter.pt",
+    "checkpoint_sha256": "ce6ea049509899758bc26a6aaba52e1f7843c8312b78eb3e38a695a53ef0ca6e"
+  },
+  {
+    "run_id": "entertainment_k80_s44_lora",
+    "checkpoint": "checkpoints/entertainment_k80_s44_lora.pt",
+    "checkpoint_sha256": "999f2614eb4a7478af0fac2dd326f5692e28112536e57e2ed95da5f932230dad"
+  },
+  {
+    "run_id": "entertainment_k80_s44_lwf",
+    "checkpoint": "checkpoints/entertainment_k80_s44_lwf.pt",
+    "checkpoint_sha256": "db2baadeb3ecbe8819d6565b148c5424357541e18fdd18bee47be2fd3f023803"
+  },
+  {
+    "run_id": "entertainment_k80_s44_daewc",
+    "checkpoint": "checkpoints/entertainment_k80_s44_daewc.pt",
+    "checkpoint_sha256": "e623628be30b02bc3bd3fb6cd0a13b2074c245c909f19c56151a5b874be94543"
+  }
+]

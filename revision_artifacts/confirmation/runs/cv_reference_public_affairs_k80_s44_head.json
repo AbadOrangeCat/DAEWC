@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_public_affairs_k80_s44_head",
+  "group": "cv_reference",
+  "method": "head",
+  "seed": 44,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 73.49345450611273,
+    "accuracy": 74.48979591836735,
+    "auc": 0.8082482993197279
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "5c082019a7c0cfdbde01b7e34422c7d0ae75f1cc7a0165c13c0f7f1b9fc26aba",
+  "trainable_parameters": 258,
+  "selection_or_training_performed": false
+}

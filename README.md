@@ -4,6 +4,21 @@ This revision evaluates adaptation of a text classifier under a strict target-la
 
 The model predicts the supplied dataset labels. It does not retrieve evidence or verify a statement against external facts. Known domain identity is required at inference.
 
+## Review the saved results
+
+This repository contains the revised implementation and saved results, including all **666 final single-target models**. It also retains the sequential experiments, mechanism study, post-fit second test, and the earlier excluded source repeat with its exclusion recorded. The manuscript is supplied separately. Model weights are omitted; their names and checksums are listed in `OMITTED_WEIGHTS.json`.
+
+After installing the dependencies below, these commands check the release files and recompute the six final-model groups without downloading weights:
+
+```bash
+python scripts/verify_manifest.py
+python scripts/verify_saved_results.py
+```
+
+The second command checks complete planned run sets, frozen training code, data membership, paired label budgets, saved thresholds, source baselines, and all full-test and matched-test metrics. Its report is written to `verification_output/saved_results.json`. This verifies the arithmetic and recorded protocol; recreating predictions from trained models additionally requires the omitted checkpoints. Historical checkpoint-verification reports remain in `revision_artifacts/` and state what was checked at the time.
+
+`release/VERIFICATION.json` records the checks performed for this snapshot. See `RELEASE_NOTES.md` for its contents and GitHub upload instructions.
+
 ## What changed
 
 The submitted scripts are preserved in `legacy/` and retired as entry points. Their results cannot support the revised paper: they used political test information in threshold or candidate selection and did not implement the described model. The revised manuscript does not reuse their numerical tables or CNN/LSTM claims.
@@ -111,7 +126,7 @@ All 36 serialized exports were reloaded and checked against the original models 
 
 ## Artifacts and storage
 
-`revision_artifacts/` contains processed records and manifests, source checkpoints and Fisher buffers, run JSON files, source-relative checkpoints, predictions, and tables. Sequential checkpoints are incremental: reconstruction uses the source plus each earlier stage in order. A `training` record lists the exact parameter names in each checkpoint.
+`revision_artifacts/` contains processed records and manifests, run JSON files, predictions, and tables. The archived training outputs also contain source checkpoints, Fisher buffers, and source-relative checkpoints; those weight files are omitted from this repository. Sequential checkpoints are incremental: reconstruction uses the source plus each earlier stage in order. A `training` record lists the exact parameter names in each checkpoint.
 
 Peak CUDA allocation is measured only on CUDA. On MPS, the process-lifetime resident-memory maximum is labelled as such and is not presented as a per-run GPU memory peak. Deployment storage counts parameter elements at four bytes each; optimizer states and Fisher buffers must be counted separately if they are retained for later training.
 
@@ -121,7 +136,16 @@ The repository's existing software license applies to its code. Dataset and pret
 
 ## Rebuilding the complete revision
 
-The full local snapshot contains `manuscript/`, the original model files in `models/`, and saved checkpoints. The smaller ZIP contains code, configurations, processed data, predictions, and result records, but omits `.pt` and `model.safetensors` files. Its omission manifest identifies those files. Use the complete local snapshot to reconstruct saved predictions. To retrain from the smaller ZIP, first obtain the pinned initial models and **use a fresh output directory**, such as `rerun/local`; existing result JSON files in `revision_artifacts/` must not be treated as retraining outputs without their matching weights.
+The authors' full local archive includes the original model weights and trained checkpoints. This repository contains code, configurations, processed data, predictions, and result records, but omits `.pt` and `model.safetensors` files. Its omission manifest identifies those files. Use the complete archive to reconstruct the original saved predictions. To retrain from this repository, first obtain the pinned initial models and **use a fresh output directory**, such as `rerun/local`; existing result JSON files in `revision_artifacts/` must not be treated as retraining outputs without their matching weights. Downloading initial pretrained models does not recover fitted checkpoints.
+
+For example, a fresh primary run is:
+
+```bash
+python scripts/download_models.py --out models
+python -m daewc.run --config configs/local.json --data revision_artifacts/data --out rerun/local --model-path models/bert-tiny
+```
+
+The following full-archive checks require the corresponding trained weights. Manuscript build commands additionally require the separately supplied LaTeX sources in `manuscript/`:
 
 ```bash
 python scripts/download_models.py --out models
@@ -147,4 +171,4 @@ To prepare the revised manuscript for an existing Overleaf project:
 python scripts/build_overleaf.py --manuscript manuscript --out overleaf_upload
 ```
 
-This flattens the LaTeX inputs into `DAEWC.tex`, copies the four figures, BibTeX file, and Highlights, and writes a checksum manifest. Upload these files through Overleaf and use XeLaTeX. The script performs no upload, publication, or comment posting. Selection comments must be attached in the Overleaf editor.
+This flattens the separately supplied LaTeX inputs into `DAEWC.tex`, copies the four figures, BibTeX file, Highlights, and original CAS class/style/icon dependencies, and writes a checksum manifest. Upload these files through Overleaf and use XeLaTeX. The script performs no upload, publication, or comment posting. Selection comments must be attached in the Overleaf editor.

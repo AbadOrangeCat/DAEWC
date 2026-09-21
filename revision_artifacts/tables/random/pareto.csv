@@ -1,0 +1,16 @@
+domain,shots,method,target_mean,source_change_mean_pp,non_dominated
+entertainment,80,adapter,54.434671995494114,0.0,True
+entertainment,80,daewc,47.21537780647744,0.3949046810388855,True
+entertainment,80,full,51.2223520436321,-1.576743777311852,False
+entertainment,80,head,50.66121108814405,0.0,False
+entertainment,80,lora,52.58593649147249,0.0,False
+health,80,adapter,60.69191478915906,0.0,False
+health,80,daewc,63.64248762814338,-0.2683037772609846,True
+health,80,full,63.910722385215884,-0.6011545897094047,True
+health,80,head,61.482811612232034,0.0,False
+health,80,lora,61.53566464986917,0.0,True
+public_affairs,80,adapter,67.83742220646634,0.0,True
+public_affairs,80,daewc,65.44550196096439,-0.009800623976002973,False
+public_affairs,80,full,65.79417306732675,-0.9744165481308636,False
+public_affairs,80,head,62.401245487266074,0.0,False
+public_affairs,80,lora,65.97057163829821,0.0,False

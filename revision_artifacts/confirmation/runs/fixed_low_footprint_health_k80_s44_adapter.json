@@ -1,0 +1,18 @@
+{
+  "id": "fixed_low_footprint_health_k80_s44_adapter",
+  "group": "fixed_low_footprint",
+  "method": "adapter",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 66.74136321195144,
+    "accuracy": 71.53284671532847,
+    "auc": 0.7849650349650351
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "55d18d1752061afe7d3f3e22e272dac99b887610579d508aa4b0a80f6273aefa",
+  "trainable_parameters": 1542,
+  "selection_or_training_performed": false
+}

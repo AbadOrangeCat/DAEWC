@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_health_k80_s44_lora",
+  "group": "cv_reference",
+  "method": "lora",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 67.2718585762064,
+    "accuracy": 70.8029197080292,
+    "auc": 0.793123543123543
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "b2af1f6e4cb822ab6a88e745e6b29a9b6e37af4907b2faadd5598b63e95fae4a",
+  "trainable_parameters": 8450,
+  "selection_or_training_performed": false
+}

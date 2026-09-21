@@ -1,0 +1,143 @@
+{
+  "schema_version": 2,
+  "split_seed": 1337,
+  "scope": "diagnostic random holdout after exact deduplication only; never main efficacy evidence",
+  "datasets": {
+    "legacy_isot": {
+      "n": 39090,
+      "conflict_or_empty_rows_excluded": 9,
+      "train_n": 31272,
+      "test_n": 7818,
+      "class_stats": {
+        "0": {
+          "n": 21190,
+          "url_fraction": 0.0019348749410099102,
+          "reuters_fraction": 0.998206701274186,
+          "hashtag_fraction": 0.010948560641812176,
+          "median_words": 368.0
+        },
+        "1": {
+          "n": 17900,
+          "url_fraction": 0.14212290502793296,
+          "reuters_fraction": 0.011675977653631285,
+          "hashtag_fraction": 0.12955307262569832,
+          "median_words": 385.0
+        }
+      },
+      "scores": {
+        "raw_format_cues": {
+          "macro_f1": 99.48497318013317,
+          "accuracy": 99.48836019442314,
+          "auc": 0.9991437539052098
+        },
+        "scrubbed_format_cues": {
+          "macro_f1": 71.900826065811,
+          "accuracy": 72.03888462522384,
+          "auc": 0.7950816765576678
+        }
+      }
+    },
+    "legacy_medical": {
+      "n": 7175,
+      "conflict_or_empty_rows_excluded": 0,
+      "train_n": 5740,
+      "test_n": 1435,
+      "class_stats": {
+        "0": {
+          "n": 3716,
+          "url_fraction": 0.8797093649085038,
+          "reuters_fraction": 0.0546286329386437,
+          "hashtag_fraction": 0.6789558665231432,
+          "median_words": 18.0
+        },
+        "1": {
+          "n": 3459,
+          "url_fraction": 0.0,
+          "reuters_fraction": 0.0,
+          "hashtag_fraction": 0.0008673026886383347,
+          "median_words": 15.0
+        }
+      },
+      "scores": {
+        "raw_format_cues": {
+          "macro_f1": 99.58143252167217,
+          "accuracy": 99.58188153310104,
+          "auc": 0.9998813589649833
+        },
+        "scrubbed_format_cues": {
+          "macro_f1": 74.05113746840367,
+          "accuracy": 74.07665505226481,
+          "auc": 0.8212449139949742
+        }
+      }
+    }
+  },
+  "file_audit": [
+    {
+      "path": "Moredata/BuzzFeed_fake_news_content.csv",
+      "sha256": "2987e7cf199b1e0e344739bcf312fea07db5a93eed02713f0922d8545aca1eea",
+      "rows": 91
+    },
+    {
+      "path": "Moredata/BuzzFeed_real_news_content.csv",
+      "sha256": "7c485f2f91b8263ea57504cb26a0cbb5d0163bf80737ee75f4f6b0a5b8abab3b",
+      "rows": 91
+    },
+    {
+      "path": "Moredata/PolitiFact_fake_news_content.csv",
+      "sha256": "5a06a5ea2d8d2b0e2f8ab86ba813a57bb8d359b4becaa2f5877b9b4efc929d98",
+      "rows": 120
+    },
+    {
+      "path": "Moredata/PolitiFact_real_news_content.csv",
+      "sha256": "5a06a5ea2d8d2b0e2f8ab86ba813a57bb8d359b4becaa2f5877b9b4efc929d98",
+      "rows": 120
+    },
+    {
+      "path": "Moredata/gossipcop_fake.csv",
+      "sha256": "c6932bffadb1230bc61c66bb2ca298f4ef28ce849d268313ad2eed41d18d4c99",
+      "rows": 5323
+    },
+    {
+      "path": "Moredata/gossipcop_real.csv",
+      "sha256": "d721e9a8b7e660da05c089691743c33fecb25367074e936b5fab3d85cdcbe79f",
+      "rows": 16817
+    },
+    {
+      "path": "Moredata/politifact_fake.csv",
+      "sha256": "abe7fe7aad801b1e2ab5fc963cbd0881d9670190262ae3df85e91c3380bd004c",
+      "rows": 432
+    },
+    {
+      "path": "Moredata/politifact_real.csv",
+      "sha256": "2500f86a7addca0f59fe8cf089c0f802d3eca6980f53538992b3b0e9687dbae0",
+      "rows": 624
+    },
+    {
+      "path": "covid/fakeNews.csv",
+      "sha256": "90e9ee2d92b4bdf13b87ee41e784615c4564df5d683c7354203c2209a6c2be24",
+      "rows": 3795
+    },
+    {
+      "path": "covid/trueNews.csv",
+      "sha256": "ca1391c5f3c753cfc2af4dc0b8f31589db1224b5c4160a42c6753b2aba7ca57a",
+      "rows": 3793
+    },
+    {
+      "path": "news/Fake.csv",
+      "sha256": "bebf8bcfe95678bf2c732bf413a2ce5f621af0102c82bf08083b2e5d3c693d0c",
+      "rows": 23481
+    },
+    {
+      "path": "news/True.csv",
+      "sha256": "d30b97c9ec654bf3261590eaa52e6374b5bee0aa584f577b3b21535fbdeb5590",
+      "rows": 21417
+    }
+  ],
+  "politifact_fulltext_conflict": {
+    "fake_unique": 114,
+    "real_unique": 114,
+    "cross_label_identical_texts": 114,
+    "byte_identical_files": true
+  }
+}

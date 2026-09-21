@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_public_affairs_k80_s43_daewc",
+  "group": "cv_reference",
+  "method": "daewc",
+  "seed": 43,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 74.46586763939551,
+    "accuracy": 74.48979591836735,
+    "auc": 0.8312074829931972
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "9ef9918bdcb8e099184d3930a844cbc94cbb651597e6a74c23ec39b4ed6d6a86",
+  "trainable_parameters": 16434,
+  "selection_or_training_performed": false
+}

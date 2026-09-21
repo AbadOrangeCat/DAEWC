@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_entertainment_k80_s42_full",
+  "group": "cv_reference",
+  "method": "full",
+  "seed": 42,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 52.33506529548714,
+    "accuracy": 54.14847161572053,
+    "auc": 0.6866575874044427
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "5529a84e34283c064f390ca566b2faf6bde87999125af0b5be42aadaf0df2650",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

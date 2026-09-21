@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "daewc/verify.py", line 96, in <module>
+    p = argparse.ArgumentParser()
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "daewc/verify.py", line 78, in verify
+    checkpoint = torch.load(args.runs / r["checkpoint"], map_location="cpu", weights_only=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<python-environment>/lib/python3.13/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "daewc/training.py", line 50, in predict
+    probabilities.extend(model(b["input_ids"], b["attention_mask"], domain).softmax(-1)[:, 1].cpu().tolist())
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+KeyboardInterrupt

@@ -1,0 +1,18 @@
+{
+  "id": "cv_low_footprint_public_affairs_k80_s42_adapter",
+  "group": "cv_low_footprint",
+  "method": "adapter",
+  "seed": 42,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 75.0,
+    "accuracy": 75.51020408163265,
+    "auc": 0.8231292517006802
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "f893c7b75b8d540d4db162adfe1271d6494153e892fd96bd67f44e90ed339490",
+  "trainable_parameters": 1542,
+  "selection_or_training_performed": false
+}

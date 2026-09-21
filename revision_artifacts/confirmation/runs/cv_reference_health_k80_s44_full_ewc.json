@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_health_k80_s44_full_ewc",
+  "group": "cv_reference",
+  "method": "full_ewc",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 67.91569086651053,
+    "accuracy": 71.53284671532847,
+    "auc": 0.7928321678321678
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "902c5b9c793d1d31e5423d2dd38e3aaab7a8245e6cd92ab54c14db1c3817be8a",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

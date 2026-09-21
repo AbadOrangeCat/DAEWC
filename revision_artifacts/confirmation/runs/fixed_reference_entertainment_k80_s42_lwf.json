@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_entertainment_k80_s42_lwf",
+  "group": "fixed_reference",
+  "method": "lwf",
+  "seed": 42,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 52.22125588586689,
+    "accuracy": 53.905870936438625,
+    "auc": 0.6878282298879783
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "eef206ddf24953bfdde198cee6b59d040d3bdb2f107dc796ab1ae5674a7b0087",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

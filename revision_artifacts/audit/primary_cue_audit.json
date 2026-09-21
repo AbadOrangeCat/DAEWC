@@ -1,0 +1,203 @@
+{
+  "domains": {
+    "source": {
+      "train_n": 7217,
+      "test_n": 907,
+      "matched_n": 818,
+      "scores": {
+        "raw": {
+          "all": {
+            "macro_f1": 59.5936997906422,
+            "accuracy": 59.647188533627336,
+            "auc": 0.6324742419350105
+          },
+          "matched": {
+            "macro_f1": 58.17845866819747,
+            "accuracy": 58.19070904645477,
+            "auc": 0.6121645614265816
+          }
+        },
+        "scrubbed": {
+          "all": {
+            "macro_f1": 56.99731331983256,
+            "accuracy": 57.331863285556786,
+            "auc": 0.5878685140067124
+          },
+          "matched": {
+            "macro_f1": 54.84077529006052,
+            "accuracy": 54.88997555012225,
+            "auc": 0.5637729329690759
+          }
+        },
+        "scrubbed_with_origin": {
+          "all": {
+            "macro_f1": 56.99731331983256,
+            "accuracy": 57.331863285556786,
+            "auc": 0.5879810373675405
+          },
+          "matched": {
+            "macro_f1": 54.84077529006052,
+            "accuracy": 54.88997555012225,
+            "auc": 0.5638566244821587
+          }
+        }
+      },
+      "training_label_budget": "full domain training split; diagnostic only, not a few-shot competitor"
+    },
+    "health": {
+      "train_n": 906,
+      "test_n": 109,
+      "matched_n": 82,
+      "scores": {
+        "raw": {
+          "all": {
+            "macro_f1": 58.20908238902616,
+            "accuracy": 58.71559633027523,
+            "auc": 0.5515280739161337
+          },
+          "matched": {
+            "macro_f1": 62.18949873568347,
+            "accuracy": 62.19512195121951,
+            "auc": 0.587150505651398
+          }
+        },
+        "scrubbed": {
+          "all": {
+            "macro_f1": 36.410432395332876,
+            "accuracy": 37.61467889908257,
+            "auc": 0.3706467661691542
+          },
+          "matched": {
+            "macro_f1": 33.98926654740608,
+            "accuracy": 34.146341463414636,
+            "auc": 0.3688280785246877
+          }
+        },
+        "scrubbed_with_origin": {
+          "all": {
+            "macro_f1": 36.410432395332876,
+            "accuracy": 37.61467889908257,
+            "auc": 0.3706467661691542
+          },
+          "matched": {
+            "macro_f1": 33.98926654740608,
+            "accuracy": 34.146341463414636,
+            "auc": 0.3688280785246877
+          }
+        }
+      },
+      "training_label_budget": "full domain training split; diagnostic only, not a few-shot competitor"
+    },
+    "public_affairs": {
+      "train_n": 684,
+      "test_n": 196,
+      "matched_n": 20,
+      "scores": {
+        "raw": {
+          "all": {
+            "macro_f1": 70.29682274247492,
+            "accuracy": 70.40816326530613,
+            "auc": 0.7538950715421304
+          },
+          "matched": {
+            "macro_f1": 68.75,
+            "accuracy": 70.0,
+            "auc": 0.7799999999999999
+          }
+        },
+        "scrubbed": {
+          "all": {
+            "macro_f1": 62.7541325003254,
+            "accuracy": 62.755102040816325,
+            "auc": 0.6806041335453099
+          },
+          "matched": {
+            "macro_f1": 37.32193732193732,
+            "accuracy": 45.0,
+            "auc": 0.56
+          }
+        },
+        "scrubbed_with_origin": {
+          "all": {
+            "macro_f1": 75.55655796428476,
+            "accuracy": 76.0204081632653,
+            "auc": 0.8541070482246954
+          },
+          "matched": {
+            "macro_f1": 45.05494505494506,
+            "accuracy": 50.0,
+            "auc": 0.5499999999999999
+          }
+        }
+      },
+      "training_label_budget": "full domain training split; diagnostic only, not a few-shot competitor"
+    },
+    "entertainment": {
+      "train_n": 14423,
+      "test_n": 4122,
+      "matched_n": 944,
+      "scores": {
+        "raw": {
+          "all": {
+            "macro_f1": 50.11790567545963,
+            "accuracy": 52.40174672489083,
+            "auc": 0.6018375029137192
+          },
+          "matched": {
+            "macro_f1": 54.11866359447005,
+            "accuracy": 54.23728813559322,
+            "auc": 0.5549366202240735
+          }
+        },
+        "scrubbed": {
+          "all": {
+            "macro_f1": 49.43007510843119,
+            "accuracy": 51.382823871906844,
+            "auc": 0.5912623140799178
+          },
+          "matched": {
+            "macro_f1": 53.738718503695836,
+            "accuracy": 54.23728813559322,
+            "auc": 0.564365035191037
+          }
+        },
+        "scrubbed_with_origin": {
+          "all": {
+            "macro_f1": 71.9029584965129,
+            "accuracy": 79.718583212033,
+            "auc": 0.7960259349938915
+          },
+          "matched": {
+            "macro_f1": 49.61777448637554,
+            "accuracy": 50.529661016949156,
+            "auc": 0.5106717717609882
+          }
+        }
+      },
+      "training_label_budget": "full domain training split; diagnostic only, not a few-shot competitor"
+    }
+  },
+  "source_word_vocabulary_oov": {
+    "source": {
+      "unknown": 1182,
+      "total": 16331,
+      "rate": 0.07237768660829098
+    },
+    "health": {
+      "unknown": 149,
+      "total": 2173,
+      "rate": 0.06856879889553613
+    },
+    "public_affairs": {
+      "unknown": 394,
+      "total": 2013,
+      "rate": 0.1957277694982613
+    },
+    "entertainment": {
+      "unknown": 18479,
+      "total": 48311,
+      "rate": 0.38250087971683466
+    }
+  },
+  "vocabulary_rule": "4998 most frequent source train words plus 2 reserved tokens"
+}

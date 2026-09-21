@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_health_k80_s44_adapter",
+  "group": "cv_reference",
+  "method": "adapter",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 68.90826564739608,
+    "accuracy": 72.26277372262774,
+    "auc": 0.7922494172494172
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "5d0eae2de5439cc4c25f63eea7ac67f0cbcb00eee04739f15e30b3a3947c4f05",
+  "trainable_parameters": 8738,
+  "selection_or_training_performed": false
+}

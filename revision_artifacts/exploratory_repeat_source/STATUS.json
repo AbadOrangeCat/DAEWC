@@ -1,0 +1,4 @@
+{
+  "status": "retained diagnostic repeat; excluded from paired architecture comparison",
+  "reason": "Source independently retrained and differs slightly numerically. Paired experiments reuse exact primary source weights. No outcome-based selection."
+}

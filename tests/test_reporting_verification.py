@@ -1,7 +1,8 @@
 import copy
 import pytest
 from daewc.reporting import primary_source_changes, source_change_macros
-from daewc.verify import verified_scores
+from daewc.verify import verified_scores, verify_checkpoint
+from daewc.data import sha256
 
 
 def predictions():
@@ -28,6 +29,21 @@ def test_verifier_rejects_corrupt_protocol_records(mutation):
 
 def test_verifier_scores_the_frozen_threshold():
     assert verified_scores(predictions(), rows(), "source", .57, {"0", "1"})["all"]["macro_f1"] == 100
+
+
+def test_missing_checkpoint_requires_explicit_prediction_mode(tmp_path):
+    checkpoint = tmp_path / "missing.pt"
+    with pytest.raises(FileNotFoundError):
+        verify_checkpoint(checkpoint, "unused")
+    assert verify_checkpoint(checkpoint, "unused", predictions_only=True) is False
+
+
+def test_prediction_mode_still_rejects_corrupt_present_checkpoint(tmp_path):
+    checkpoint = tmp_path / "weights.pt"
+    checkpoint.write_bytes(b"checkpoint fixture")
+    assert verify_checkpoint(checkpoint, sha256(checkpoint), predictions_only=True) is True
+    with pytest.raises(ValueError, match="checksum mismatch"):
+        verify_checkpoint(checkpoint, "incorrect", predictions_only=True)
 
 
 def run_records():

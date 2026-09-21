@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_health_k80_s43_daewc",
+  "group": "fixed_reference",
+  "method": "daewc",
+  "seed": 43,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 62.362637362637365,
+    "accuracy": 69.34306569343066,
+    "auc": 0.756993006993007
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "41542d0a40e3b6891441193d049b20e02842c869bfc1e7a9333994eb536663ac",
+  "trainable_parameters": 16434,
+  "selection_or_training_performed": false
+}

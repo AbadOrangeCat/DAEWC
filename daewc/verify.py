@@ -11,6 +11,15 @@ from .protocol import metrics
 from .training import encode, predict
 
 
+def verify_checkpoint(path, expected_sha256, predictions_only=False):
+    """Verify an available checkpoint; permit omissions only in an explicit mode."""
+    if not path.is_file() and predictions_only:
+        return False
+    if sha256(path) != expected_sha256:
+        raise ValueError(f"Checkpoint checksum mismatch: {path.name}")
+    return True
+
+
 def verified_scores(predictions, rows, domain, threshold, matched_ids):
     """Check each prediction against the frozen protocol before scoring it."""
     expected = {r["id"]: r for r in rows if r["domain"] == domain and r["split"] == "test"}
@@ -35,6 +44,9 @@ def verified_scores(predictions, rows, domain, threshold, matched_ids):
 
 
 def verify(args):
+    predictions_only = getattr(args, "predictions_only", False)
+    if predictions_only and args.model_path:
+        raise ValueError("Prediction-only verification cannot request model reconstruction")
     rows = [json.loads(s) for s in (args.data / "records.jsonl").read_text().splitlines()]
     manifest = json.loads((args.data / "manifest.json").read_text())
     assert sha256(args.data / "records.jsonl") == manifest["records_sha256"]
@@ -42,6 +54,8 @@ def verify(args):
     assert len(lookup) == len(rows)
     assert len({r["cluster"] for r in rows}) == len(rows)
     runs = [json.loads(p.read_text()) for p in (args.runs / "runs").glob("*.json")]
+    if not runs:
+        raise ValueError("No saved runs found")
     source_root = args.source or args.runs
     sources = {}
     for seed in {r["seed"] for r in runs}:
@@ -51,6 +65,7 @@ def verify(args):
         sources[seed] = (info["threshold"], verified_scores(
             predictions, rows, "source", info["threshold"], set(manifest["matched_test_ids"]["source"])))
     budgets = defaultdict(set)
+    verified_checkpoints = 0
     for r in runs:
         ids = r["target_label_ids"]
         assert len(ids) == len(set(ids)) == r["target_label_total"] == 2 * r["shots_per_class"]
@@ -65,7 +80,8 @@ def verify(args):
         assert not r["training"]["source_replay"] and not r["training"]["unlabeled_target"]
         assert r["training"]["optimizer_steps"] == 80
         assert r["training"]["trainable_parameters"] == sum(r["training"]["trainable_names"].values())
-        assert sha256(args.runs / r["checkpoint"]) == r["checkpoint_sha256"]
+        verified_checkpoints += verify_checkpoint(
+            args.runs / r["checkpoint"], r["checkpoint_sha256"], predictions_only)
         for role, domain, resultkey in [("source", "source", "source_after"), ("target", r["domain"], "target")]:
             preds = json.loads((args.runs / "predictions" / f"{r['run_id']}_{role}.json").read_text())
             threshold = source_threshold if role == "source" else .5
@@ -126,10 +142,14 @@ def verify(args):
             assert error < 1e-5, (method, error)
             reproduced.append({"run_id": r["run_id"], "max_probability_error": error})
     result = {"verified_runs": len(runs), "paired_budget_groups": len(budgets), "checkpoint_reconstructions": reproduced,
+              "verification_mode": "saved_predictions" if predictions_only else "checkpoints",
+              "checkpoint_hashes_verified": verified_checkpoints,
+              "checkpoint_hashes_not_checked": len(runs) - verified_checkpoints,
               "checkpoint_reconstruction_device": args.device if args.model_path else None,
-              "checks": "data and checkpoint SHA-256; unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"}
+              "checks": "data SHA-256; available checkpoint SHA-256 (counts above); unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"}
     print(json.dumps(result, indent=2))
     if args.out: args.out.write_text(json.dumps(result, indent=2))
+    return result
 
 
 if __name__ == "__main__":
@@ -138,4 +158,6 @@ if __name__ == "__main__":
     for field in ["source", "config", "out"]: p.add_argument("--"+field, type=Path)
     p.add_argument("--model-path")
     p.add_argument("--device", default="mps")
+    p.add_argument("--predictions-only", action="store_true",
+                   help="Allow missing checkpoints and report saved-prediction checks separately")
     verify(p.parse_args())

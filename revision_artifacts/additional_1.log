@@ -1,0 +1,180 @@
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 29815.42it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+CV health_k10_s42_head: selected 0.25, target=65.43
+CV health_k10_s42_full: selected 0.25, target=62.15
+CV health_k10_s42_full_ewc: selected 0.25, target=62.15
+CV health_k10_s42_adapter: selected 0.25, target=61.33
+CV health_k10_s42_lora: selected 0.25, target=62.18
+CV health_k10_s42_lwf: selected 0.25, target=63.79
+CV health_k10_s42_daewc: selected 0.25, target=61.33
+CV health_k80_s42_head: selected 0.25, target=70.11
+CV health_k80_s42_full: selected 0.25, target=69.84
+CV health_k80_s42_full_ewc: selected 0.25, target=69.84
+CV health_k80_s42_adapter: selected 0.25, target=65.70
+CV health_k80_s42_lora: selected 4.0, target=60.43
+CV health_k80_s42_lwf: selected 0.25, target=70.95
+CV health_k80_s42_daewc: selected 0.25, target=66.53
+CV public_affairs_k10_s42_head: selected 4.0, target=64.10
+CV public_affairs_k10_s42_full: selected 1.0, target=65.13
+CV public_affairs_k10_s42_full_ewc: selected 1.0, target=65.13
+CV public_affairs_k10_s42_adapter: selected 4.0, target=67.33
+CV public_affairs_k10_s42_lora: selected 1.0, target=67.00
+CV public_affairs_k10_s42_lwf: selected 4.0, target=64.77
+CV public_affairs_k10_s42_daewc: selected 0.25, target=63.70
+CV public_affairs_k80_s42_head: selected 1.0, target=68.87
+CV public_affairs_k80_s42_full: selected 4.0, target=77.04
+CV public_affairs_k80_s42_full_ewc: selected 4.0, target=76.00
+CV public_affairs_k80_s42_adapter: selected 4.0, target=74.36
+CV public_affairs_k80_s42_lora: selected 1.0, target=76.82
+CV public_affairs_k80_s42_lwf: selected 4.0, target=79.33
+CV public_affairs_k80_s42_daewc: selected 1.0, target=75.07
+CV entertainment_k10_s42_head: selected 1.0, target=53.19
+CV entertainment_k10_s42_full: selected 4.0, target=47.38
+CV entertainment_k10_s42_full_ewc: selected 4.0, target=47.24
+CV entertainment_k10_s42_adapter: selected 1.0, target=49.50
+CV entertainment_k10_s42_lora: selected 4.0, target=48.03
+CV entertainment_k10_s42_lwf: selected 4.0, target=46.48
+CV entertainment_k10_s42_daewc: selected 4.0, target=58.57
+CV entertainment_k80_s42_head: selected 4.0, target=48.54
+CV entertainment_k80_s42_full: selected 1.0, target=52.93
+CV entertainment_k80_s42_full_ewc: selected 4.0, target=53.99
+CV entertainment_k80_s42_adapter: selected 4.0, target=59.90
+CV entertainment_k80_s42_lora: selected 0.25, target=54.27
+CV entertainment_k80_s42_lwf: selected 4.0, target=54.14
+CV entertainment_k80_s42_daewc: selected 0.25, target=55.79
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 22658.67it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+CV health_k10_s43_head: selected 0.25, target=65.64
+CV health_k10_s43_full: selected 0.25, target=64.63
+CV health_k10_s43_full_ewc: selected 0.25, target=64.63
+CV health_k10_s43_adapter: selected 1.0, target=54.08
+CV health_k10_s43_lora: selected 0.25, target=59.36
+CV health_k10_s43_lwf: selected 1.0, target=60.51
+CV health_k10_s43_daewc: selected 1.0, target=56.22
+CV health_k80_s43_head: selected 0.25, target=65.43
+CV health_k80_s43_full: selected 0.25, target=66.53
+CV health_k80_s43_full_ewc: selected 1.0, target=64.46
+CV health_k80_s43_adapter: selected 4.0, target=61.75
+CV health_k80_s43_lora: selected 0.25, target=62.59
+CV health_k80_s43_lwf: selected 4.0, target=65.43
+CV health_k80_s43_daewc: selected 0.25, target=65.94
+CV public_affairs_k10_s43_head: selected 1.0, target=61.16
+CV public_affairs_k10_s43_full: selected 1.0, target=64.75
+CV public_affairs_k10_s43_full_ewc: selected 1.0, target=64.75
+CV public_affairs_k10_s43_adapter: selected 1.0, target=64.79
+CV public_affairs_k10_s43_lora: selected 1.0, target=70.30
+CV public_affairs_k10_s43_lwf: selected 1.0, target=63.62
+CV public_affairs_k10_s43_daewc: selected 4.0, target=63.70
+CV public_affairs_k80_s43_head: selected 4.0, target=74.22
+CV public_affairs_k80_s43_full: selected 1.0, target=72.35
+CV public_affairs_k80_s43_full_ewc: selected 1.0, target=72.35
+CV public_affairs_k80_s43_adapter: selected 1.0, target=77.42
+CV public_affairs_k80_s43_lora: selected 1.0, target=75.48
+CV public_affairs_k80_s43_lwf: selected 4.0, target=77.81
+CV public_affairs_k80_s43_daewc: selected 1.0, target=73.95
+CV entertainment_k10_s43_head: selected 0.25, target=54.57
+CV entertainment_k10_s43_full: selected 0.25, target=55.59
+CV entertainment_k10_s43_full_ewc: selected 0.25, target=55.33
+CV entertainment_k10_s43_adapter: selected 4.0, target=46.83
+CV entertainment_k10_s43_lora: selected 1.0, target=48.50
+CV entertainment_k10_s43_lwf: selected 0.25, target=55.47
+CV entertainment_k10_s43_daewc: selected 1.0, target=50.33
+CV entertainment_k80_s43_head: selected 1.0, target=59.02
+CV entertainment_k80_s43_full: selected 4.0, target=57.50
+CV entertainment_k80_s43_full_ewc: selected 1.0, target=59.57
+CV entertainment_k80_s43_adapter: selected 1.0, target=57.39
+CV entertainment_k80_s43_lora: selected 0.25, target=59.25
+CV entertainment_k80_s43_lwf: selected 4.0, target=58.33
+CV entertainment_k80_s43_daewc: selected 4.0, target=57.05
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 23197.20it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+CV health_k10_s44_head: selected 1.0, target=61.75
+CV health_k10_s44_full: selected 1.0, target=64.63
+CV health_k10_s44_full_ewc: selected 1.0, target=64.63
+CV health_k10_s44_adapter: selected 1.0, target=55.38
+CV health_k10_s44_lora: selected 1.0, target=63.23
+CV health_k10_s44_lwf: selected 1.0, target=63.62
+CV health_k10_s44_daewc: selected 1.0, target=55.38
+CV health_k80_s44_head: selected 1.0, target=66.53
+CV health_k80_s44_full: selected 0.25, target=67.60
+CV health_k80_s44_full_ewc: selected 0.25, target=67.60
+CV health_k80_s44_adapter: selected 0.25, target=68.67
+CV health_k80_s44_lora: selected 0.25, target=66.99
+CV health_k80_s44_lwf: selected 0.25, target=67.60
+CV health_k80_s44_daewc: selected 0.25, target=67.60
+CV public_affairs_k10_s44_head: selected 0.25, target=51.63
+CV public_affairs_k10_s44_full: selected 1.0, target=62.59
+CV public_affairs_k10_s44_full_ewc: selected 4.0, target=65.29
+CV public_affairs_k10_s44_adapter: selected 0.25, target=59.52
+CV public_affairs_k10_s44_lora: selected 0.25, target=62.10
+CV public_affairs_k10_s44_lwf: selected 0.25, target=53.84
+CV public_affairs_k10_s44_daewc: selected 0.25, target=58.43
+CV public_affairs_k80_s44_head: selected 4.0, target=73.86
+CV public_affairs_k80_s44_full: selected 1.0, target=70.33
+CV public_affairs_k80_s44_full_ewc: selected 4.0, target=75.99
+CV public_affairs_k80_s44_adapter: selected 1.0, target=75.88
+CV public_affairs_k80_s44_lora: selected 1.0, target=77.81
+CV public_affairs_k80_s44_lwf: selected 4.0, target=77.31
+CV public_affairs_k80_s44_daewc: selected 1.0, target=76.66
+CV entertainment_k10_s44_head: selected 4.0, target=54.17
+CV entertainment_k10_s44_full: selected 1.0, target=53.72
+CV entertainment_k10_s44_full_ewc: selected 1.0, target=53.41
+CV entertainment_k10_s44_adapter: selected 4.0, target=45.03
+CV entertainment_k10_s44_lora: selected 1.0, target=54.94
+CV entertainment_k10_s44_lwf: selected 1.0, target=54.90
+CV entertainment_k10_s44_daewc: selected 1.0, target=55.01
+CV entertainment_k80_s44_head: selected 4.0, target=59.69
+CV entertainment_k80_s44_full: selected 4.0, target=61.88
+CV entertainment_k80_s44_full_ewc: selected 1.0, target=57.08
+CV entertainment_k80_s44_adapter: selected 1.0, target=59.70
+CV entertainment_k80_s44_lora: selected 1.0, target=58.16
+CV entertainment_k80_s44_lwf: selected 1.0, target=59.07
+CV entertainment_k80_s44_daewc: selected 1.0, target=60.67

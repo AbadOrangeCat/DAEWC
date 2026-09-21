@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_health_k80_s44_adapter",
+  "group": "fixed_reference",
+  "method": "adapter",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 62.67445093133166,
+    "accuracy": 64.23357664233576,
+    "auc": 0.7890442890442889
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "87479dec7bb48fb19294bbd3ba7e99de5ed1751d3eb9407db9117d05ff67e172",
+  "trainable_parameters": 8738,
+  "selection_or_training_performed": false
+}

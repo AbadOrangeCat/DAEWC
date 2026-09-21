@@ -1,0 +1,35 @@
+{
+  "source_plan_sha256": "7f105003442f616989d124297e9992b4bdc17f5d8d1e9579b4aafa629270ea35",
+  "original_source_configuration_sha256": "f159d6c35073911be168eded4fd93ee6c25badf8de6104db9727cf90c91e0417",
+  "target_configuration_sha256": "1ed591fe9226060903a2c74023c26b85080f6a8c0f7ffe806f2f193310a51b08",
+  "data_sha256": "158e149cc627268a3590595dcb45d007e2b3afdcbe30a71554b83221fd73aac8",
+  "source_fields_verified": [
+    "model_id",
+    "model_revision",
+    "initialization",
+    "max_length",
+    "batch_size",
+    "eval_batch_size",
+    "source_epochs",
+    "source_patience",
+    "source_lr",
+    "weight_decay",
+    "gradient_clip",
+    "fisher_samples"
+  ],
+  "importer_sha256": "85db89ac9b98754f8d9a174c3dd81da70c366b19c146ef1458442ef8ec14c0f5",
+  "checkpoints": {
+    "42": {
+      "model.pt": "23fe52fcb76f8fbb0f17c18a66ee8714c2203dfda0e62a39b59de5f147b2fffe",
+      "fisher.pt": "a92d5b0dc4f44e901bb45a2ec64d7ca1395fcd27ca771a75322aaf294262d5d5"
+    },
+    "43": {
+      "model.pt": "0f6947fd7d145f98b0704c8024988674a304130acd3d268f242989447a622ed3",
+      "fisher.pt": "29527a7b112b471a4b39fbd8a492d51317f43f1355cac5f53575f7874499cf39"
+    },
+    "44": {
+      "model.pt": "20241b388e15ea6576cea40525c61f2df058d35fcc8868fe61789078e5284f3d",
+      "fisher.pt": "d72e9270c5389aae30bed5551c3cb657761a343ac53d6293e8ccff4489771553"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "cv_low_footprint_entertainment_k80_s43_adapter",
+  "group": "cv_low_footprint",
+  "method": "adapter",
+  "seed": 43,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 60.371361785552715,
+    "accuracy": 65.3566229985444,
+    "auc": 0.6939229824449951
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "adfec1676279018923d1d7561be9869e80d63c1b85b9c3bdd0c7338cbf73dcf7",
+  "trainable_parameters": 1542,
+  "selection_or_training_performed": false
+}

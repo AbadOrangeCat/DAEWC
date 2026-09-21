@@ -1,0 +1,7 @@
+{
+  "verified_runs": 108,
+  "paired_budget_groups": 36,
+  "checkpoint_reconstructions": [],
+  "checkpoint_reconstruction_device": null,
+  "checks": "data and checkpoint SHA-256; unique prediction IDs and valid probabilities; frozen per-example thresholds; independently recomputed source baseline; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+}

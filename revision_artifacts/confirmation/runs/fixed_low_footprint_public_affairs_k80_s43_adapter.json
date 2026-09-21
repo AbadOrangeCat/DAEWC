@@ -1,0 +1,18 @@
+{
+  "id": "fixed_low_footprint_public_affairs_k80_s43_adapter",
+  "group": "fixed_low_footprint",
+  "method": "adapter",
+  "seed": 43,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 82.236912250773,
+    "accuracy": 82.6530612244898,
+    "auc": 0.855017006802721
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "cf430807c896d6b82e9c319934793aa4ae5053dc503531c6b991a3a3ca7b4fa9",
+  "trainable_parameters": 1542,
+  "selection_or_training_performed": false
+}

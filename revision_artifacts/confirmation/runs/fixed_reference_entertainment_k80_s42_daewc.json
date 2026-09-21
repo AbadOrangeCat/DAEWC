@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_entertainment_k80_s42_daewc",
+  "group": "fixed_reference",
+  "method": "daewc",
+  "seed": 42,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 54.698512177210866,
+    "accuracy": 57.59340126152354,
+    "auc": 0.6689444232683226
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "528c05333ac6a385fedfb0dbde95485035c56d1c226b9e1f9966d5a46352a3f4",
+  "trainable_parameters": 16434,
+  "selection_or_training_performed": false
+}

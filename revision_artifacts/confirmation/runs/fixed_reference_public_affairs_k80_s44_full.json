@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_public_affairs_k80_s44_full",
+  "group": "fixed_reference",
+  "method": "full",
+  "seed": 44,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 77.20930232558139,
+    "accuracy": 77.55102040816327,
+    "auc": 0.8545918367346939
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "ed23280626014a34fbaae0271ee55819b9ac5d7c628e245ad84b192fbca36648",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

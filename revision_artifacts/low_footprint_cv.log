@@ -1,0 +1,90 @@
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 29936.20it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+CV health_k10_s42_adapter: selected 0.25, target=64.27
+CV health_k10_s42_daewc: selected 0.25, target=62.97
+CV health_k80_s42_adapter: selected 0.25, target=67.60
+CV health_k80_s42_daewc: selected 0.25, target=69.27
+CV public_affairs_k10_s42_adapter: selected 1.0, target=65.42
+CV public_affairs_k10_s42_daewc: selected 1.0, target=62.15
+CV public_affairs_k80_s42_adapter: selected 4.0, target=75.35
+CV public_affairs_k80_s42_daewc: selected 4.0, target=78.06
+CV entertainment_k10_s42_adapter: selected 4.0, target=54.01
+CV entertainment_k10_s42_daewc: selected 4.0, target=50.83
+CV entertainment_k80_s42_adapter: selected 1.0, target=55.34
+CV entertainment_k80_s42_daewc: selected 4.0, target=58.62
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 34002.90it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+CV health_k10_s43_adapter: selected 0.25, target=64.78
+CV health_k10_s43_daewc: selected 4.0, target=52.67
+CV health_k80_s43_adapter: selected 0.25, target=65.43
+CV health_k80_s43_daewc: selected 0.25, target=66.77
+CV public_affairs_k10_s43_adapter: selected 0.25, target=59.17
+CV public_affairs_k10_s43_daewc: selected 1.0, target=63.25
+CV public_affairs_k80_s43_adapter: selected 1.0, target=76.53
+CV public_affairs_k80_s43_daewc: selected 1.0, target=74.65
+CV entertainment_k10_s43_adapter: selected 0.25, target=55.07
+CV entertainment_k10_s43_daewc: selected 4.0, target=46.57
+CV entertainment_k80_s43_adapter: selected 1.0, target=59.30
+CV entertainment_k80_s43_daewc: selected 1.0, target=58.94
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 32010.98it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+CV health_k10_s44_adapter: selected 1.0, target=59.67
+CV health_k10_s44_daewc: selected 1.0, target=58.37
+CV health_k80_s44_adapter: selected 0.25, target=68.44
+CV health_k80_s44_daewc: selected 0.25, target=68.44
+CV public_affairs_k10_s44_adapter: selected 1.0, target=65.07
+CV public_affairs_k10_s44_daewc: selected 0.25, target=53.03
+CV public_affairs_k80_s44_adapter: selected 1.0, target=73.78
+CV public_affairs_k80_s44_daewc: selected 1.0, target=73.92
+CV entertainment_k10_s44_adapter: selected 1.0, target=54.55
+CV entertainment_k10_s44_daewc: selected 1.0, target=56.38
+CV entertainment_k80_s44_adapter: selected 4.0, target=58.89
+CV entertainment_k80_s44_daewc: selected 4.0, target=58.50

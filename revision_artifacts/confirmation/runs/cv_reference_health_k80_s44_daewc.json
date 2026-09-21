@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_health_k80_s44_daewc",
+  "group": "cv_reference",
+  "method": "daewc",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 68.90826564739608,
+    "accuracy": 72.26277372262774,
+    "auc": 0.7890442890442891
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "a38d828ecb29ec00df4f72497745800ea2cdbfe33c810037a3c235dc2893b39f",
+  "trainable_parameters": 16434,
+  "selection_or_training_performed": false
+}

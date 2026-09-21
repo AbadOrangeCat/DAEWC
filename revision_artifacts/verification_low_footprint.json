@@ -1,0 +1,31 @@
+{
+  "verified_runs": 108,
+  "paired_budget_groups": 36,
+  "checkpoint_reconstructions": [
+    {
+      "run_id": "entertainment_k10_s42_adapter",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "entertainment_k10_s42_daewc",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "entertainment_k80_s42_no_ewc",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "entertainment_k80_s42_no_gate",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "entertainment_k80_s42_no_proximity",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "entertainment_k80_s42_no_regularizers",
+      "max_probability_error": 0.0
+    }
+  ],
+  "checks": "data and checkpoint SHA-256; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation"
+}

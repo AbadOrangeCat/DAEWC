@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_health_k80_s44_lwf",
+  "group": "cv_reference",
+  "method": "lwf",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 66.52003910068426,
+    "accuracy": 70.8029197080292,
+    "auc": 0.7878787878787878
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "dd212117fdda00779c7f445c101279b3f0e86ff06c8c2ce264b928a0b17e3289",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

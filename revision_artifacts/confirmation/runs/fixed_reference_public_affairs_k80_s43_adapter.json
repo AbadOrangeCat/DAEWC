@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_public_affairs_k80_s43_adapter",
+  "group": "fixed_reference",
+  "method": "adapter",
+  "seed": 43,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 71.12299465240642,
+    "accuracy": 72.44897959183673,
+    "auc": 0.8235544217687075
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "35ac2834fefd726cb93e2eef17338ebdc4ebd17097537166772b638d17d30636",
+  "trainable_parameters": 8738,
+  "selection_or_training_performed": false
+}

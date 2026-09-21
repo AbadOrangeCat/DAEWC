@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_health_k80_s42_lora",
+  "group": "fixed_reference",
+  "method": "lora",
+  "seed": 42,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 59.30456054516861,
+    "accuracy": 62.77372262773723,
+    "auc": 0.666083916083916
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "053e192c6d6625c56ac15b27aaf2538287db3362980429297d00dd6f877a02ed",
+  "trainable_parameters": 8450,
+  "selection_or_training_performed": false
+}

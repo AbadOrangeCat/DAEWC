@@ -1,0 +1,18 @@
+{
+  "id": "fixed_low_footprint_entertainment_k80_s44_adapter",
+  "group": "fixed_low_footprint",
+  "method": "adapter",
+  "seed": 44,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 55.83191738036628,
+    "accuracy": 58.515283842794766,
+    "auc": 0.6989337822671157
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "83c17fcddb331dd7a314957755141b13f94bdc6f2d6e397cd43f81bfd7eb7b15",
+  "trainable_parameters": 1542,
+  "selection_or_training_performed": false
+}

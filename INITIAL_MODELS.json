@@ -1,0 +1,44 @@
+[
+  {
+    "model_id": "google/bert_uncased_L-2_H-128_A-2",
+    "immutable_revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+    "files": [
+      {
+        "path": "models/bert-tiny/config.json",
+        "sha256": "508e1f01aae55d73355cbdd82609be2f43ba5a0d3428837adbe56cf8391f8b39",
+        "bytes": 382
+      },
+      {
+        "path": "models/bert-tiny/model.safetensors",
+        "sha256": "7fb69ad9f6866d8983183c930e33828f326470bf6ad8bbb2ad4ed957a92e9414",
+        "bytes": 17739144
+      },
+      {
+        "path": "models/bert-tiny/vocab.txt",
+        "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+        "bytes": 231508
+      }
+    ]
+  },
+  {
+    "model_id": "google-bert/bert-base-uncased",
+    "immutable_revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+    "files": [
+      {
+        "path": "models/bert-base/config.json",
+        "sha256": "7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20",
+        "bytes": 570
+      },
+      {
+        "path": "models/bert-base/model.safetensors",
+        "sha256": "68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3",
+        "bytes": 440449768
+      },
+      {
+        "path": "models/bert-base/vocab.txt",
+        "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+        "bytes": 231508
+      }
+    ]
+  }
+]

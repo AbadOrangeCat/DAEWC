@@ -1,0 +1,10 @@
+{
+  "chip": "Apple M5",
+  "cpu_cores": 10,
+  "cpu_core_description": "4 Super and 6 Efficiency",
+  "memory_gb": 32,
+  "training_device": "Apple MPS",
+  "second_test_objective_and_export_checks": "CPU",
+  "measurement_source": "system_profiler SPHardwareDataType; identifying fields omitted",
+  "timing_limit": "Some supplemental jobs overlap. Timings are observed durations, not controlled hardware benchmarks."
+}

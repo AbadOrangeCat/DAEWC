@@ -1,0 +1,18 @@
+{
+  "id": "fixed_low_footprint_health_k80_s42_daewc",
+  "group": "fixed_low_footprint",
+  "method": "daewc",
+  "seed": 42,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 68.44693432928727,
+    "accuracy": 72.99270072992701,
+    "auc": 0.7514568764568765
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "7cf09c394a0369e90ed58e6cfe47baa3ae8d71bb7e31e109a30a135466c216e8",
+  "trainable_parameters": 6154,
+  "selection_or_training_performed": false
+}

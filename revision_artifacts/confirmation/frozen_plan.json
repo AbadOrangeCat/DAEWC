@@ -1,0 +1,44 @@
+{
+  "evaluation_partition": "original target dev; post-fit evaluation only",
+  "shots": 80,
+  "groups": [
+    [
+      "fixed_reference",
+      "local",
+      "local",
+      "local.json"
+    ],
+    [
+      "fixed_low_footprint",
+      "low_footprint",
+      "low_footprint",
+      "low_footprint.json"
+    ],
+    [
+      "cv_reference",
+      "budget_cv",
+      "local",
+      "local.json"
+    ],
+    [
+      "cv_low_footprint",
+      "low_footprint_cv",
+      "low_footprint",
+      "low_footprint.json"
+    ]
+  ],
+  "threshold": 0.5,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "domains": [
+    "health",
+    "public_affairs",
+    "entertainment"
+  ],
+  "selection": "none; all prespecified groups reported",
+  "code_sha256": "c6b0e35d166325eb325024d475b25c5feb7ebc1793e0e6ecb19ed9ab4d971a97",
+  "data_sha256": "158e149cc627268a3590595dcb45d007e2b3afdcbe30a71554b83221fd73aac8"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_health_k80_s44_full",
+  "group": "fixed_reference",
+  "method": "full",
+  "seed": 44,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 67.80059376546264,
+    "accuracy": 72.26277372262774,
+    "auc": 0.7878787878787878
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "2ac40bffc314efbfcb0798c36fc8cbc658dd5315af1443901fcbba60163773f8",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

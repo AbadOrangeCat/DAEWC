@@ -1,0 +1,128 @@
+
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 197/197 [00:00<00:00, 11959.62it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-base
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Source epoch 1: dev loss 0.63922
+Source epoch 2: dev loss 0.68487
+Source epoch 3: dev loss 1.00994
+health_k80_s42_head: target=67.83, source change=0.000 pp, 28.2s
+health_k80_s42_full: target=69.72, source change=-0.943 pp, 96.4s
+health_k80_s42_full_ewc: target=69.72, source change=-0.943 pp, 149.1s
+health_k80_s42_adapter: target=65.49, source change=0.000 pp, 55.2s
+health_k80_s42_lora: target=68.18, source change=0.000 pp, 63.0s
+health_k80_s42_lwf: target=69.06, source change=-0.545 pp, 204.1s
+health_k80_s42_daewc: target=62.37, source change=-0.206 pp, 83.8s
+public_affairs_k80_s42_head: target=79.54, source change=0.000 pp, 28.0s
+public_affairs_k80_s42_full: target=82.06, source change=-6.972 pp, 94.8s
+public_affairs_k80_s42_full_ewc: target=82.06, source change=-6.735 pp, 104.8s
+public_affairs_k80_s42_adapter: target=82.93, source change=0.000 pp, 54.0s
+public_affairs_k80_s42_lora: target=78.57, source change=0.000 pp, 57.5s
+public_affairs_k80_s42_lwf: target=80.90, source change=-0.115 pp, 192.1s
+public_affairs_k80_s42_daewc: target=83.06, source change=-0.539 pp, 84.2s
+entertainment_k80_s42_head: target=56.15, source change=0.000 pp, 37.2s
+entertainment_k80_s42_full: target=57.54, source change=-13.571 pp, 115.4s
+entertainment_k80_s42_full_ewc: target=57.54, source change=-13.571 pp, 120.1s
+entertainment_k80_s42_adapter: target=63.73, source change=0.000 pp, 61.3s
+entertainment_k80_s42_lora: target=52.66, source change=0.000 pp, 65.8s
+entertainment_k80_s42_lwf: target=58.48, source change=-7.977 pp, 211.4s
+entertainment_k80_s42_daewc: target=50.96, source change=0.031 pp, 87.1s
+
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 197/197 [00:00<00:00, 11262.41it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-base
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Source epoch 1: dev loss 0.61919
+Source epoch 2: dev loss 0.62807
+Source epoch 3: dev loss 0.88419
+health_k80_s43_head: target=72.81, source change=0.000 pp, 23.0s
+health_k80_s43_full: target=71.79, source change=-1.404 pp, 78.2s
+health_k80_s43_full_ewc: target=72.81, source change=-1.528 pp, 86.9s
+health_k80_s43_adapter: target=64.27, source change=0.000 pp, 45.8s
+health_k80_s43_lora: target=66.95, source change=0.000 pp, 48.8s
+health_k80_s43_lwf: target=75.69, source change=-0.612 pp, 161.4s
+health_k80_s43_daewc: target=63.27, source change=0.164 pp, 70.3s
+public_affairs_k80_s43_head: target=80.08, source change=0.000 pp, 23.4s
+public_affairs_k80_s43_full: target=77.03, source change=-4.202 pp, 79.7s
+public_affairs_k80_s43_full_ewc: target=77.03, source change=-4.202 pp, 90.3s
+public_affairs_k80_s43_adapter: target=82.43, source change=0.000 pp, 48.5s
+public_affairs_k80_s43_lora: target=77.55, source change=0.000 pp, 50.5s
+public_affairs_k80_s43_lwf: target=79.91, source change=-1.017 pp, 164.4s
+public_affairs_k80_s43_daewc: target=83.04, source change=0.000 pp, 68.5s
+entertainment_k80_s43_head: target=62.04, source change=0.000 pp, 23.2s
+entertainment_k80_s43_full: target=60.69, source change=-11.912 pp, 78.6s
+entertainment_k80_s43_full_ewc: target=60.75, source change=-11.912 pp, 92.8s
+entertainment_k80_s43_adapter: target=54.99, source change=0.000 pp, 52.9s
+entertainment_k80_s43_lora: target=59.57, source change=0.000 pp, 56.8s
+entertainment_k80_s43_lwf: target=58.31, source change=0.087 pp, 181.3s
+entertainment_k80_s43_daewc: target=60.18, source change=-0.060 pp, 75.6s
+
+Loading weights:   0%|          | 0/197 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 197/197 [00:00<00:00, 11720.42it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-base
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Source epoch 1: dev loss 0.64620
+Source epoch 2: dev loss 0.64160
+Source epoch 3: dev loss 1.03509
+Source epoch 4: dev loss 1.56677
+health_k80_s44_head: target=64.11, source change=0.000 pp, 22.2s
+health_k80_s44_full: target=65.49, source change=-0.462 pp, 76.7s
+health_k80_s44_full_ewc: target=65.49, source change=-0.242 pp, 86.4s
+health_k80_s44_adapter: target=53.07, source change=0.000 pp, 45.8s
+health_k80_s44_lora: target=66.63, source change=0.000 pp, 48.7s
+health_k80_s44_lwf: target=58.72, source change=-1.271 pp, 160.8s
+health_k80_s44_daewc: target=66.15, source change=-0.547 pp, 66.7s
+public_affairs_k80_s44_head: target=76.91, source change=0.000 pp, 22.2s
+public_affairs_k80_s44_full: target=76.99, source change=-4.962 pp, 76.6s
+public_affairs_k80_s44_full_ewc: target=76.99, source change=-4.962 pp, 86.6s
+public_affairs_k80_s44_adapter: target=82.88, source change=0.000 pp, 45.8s
+public_affairs_k80_s44_lora: target=79.72, source change=0.000 pp, 48.9s
+public_affairs_k80_s44_lwf: target=77.26, source change=-3.347 pp, 160.7s
+public_affairs_k80_s44_daewc: target=80.86, source change=-0.247 pp, 67.6s
+entertainment_k80_s44_head: target=59.40, source change=0.000 pp, 22.4s
+entertainment_k80_s44_full: target=59.13, source change=-6.941 pp, 76.4s
+entertainment_k80_s44_full_ewc: target=58.88, source change=-6.677 pp, 86.7s
+entertainment_k80_s44_adapter: target=62.98, source change=0.000 pp, 45.8s
+entertainment_k80_s44_lora: target=55.39, source change=0.000 pp, 48.7s
+entertainment_k80_s44_lwf: target=62.15, source change=-3.816 pp, 160.6s
+entertainment_k80_s44_daewc: target=59.71, source change=-0.241 pp, 66.5s
+Completed 63 runs

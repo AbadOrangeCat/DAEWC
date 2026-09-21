@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_public_affairs_k80_s44_lora",
+  "group": "fixed_reference",
+  "method": "lora",
+  "seed": 44,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 75.0,
+    "accuracy": 75.51020408163265,
+    "auc": 0.85671768707483
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "acfaeccf79ee68f93139023c50c16e30e9b7d5495d8828f3d84a6d9a943bd9e3",
+  "trainable_parameters": 8450,
+  "selection_or_training_performed": false
+}

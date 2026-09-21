@@ -1,0 +1,36 @@
+{
+  "verified_runs": 63,
+  "paired_budget_groups": 9,
+  "checkpoint_reconstructions": [
+    {
+      "run_id": "health_k80_s42_adapter",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "health_k80_s42_daewc",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "health_k80_s42_full",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "health_k80_s42_full_ewc",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "health_k80_s42_head",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "health_k80_s42_lora",
+      "max_probability_error": 0.0
+    },
+    {
+      "run_id": "health_k80_s42_lwf",
+      "max_probability_error": 0.0
+    }
+  ],
+  "checkpoint_reconstruction_device": "mps",
+  "checks": "data and checkpoint SHA-256; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+}

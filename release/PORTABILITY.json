@@ -1,0 +1,77 @@
+{
+  "scope": "Packaging changes only. Original logs and metadata are retained in the local archival snapshot. No predictions, labels, metrics, or frozen training configurations were changed.",
+  "files": [
+    {
+      "path": "revision_artifacts/additional_0.log",
+      "original_sha256": "284a7e356cefdf7cd2fe13063e917d8f62c39b749865f7f089c7cd26951ceac2",
+      "public_sha256": "3b08648848476359e12d081113a0c97c7a7fc7c9db9adb64f7122e96b89bf038",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/local_run.log",
+      "original_sha256": "5c963b4eda5d338cc583232c38a472f5021b5559b8bfb986cd14091b32cc6d6f",
+      "public_sha256": "f5f151385bc4a2fd4e8a3b0e4d93ade162d8368ca7da77efd0c0a0b0f0870f56",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/additional_1.log",
+      "original_sha256": "7474e843d8b7b171a5de3626a7c055cbd67b3a85b1b95f779ea876d34d02dcf5",
+      "public_sha256": "c39d6cd89608906384365f5f6cd0e570150548f0579da470d8de4abb5cf767eb",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/additional_3.log",
+      "original_sha256": "60456813c53fa2a5d4ffad9f116ba5b060ce628ccfe67e1077c8abc6e00bff0f",
+      "public_sha256": "0c7e8f4185a9a9e32085576cf460f758b77e61ae76c618dd621124bc42eadb45",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/sequential_low.log",
+      "original_sha256": "e3a89874bb5b8d938c1ab8a9cdcd7dc08470cce0a1204c2663ceec54c1f3cf1b",
+      "public_sha256": "c11e6c1e06e08bafdcdceae31e0a4254b3ce946aae267669af3de43a9a5c4acd",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/mechanism.log",
+      "original_sha256": "4efc73dc52559e2df14f917f30d1398c8002c11dcdadb0a9cc39e5bb0a650c89",
+      "public_sha256": "09cb15d158e34ad0fddeb35b53ff919b81fe6e2e9a9b948e362ba3ce1950724f",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/exploratory_repeat_source.log",
+      "original_sha256": "2fd1fc943f88126106640421e6a44505bf160f1fa14738e346a9890db7a68931",
+      "public_sha256": "51613b50e30ec9a504308d78dfb9a4d31256cff9577a27bed19c180bc13ffc58",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/low_footprint.log",
+      "original_sha256": "0e68a0ef427ccc4dc00204a8ea73bbc843cb9e775812b44421798ba6035eda9d",
+      "public_sha256": "5a22466ae526c579d40017551dcff815be5991d05ccc927558653fc5188d1dcf",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/verification_base_reconstruction.log",
+      "original_sha256": "80211e7b2265e170bf75d9ecdafb85686dedc0e824eff66d647153ead7726895",
+      "public_sha256": "4992986971394902eaac936c2c1f8e43dc61bc9a473ff107a96d7a5b6b44612c",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/verification_base_mps.log",
+      "original_sha256": "52d62074f363092ef33b683db65328b7bced3b571496adc3c377bcfb77404865",
+      "public_sha256": "c551c6dd1255db42e31538c467164118cd057d7252e10334aad285681a3853a6",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/low_footprint_cv.log",
+      "original_sha256": "89a4dee355c190807f4e844156b146cfa20727f9de83baa76614f3098aa3f988",
+      "public_sha256": "41b2bd2965d12d7fb8a50911c1a18b0eb8210f2056f575e452dfc950a5593e56",
+      "change": "Replaced local machine paths with portable locations; retained log messages and numerical results."
+    },
+    {
+      "path": "revision_artifacts/data/manifest.json",
+      "original_sha256": "e62ecb6b5291e304481f51495c2c724e1f6308a7f5e52b83fea15658384b6992",
+      "public_sha256": "a1e6effd5a99158d601a791cc3735eadc478bb7bdbf8a6b21da6a84a9623b5ea",
+      "change": "Made the LIAR archive location repository-relative; input and processed-record hashes are unchanged."
+    }
+  ]
+}

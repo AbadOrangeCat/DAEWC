@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_health_k80_s43_head",
+  "group": "fixed_reference",
+  "method": "head",
+  "seed": 43,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 66.52003910068426,
+    "accuracy": 70.8029197080292,
+    "auc": 0.7791375291375291
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "0264b42dc31b0154009049880014a5d95a6d13dd146225f00d0e7cd0f50d8058",
+  "trainable_parameters": 258,
+  "selection_or_training_performed": false
+}

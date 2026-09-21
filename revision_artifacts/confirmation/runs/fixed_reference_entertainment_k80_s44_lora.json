@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_entertainment_k80_s44_lora",
+  "group": "fixed_reference",
+  "method": "lora",
+  "seed": 44,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 58.04072100165829,
+    "accuracy": 61.6205725376031,
+    "auc": 0.7118181288778773
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "2631eef0fc744bf9cd4372e992a3603844a1551f93d856330a0e4cb339aa1341",
+  "trainable_parameters": 8450,
+  "selection_or_training_performed": false
+}

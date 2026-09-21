@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_public_affairs_k80_s42_lora",
+  "group": "cv_reference",
+  "method": "lora",
+  "seed": 42,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 73.87781213348971,
+    "accuracy": 74.48979591836735,
+    "auc": 0.8337585034013605
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "5ff4e349a0c5b792af4d48ffa6bd69a9f1be48f614ab599a8d4fa24057e67af4",
+  "trainable_parameters": 8450,
+  "selection_or_training_performed": false
+}

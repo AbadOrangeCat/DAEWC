@@ -1,0 +1,358 @@
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 43531.35it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Source epoch 1: dev loss 0.64276
+Source epoch 2: dev loss 0.65560
+Source epoch 3: dev loss 0.63248
+Source epoch 4: dev loss 0.67337
+Source epoch 5: dev loss 0.64535
+health_k10_s42_head: target=59.18, source change=0.000 pp, 0.3s
+health_k10_s42_full: target=64.61, source change=-1.157 pp, 1.3s
+health_k10_s42_full_ewc: target=64.61, source change=-0.594 pp, 1.8s
+health_k10_s42_adapter: target=60.90, source change=0.000 pp, 0.7s
+health_k10_s42_lora: target=58.85, source change=0.000 pp, 1.0s
+health_k10_s42_lwf: target=64.61, source change=-0.036 pp, 2.1s
+health_k10_s42_daewc: target=60.07, source change=-0.036 pp, 1.0s
+health_k20_s42_head: target=63.22, source change=0.000 pp, 0.4s
+health_k20_s42_full: target=60.72, source change=-3.082 pp, 1.5s
+health_k20_s42_full_ewc: target=60.72, source change=-3.082 pp, 1.9s
+health_k20_s42_adapter: target=65.14, source change=0.000 pp, 0.7s
+health_k20_s42_lora: target=62.15, source change=0.000 pp, 1.0s
+health_k20_s42_lwf: target=64.05, source change=-0.022 pp, 2.1s
+health_k20_s42_daewc: target=60.72, source change=-0.036 pp, 1.0s
+health_k80_s42_head: target=66.53, source change=0.000 pp, 0.5s
+health_k80_s42_full: target=66.53, source change=-1.460 pp, 1.6s
+health_k80_s42_full_ewc: target=66.53, source change=-1.678 pp, 2.1s
+health_k80_s42_adapter: target=62.15, source change=0.000 pp, 0.7s
+health_k80_s42_lora: target=57.36, source change=0.000 pp, 1.0s
+health_k80_s42_lwf: target=65.70, source change=-0.114 pp, 2.6s
+health_k80_s42_daewc: target=65.14, source change=-0.106 pp, 1.1s
+health_k80_s42_no_gate: target=62.15, source change=-0.230 pp, 1.0s
+health_k80_s42_no_ewc: target=65.14, source change=-0.098 pp, 1.1s
+health_k80_s42_no_proximity: target=65.14, source change=-0.098 pp, 1.1s
+health_k80_s42_no_regularizers: target=65.14, source change=-0.205 pp, 1.1s
+health_k160_s42_head: target=66.53, source change=0.000 pp, 0.4s
+health_k160_s42_full: target=69.27, source change=-1.574 pp, 1.6s
+health_k160_s42_full_ewc: target=69.27, source change=-1.683 pp, 2.1s
+health_k160_s42_adapter: target=59.55, source change=0.000 pp, 0.7s
+health_k160_s42_lora: target=66.25, source change=0.000 pp, 0.8s
+health_k160_s42_lwf: target=67.60, source change=-0.537 pp, 2.7s
+health_k160_s42_daewc: target=60.22, source change=-0.098 pp, 1.1s
+public_affairs_k10_s42_head: target=66.59, source change=0.000 pp, 0.3s
+public_affairs_k10_s42_full: target=65.13, source change=-6.590 pp, 1.3s
+public_affairs_k10_s42_full_ewc: target=65.13, source change=-5.750 pp, 1.9s
+public_affairs_k10_s42_adapter: target=66.69, source change=0.000 pp, 0.5s
+public_affairs_k10_s42_lora: target=67.00, source change=0.000 pp, 0.6s
+public_affairs_k10_s42_lwf: target=65.30, source change=-0.686 pp, 1.9s
+public_affairs_k10_s42_daewc: target=64.55, source change=-0.123 pp, 0.8s
+public_affairs_k20_s42_head: target=69.38, source change=0.000 pp, 0.4s
+public_affairs_k20_s42_full: target=70.38, source change=-4.274 pp, 1.4s
+public_affairs_k20_s42_full_ewc: target=70.38, source change=-4.029 pp, 1.9s
+public_affairs_k20_s42_adapter: target=72.40, source change=0.000 pp, 0.6s
+public_affairs_k20_s42_lora: target=76.28, source change=0.000 pp, 0.7s
+public_affairs_k20_s42_lwf: target=71.35, source change=-1.354 pp, 2.1s
+public_affairs_k20_s42_daewc: target=76.66, source change=0.070 pp, 1.0s
+public_affairs_k80_s42_head: target=68.87, source change=0.000 pp, 0.4s
+public_affairs_k80_s42_full: target=73.95, source change=-1.067 pp, 1.6s
+public_affairs_k80_s42_full_ewc: target=73.95, source change=-1.067 pp, 2.1s
+public_affairs_k80_s42_adapter: target=74.03, source change=0.000 pp, 0.7s
+public_affairs_k80_s42_lora: target=76.82, source change=0.000 pp, 0.8s
+public_affairs_k80_s42_lwf: target=71.92, source change=-0.701 pp, 2.7s
+public_affairs_k80_s42_daewc: target=75.07, source change=0.106 pp, 1.1s
+public_affairs_k80_s42_no_gate: target=74.52, source change=-0.036 pp, 1.1s
+public_affairs_k80_s42_no_ewc: target=75.07, source change=0.221 pp, 1.1s
+public_affairs_k80_s42_no_proximity: target=75.07, source change=0.221 pp, 1.1s
+public_affairs_k80_s42_no_regularizers: target=75.07, source change=0.221 pp, 1.1s
+public_affairs_k160_s42_head: target=70.92, source change=0.000 pp, 0.4s
+public_affairs_k160_s42_full: target=72.92, source change=-1.597 pp, 1.6s
+public_affairs_k160_s42_full_ewc: target=72.92, source change=-1.796 pp, 2.1s
+public_affairs_k160_s42_adapter: target=75.94, source change=0.000 pp, 0.7s
+public_affairs_k160_s42_lora: target=78.43, source change=0.000 pp, 0.9s
+public_affairs_k160_s42_lwf: target=73.44, source change=-1.727 pp, 2.7s
+public_affairs_k160_s42_daewc: target=77.36, source change=-0.142 pp, 1.1s
+entertainment_k10_s42_head: target=53.19, source change=0.000 pp, 0.3s
+entertainment_k10_s42_full: target=48.14, source change=-5.849 pp, 1.3s
+entertainment_k10_s42_full_ewc: target=48.01, source change=-5.592 pp, 2.0s
+entertainment_k10_s42_adapter: target=49.50, source change=0.000 pp, 0.6s
+entertainment_k10_s42_lora: target=49.32, source change=0.000 pp, 0.7s
+entertainment_k10_s42_lwf: target=48.91, source change=-0.422 pp, 2.0s
+entertainment_k10_s42_daewc: target=55.34, source change=0.000 pp, 0.9s
+entertainment_k20_s42_head: target=50.90, source change=0.000 pp, 0.4s
+entertainment_k20_s42_full: target=51.97, source change=-6.661 pp, 1.5s
+entertainment_k20_s42_full_ewc: target=51.95, source change=-6.416 pp, 2.0s
+entertainment_k20_s42_adapter: target=49.90, source change=0.000 pp, 0.7s
+entertainment_k20_s42_lora: target=50.49, source change=0.000 pp, 0.8s
+entertainment_k20_s42_lwf: target=53.21, source change=-1.693 pp, 2.2s
+entertainment_k20_s42_daewc: target=50.74, source change=0.008 pp, 1.0s
+entertainment_k80_s42_head: target=52.84, source change=0.000 pp, 0.4s
+entertainment_k80_s42_full: target=52.93, source change=-7.438 pp, 1.5s
+entertainment_k80_s42_full_ewc: target=52.78, source change=-7.346 pp, 2.1s
+entertainment_k80_s42_adapter: target=56.95, source change=0.000 pp, 0.7s
+entertainment_k80_s42_lora: target=55.19, source change=0.000 pp, 0.9s
+entertainment_k80_s42_lwf: target=52.58, source change=-0.311 pp, 2.6s
+entertainment_k80_s42_daewc: target=55.18, source change=0.144 pp, 1.0s
+entertainment_k80_s42_no_gate: target=56.92, source change=0.144 pp, 1.0s
+entertainment_k80_s42_no_ewc: target=55.18, source change=0.257 pp, 1.1s
+entertainment_k80_s42_no_proximity: target=55.17, source change=0.257 pp, 1.1s
+entertainment_k80_s42_no_regularizers: target=55.18, source change=0.484 pp, 1.1s
+entertainment_k160_s42_head: target=53.10, source change=0.000 pp, 0.4s
+entertainment_k160_s42_full: target=54.71, source change=-7.431 pp, 1.6s
+entertainment_k160_s42_full_ewc: target=54.68, source change=-7.548 pp, 2.0s
+entertainment_k160_s42_adapter: target=58.90, source change=0.000 pp, 0.7s
+entertainment_k160_s42_lora: target=58.12, source change=0.000 pp, 0.8s
+entertainment_k160_s42_lwf: target=56.04, source change=0.043 pp, 2.5s
+entertainment_k160_s42_daewc: target=60.09, source change=0.382 pp, 1.0s
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 30328.17it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Source epoch 1: dev loss 0.65665
+Source epoch 2: dev loss 0.65005
+Source epoch 3: dev loss 0.63652
+Source epoch 4: dev loss 0.67055
+Source epoch 5: dev loss 0.65777
+health_k10_s43_head: target=62.70, source change=0.000 pp, 0.3s
+health_k10_s43_full: target=62.18, source change=-2.752 pp, 1.2s
+health_k10_s43_full_ewc: target=62.18, source change=-2.769 pp, 1.8s
+health_k10_s43_adapter: target=54.08, source change=0.000 pp, 0.5s
+health_k10_s43_lora: target=56.87, source change=0.000 pp, 0.6s
+health_k10_s43_lwf: target=60.51, source change=-1.709 pp, 1.9s
+health_k10_s43_daewc: target=56.22, source change=-0.629 pp, 0.8s
+health_k20_s43_head: target=56.75, source change=0.000 pp, 0.3s
+health_k20_s43_full: target=53.91, source change=-1.121 pp, 1.3s
+health_k20_s43_full_ewc: target=53.91, source change=-1.256 pp, 2.0s
+health_k20_s43_adapter: target=55.05, source change=0.000 pp, 0.6s
+health_k20_s43_lora: target=45.76, source change=0.000 pp, 0.7s
+health_k20_s43_lwf: target=55.04, source change=0.351 pp, 2.1s
+health_k20_s43_daewc: target=54.58, source change=-0.399 pp, 1.0s
+health_k80_s43_head: target=64.46, source change=0.000 pp, 0.4s
+health_k80_s43_full: target=64.46, source change=-1.229 pp, 1.7s
+health_k80_s43_full_ewc: target=64.46, source change=-1.226 pp, 2.2s
+health_k80_s43_adapter: target=64.07, source change=0.000 pp, 0.8s
+health_k80_s43_lora: target=60.26, source change=0.000 pp, 0.9s
+health_k80_s43_lwf: target=66.15, source change=-0.975 pp, 2.8s
+health_k80_s43_daewc: target=62.40, source change=0.373 pp, 1.2s
+health_k80_s43_no_gate: target=64.07, source change=0.257 pp, 1.1s
+health_k80_s43_no_ewc: target=62.40, source change=0.373 pp, 1.2s
+health_k80_s43_no_proximity: target=62.40, source change=0.268 pp, 1.2s
+health_k80_s43_no_regularizers: target=62.40, source change=0.268 pp, 1.2s
+health_k160_s43_head: target=65.10, source change=0.000 pp, 0.5s
+health_k160_s43_full: target=62.39, source change=-1.678 pp, 1.7s
+health_k160_s43_full_ewc: target=62.39, source change=-1.337 pp, 2.3s
+health_k160_s43_adapter: target=61.56, source change=0.000 pp, 0.7s
+health_k160_s43_lora: target=54.12, source change=0.000 pp, 0.9s
+health_k160_s43_lwf: target=63.22, source change=-0.157 pp, 2.8s
+health_k160_s43_daewc: target=56.87, source change=0.047 pp, 1.2s
+public_affairs_k10_s43_head: target=61.16, source change=0.000 pp, 0.4s
+public_affairs_k10_s43_full: target=64.75, source change=-6.686 pp, 1.4s
+public_affairs_k10_s43_full_ewc: target=64.75, source change=-6.280 pp, 2.0s
+public_affairs_k10_s43_adapter: target=64.79, source change=0.000 pp, 0.6s
+public_affairs_k10_s43_lora: target=70.30, source change=0.000 pp, 0.7s
+public_affairs_k10_s43_lwf: target=63.62, source change=-0.362 pp, 2.1s
+public_affairs_k10_s43_daewc: target=63.77, source change=0.024 pp, 0.8s
+public_affairs_k20_s43_head: target=67.84, source change=0.000 pp, 0.4s
+public_affairs_k20_s43_full: target=70.26, source change=-3.709 pp, 1.4s
+public_affairs_k20_s43_full_ewc: target=70.26, source change=-3.472 pp, 2.1s
+public_affairs_k20_s43_adapter: target=71.45, source change=0.000 pp, 0.6s
+public_affairs_k20_s43_lora: target=72.45, source change=0.000 pp, 0.7s
+public_affairs_k20_s43_lwf: target=69.88, source change=-0.816 pp, 2.3s
+public_affairs_k20_s43_daewc: target=75.94, source change=0.362 pp, 1.1s
+public_affairs_k80_s43_head: target=69.38, source change=0.000 pp, 0.5s
+public_affairs_k80_s43_full: target=72.35, source change=-3.018 pp, 1.7s
+public_affairs_k80_s43_full_ewc: target=72.35, source change=-2.802 pp, 2.2s
+public_affairs_k80_s43_adapter: target=77.42, source change=0.000 pp, 0.7s
+public_affairs_k80_s43_lora: target=75.48, source change=0.000 pp, 0.9s
+public_affairs_k80_s43_lwf: target=72.84, source change=-1.977 pp, 2.9s
+public_affairs_k80_s43_daewc: target=73.95, source change=-0.275 pp, 1.2s
+public_affairs_k80_s43_no_gate: target=77.98, source change=0.012 pp, 1.1s
+public_affairs_k80_s43_no_ewc: target=73.95, source change=-0.379 pp, 1.2s
+public_affairs_k80_s43_no_proximity: target=74.45, source change=-0.379 pp, 1.2s
+public_affairs_k80_s43_no_regularizers: target=74.45, source change=-0.379 pp, 1.2s
+public_affairs_k160_s43_head: target=72.87, source change=0.000 pp, 0.5s
+public_affairs_k160_s43_full: target=75.38, source change=-2.589 pp, 1.7s
+public_affairs_k160_s43_full_ewc: target=75.38, source change=-2.392 pp, 2.2s
+public_affairs_k160_s43_adapter: target=77.85, source change=0.000 pp, 0.9s
+public_affairs_k160_s43_lora: target=80.41, source change=0.000 pp, 0.9s
+public_affairs_k160_s43_lwf: target=76.87, source change=-1.739 pp, 2.9s
+public_affairs_k160_s43_daewc: target=79.42, source change=0.141 pp, 1.3s
+entertainment_k10_s43_head: target=52.49, source change=0.000 pp, 0.4s
+entertainment_k10_s43_full: target=53.24, source change=-14.180 pp, 1.4s
+entertainment_k10_s43_full_ewc: target=53.20, source change=-12.610 pp, 1.9s
+entertainment_k10_s43_adapter: target=48.79, source change=0.000 pp, 0.5s
+entertainment_k10_s43_lora: target=48.50, source change=0.000 pp, 0.6s
+entertainment_k10_s43_lwf: target=53.69, source change=-0.691 pp, 1.9s
+entertainment_k10_s43_daewc: target=50.33, source change=0.279 pp, 0.8s
+entertainment_k20_s43_head: target=61.01, source change=0.000 pp, 0.4s
+entertainment_k20_s43_full: target=59.86, source change=-17.912 pp, 1.4s
+entertainment_k20_s43_full_ewc: target=59.79, source change=-17.203 pp, 2.0s
+entertainment_k20_s43_adapter: target=57.45, source change=0.000 pp, 0.6s
+entertainment_k20_s43_lora: target=55.90, source change=0.000 pp, 0.7s
+entertainment_k20_s43_lwf: target=59.65, source change=-3.244 pp, 2.2s
+entertainment_k20_s43_daewc: target=56.41, source change=-0.213 pp, 1.0s
+entertainment_k80_s43_head: target=59.02, source change=0.000 pp, 0.5s
+entertainment_k80_s43_full: target=59.61, source change=-11.075 pp, 1.7s
+entertainment_k80_s43_full_ewc: target=59.57, source change=-9.740 pp, 2.1s
+entertainment_k80_s43_adapter: target=57.39, source change=0.000 pp, 0.7s
+entertainment_k80_s43_lora: target=57.81, source change=0.000 pp, 0.8s
+entertainment_k80_s43_lwf: target=58.84, source change=-0.714 pp, 2.7s
+entertainment_k80_s43_daewc: target=52.07, source change=0.114 pp, 1.1s
+entertainment_k80_s43_no_gate: target=57.38, source change=0.008 pp, 1.1s
+entertainment_k80_s43_no_ewc: target=52.07, source change=0.023 pp, 1.1s
+entertainment_k80_s43_no_proximity: target=52.07, source change=0.023 pp, 1.1s
+entertainment_k80_s43_no_regularizers: target=52.03, source change=0.031 pp, 1.1s
+entertainment_k160_s43_head: target=61.01, source change=0.000 pp, 0.4s
+entertainment_k160_s43_full: target=63.15, source change=-11.489 pp, 1.6s
+entertainment_k160_s43_full_ewc: target=63.17, source change=-10.718 pp, 2.2s
+entertainment_k160_s43_adapter: target=55.45, source change=0.000 pp, 0.7s
+entertainment_k160_s43_lora: target=62.22, source change=0.000 pp, 0.9s
+entertainment_k160_s43_lwf: target=60.93, source change=-0.009 pp, 2.6s
+entertainment_k160_s43_daewc: target=64.56, source change=-0.091 pp, 1.0s
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 22658.67it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Source epoch 1: dev loss 0.63861
+Source epoch 2: dev loss 0.63555
+Source epoch 3: dev loss 0.62551
+Source epoch 4: dev loss 0.63482
+Source epoch 5: dev loss 0.66193
+health_k10_s44_head: target=61.75, source change=0.000 pp, 0.3s
+health_k10_s44_full: target=64.63, source change=-3.588 pp, 1.3s
+health_k10_s44_full_ewc: target=64.63, source change=-3.354 pp, 1.8s
+health_k10_s44_adapter: target=55.38, source change=0.000 pp, 0.5s
+health_k10_s44_lora: target=63.23, source change=0.000 pp, 0.6s
+health_k10_s44_lwf: target=63.62, source change=0.493 pp, 1.9s
+health_k10_s44_daewc: target=55.38, source change=-0.234 pp, 0.8s
+health_k20_s44_head: target=65.31, source change=0.000 pp, 0.3s
+health_k20_s44_full: target=68.44, source change=-0.238 pp, 1.3s
+health_k20_s44_full_ewc: target=68.44, source change=-0.474 pp, 1.8s
+health_k20_s44_adapter: target=65.95, source change=0.000 pp, 0.6s
+health_k20_s44_lora: target=62.93, source change=0.000 pp, 0.6s
+health_k20_s44_lwf: target=67.83, source change=0.939 pp, 2.0s
+health_k20_s44_daewc: target=67.18, source change=-0.571 pp, 0.9s
+health_k80_s44_head: target=66.53, source change=0.000 pp, 0.4s
+health_k80_s44_full: target=66.77, source change=-1.042 pp, 1.5s
+health_k80_s44_full_ewc: target=66.77, source change=-1.238 pp, 2.0s
+health_k80_s44_adapter: target=60.50, source change=0.000 pp, 0.7s
+health_k80_s44_lora: target=62.07, source change=0.000 pp, 0.8s
+health_k80_s44_lwf: target=67.60, source change=-0.776 pp, 2.5s
+health_k80_s44_daewc: target=63.62, source change=-0.223 pp, 1.1s
+health_k80_s44_no_gate: target=60.50, source change=-0.109 pp, 1.0s
+health_k80_s44_no_ewc: target=63.62, source change=-0.223 pp, 1.0s
+health_k80_s44_no_proximity: target=63.62, source change=-0.223 pp, 1.1s
+health_k80_s44_no_regularizers: target=63.62, source change=-0.223 pp, 1.0s
+health_k160_s44_head: target=64.33, source change=0.000 pp, 0.4s
+health_k160_s44_full: target=67.08, source change=-2.364 pp, 1.5s
+health_k160_s44_full_ewc: target=67.08, source change=-2.131 pp, 2.0s
+health_k160_s44_adapter: target=64.27, source change=0.000 pp, 0.7s
+health_k160_s44_lora: target=61.46, source change=0.000 pp, 0.8s
+health_k160_s44_lwf: target=64.61, source change=0.376 pp, 2.5s
+health_k160_s44_daewc: target=64.61, source change=0.114 pp, 1.1s
+public_affairs_k10_s44_head: target=63.25, source change=0.000 pp, 0.3s
+public_affairs_k10_s44_full: target=62.59, source change=-1.262 pp, 1.2s
+public_affairs_k10_s44_full_ewc: target=62.59, source change=-1.363 pp, 1.8s
+public_affairs_k10_s44_adapter: target=62.23, source change=0.000 pp, 0.5s
+public_affairs_k10_s44_lora: target=61.69, source change=0.000 pp, 0.6s
+public_affairs_k10_s44_lwf: target=61.57, source change=1.521 pp, 1.9s
+public_affairs_k10_s44_daewc: target=62.23, source change=-0.109 pp, 0.8s
+public_affairs_k20_s44_head: target=72.16, source change=0.000 pp, 0.4s
+public_affairs_k20_s44_full: target=70.38, source change=-0.628 pp, 1.3s
+public_affairs_k20_s44_full_ewc: target=70.38, source change=-0.628 pp, 1.8s
+public_affairs_k20_s44_adapter: target=68.98, source change=0.000 pp, 0.6s
+public_affairs_k20_s44_lora: target=72.65, source change=0.000 pp, 0.6s
+public_affairs_k20_s44_lwf: target=70.88, source change=0.456 pp, 2.0s
+public_affairs_k20_s44_daewc: target=70.16, source change=-0.223 pp, 0.9s
+public_affairs_k80_s44_head: target=67.82, source change=0.000 pp, 0.4s
+public_affairs_k80_s44_full: target=70.33, source change=-2.062 pp, 1.5s
+public_affairs_k80_s44_full_ewc: target=70.33, source change=-1.638 pp, 2.0s
+public_affairs_k80_s44_adapter: target=75.88, source change=0.000 pp, 0.7s
+public_affairs_k80_s44_lora: target=77.81, source change=0.000 pp, 0.8s
+public_affairs_k80_s44_lwf: target=71.38, source change=-0.223 pp, 2.5s
+public_affairs_k80_s44_daewc: target=76.66, source change=-0.223 pp, 1.1s
+public_affairs_k80_s44_no_gate: target=75.88, source change=-0.223 pp, 1.0s
+public_affairs_k80_s44_no_ewc: target=76.66, source change=-0.223 pp, 1.1s
+public_affairs_k80_s44_no_proximity: target=76.66, source change=-0.335 pp, 1.0s
+public_affairs_k80_s44_no_regularizers: target=76.66, source change=-0.223 pp, 1.0s
+public_affairs_k160_s44_head: target=67.34, source change=0.000 pp, 0.4s
+public_affairs_k160_s44_full: target=69.36, source change=0.010 pp, 1.6s
+public_affairs_k160_s44_full_ewc: target=68.86, source change=-0.340 pp, 2.0s
+public_affairs_k160_s44_adapter: target=78.79, source change=0.000 pp, 0.7s
+public_affairs_k160_s44_lora: target=79.42, source change=0.000 pp, 0.8s
+public_affairs_k160_s44_lwf: target=69.88, source change=-1.230 pp, 2.5s
+public_affairs_k160_s44_daewc: target=75.79, source change=-0.109 pp, 1.0s
+entertainment_k10_s44_head: target=52.22, source change=0.000 pp, 0.3s
+entertainment_k10_s44_full: target=53.72, source change=-13.116 pp, 1.3s
+entertainment_k10_s44_full_ewc: target=53.41, source change=-12.438 pp, 1.8s
+entertainment_k10_s44_adapter: target=56.70, source change=0.000 pp, 0.5s
+entertainment_k10_s44_lora: target=54.94, source change=0.000 pp, 0.6s
+entertainment_k10_s44_lwf: target=54.90, source change=-0.553 pp, 1.9s
+entertainment_k10_s44_daewc: target=55.01, source change=-0.324 pp, 0.8s
+entertainment_k20_s44_head: target=56.60, source change=0.000 pp, 0.4s
+entertainment_k20_s44_full: target=57.64, source change=-9.537 pp, 1.3s
+entertainment_k20_s44_full_ewc: target=57.58, source change=-8.730 pp, 1.8s
+entertainment_k20_s44_adapter: target=58.47, source change=0.000 pp, 0.6s
+entertainment_k20_s44_lora: target=56.28, source change=0.000 pp, 0.6s
+entertainment_k20_s44_lwf: target=58.12, source change=-2.008 pp, 2.1s
+entertainment_k20_s44_daewc: target=54.34, source change=0.004 pp, 0.9s
+entertainment_k80_s44_head: target=55.20, source change=0.000 pp, 0.4s
+entertainment_k80_s44_full: target=57.03, source change=-6.596 pp, 1.5s
+entertainment_k80_s44_full_ewc: target=57.08, source change=-6.090 pp, 2.1s
+entertainment_k80_s44_adapter: target=59.70, source change=0.000 pp, 0.7s
+entertainment_k80_s44_lora: target=58.16, source change=0.000 pp, 0.8s
+entertainment_k80_s44_lwf: target=59.07, source change=-0.935 pp, 2.5s
+entertainment_k80_s44_daewc: target=60.67, source change=-0.215 pp, 1.1s
+entertainment_k80_s44_no_gate: target=59.90, source change=-0.105 pp, 1.0s
+entertainment_k80_s44_no_ewc: target=60.70, source change=-0.323 pp, 1.1s
+entertainment_k80_s44_no_proximity: target=60.66, source change=-0.323 pp, 1.1s
+entertainment_k80_s44_no_regularizers: target=60.62, source change=-0.433 pp, 1.0s
+entertainment_k160_s44_head: target=55.37, source change=0.000 pp, 0.4s
+entertainment_k160_s44_full: target=59.37, source change=-7.778 pp, 1.5s
+entertainment_k160_s44_full_ewc: target=59.19, source change=-7.274 pp, 2.0s
+entertainment_k160_s44_adapter: target=57.91, source change=0.000 pp, 0.7s
+entertainment_k160_s44_lora: target=63.21, source change=0.000 pp, 0.8s
+entertainment_k160_s44_lwf: target=58.13, source change=0.082 pp, 2.6s
+entertainment_k160_s44_daewc: target=62.58, source change=-0.543 pp, 1.0s
+Completed 288 runs

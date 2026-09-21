@@ -1,0 +1,126 @@
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 17711.62it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Sequence s42_daewc_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s42_adapter_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s42_full_health-public_affairs-entertainment: BWT=-4.558 pp
+Sequence s42_lora_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s42_daewc_health-entertainment-public_affairs: BWT=-0.400 pp
+Sequence s42_adapter_health-entertainment-public_affairs: BWT=0.000 pp
+Sequence s42_full_health-entertainment-public_affairs: BWT=-7.384 pp
+Sequence s42_lora_health-entertainment-public_affairs: BWT=0.000 pp
+Sequence s42_daewc_public_affairs-health-entertainment: BWT=-0.278 pp
+Sequence s42_adapter_public_affairs-health-entertainment: BWT=0.000 pp
+Sequence s42_full_public_affairs-health-entertainment: BWT=-4.963 pp
+Sequence s42_lora_public_affairs-health-entertainment: BWT=0.000 pp
+Sequence s42_daewc_public_affairs-entertainment-health: BWT=-0.030 pp
+Sequence s42_adapter_public_affairs-entertainment-health: BWT=0.000 pp
+Sequence s42_full_public_affairs-entertainment-health: BWT=-1.537 pp
+Sequence s42_lora_public_affairs-entertainment-health: BWT=0.000 pp
+Sequence s42_daewc_entertainment-health-public_affairs: BWT=0.091 pp
+Sequence s42_adapter_entertainment-health-public_affairs: BWT=0.000 pp
+Sequence s42_full_entertainment-health-public_affairs: BWT=-4.773 pp
+Sequence s42_lora_entertainment-health-public_affairs: BWT=0.000 pp
+Sequence s42_daewc_entertainment-public_affairs-health: BWT=-0.203 pp
+Sequence s42_adapter_entertainment-public_affairs-health: BWT=0.000 pp
+Sequence s42_full_entertainment-public_affairs-health: BWT=-4.564 pp
+Sequence s42_lora_entertainment-public_affairs-health: BWT=0.000 pp
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 23211.08it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Sequence s43_daewc_health-public_affairs-entertainment: BWT=-1.353 pp
+Sequence s43_adapter_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s43_full_health-public_affairs-entertainment: BWT=-11.813 pp
+Sequence s43_lora_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s43_daewc_health-entertainment-public_affairs: BWT=-0.799 pp
+Sequence s43_adapter_health-entertainment-public_affairs: BWT=0.000 pp
+Sequence s43_full_health-entertainment-public_affairs: BWT=-6.753 pp
+Sequence s43_lora_health-entertainment-public_affairs: BWT=0.000 pp
+Sequence s43_daewc_public_affairs-health-entertainment: BWT=0.250 pp
+Sequence s43_adapter_public_affairs-health-entertainment: BWT=0.000 pp
+Sequence s43_full_public_affairs-health-entertainment: BWT=-9.925 pp
+Sequence s43_lora_public_affairs-health-entertainment: BWT=0.000 pp
+Sequence s43_daewc_public_affairs-entertainment-health: BWT=0.107 pp
+Sequence s43_adapter_public_affairs-entertainment-health: BWT=0.000 pp
+Sequence s43_full_public_affairs-entertainment-health: BWT=-2.150 pp
+Sequence s43_lora_public_affairs-entertainment-health: BWT=0.000 pp
+Sequence s43_daewc_entertainment-health-public_affairs: BWT=0.083 pp
+Sequence s43_adapter_entertainment-health-public_affairs: BWT=0.000 pp
+Sequence s43_full_entertainment-health-public_affairs: BWT=-6.623 pp
+Sequence s43_lora_entertainment-health-public_affairs: BWT=0.000 pp
+Sequence s43_daewc_entertainment-public_affairs-health: BWT=-0.126 pp
+Sequence s43_adapter_entertainment-public_affairs-health: BWT=0.000 pp
+Sequence s43_full_entertainment-public_affairs-health: BWT=-5.568 pp
+Sequence s43_lora_entertainment-public_affairs-health: BWT=0.000 pp
+
+Loading weights:   0%|          | 0/37 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 37/37 [00:00<00:00, 26183.44it/s]
+[transformers] [1mBertModel LOAD REPORT[0m from: models/bert-tiny
+Key                                        | Status     |  | 
+-------------------------------------------+------------+--+-
+bert.pooler.dense.weight                   | UNEXPECTED |  | 
+cls.seq_relationship.bias                  | UNEXPECTED |  | 
+cls.predictions.bias                       | UNEXPECTED |  | 
+bert.pooler.dense.bias                     | UNEXPECTED |  | 
+cls.seq_relationship.weight                | UNEXPECTED |  | 
+cls.predictions.transform.dense.weight     | UNEXPECTED |  | 
+cls.predictions.transform.dense.bias       | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.weight | UNEXPECTED |  | 
+cls.predictions.transform.LayerNorm.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Sequence s44_daewc_health-public_affairs-entertainment: BWT=0.102 pp
+Sequence s44_adapter_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s44_full_health-public_affairs-entertainment: BWT=-4.068 pp
+Sequence s44_lora_health-public_affairs-entertainment: BWT=0.000 pp
+Sequence s44_daewc_health-entertainment-public_affairs: BWT=-0.350 pp
+Sequence s44_adapter_health-entertainment-public_affairs: BWT=0.000 pp
+Sequence s44_full_health-entertainment-public_affairs: BWT=-4.217 pp
+Sequence s44_lora_health-entertainment-public_affairs: BWT=0.000 pp
+Sequence s44_daewc_public_affairs-health-entertainment: BWT=0.312 pp
+Sequence s44_adapter_public_affairs-health-entertainment: BWT=0.000 pp
+Sequence s44_full_public_affairs-health-entertainment: BWT=-6.342 pp
+Sequence s44_lora_public_affairs-health-entertainment: BWT=0.000 pp
+Sequence s44_daewc_public_affairs-entertainment-health: BWT=0.026 pp
+Sequence s44_adapter_public_affairs-entertainment-health: BWT=0.000 pp
+Sequence s44_full_public_affairs-entertainment-health: BWT=-3.863 pp
+Sequence s44_lora_public_affairs-entertainment-health: BWT=0.000 pp
+Sequence s44_daewc_entertainment-health-public_affairs: BWT=-0.317 pp
+Sequence s44_adapter_entertainment-health-public_affairs: BWT=0.000 pp
+Sequence s44_full_entertainment-health-public_affairs: BWT=-3.647 pp
+Sequence s44_lora_entertainment-health-public_affairs: BWT=0.000 pp
+Sequence s44_daewc_entertainment-public_affairs-health: BWT=0.128 pp
+Sequence s44_adapter_entertainment-public_affairs-health: BWT=0.000 pp
+Sequence s44_full_entertainment-public_affairs-health: BWT=-5.401 pp
+Sequence s44_lora_entertainment-public_affairs-health: BWT=0.000 pp

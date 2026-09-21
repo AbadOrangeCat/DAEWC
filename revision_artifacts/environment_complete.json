@@ -1,0 +1,19 @@
+{
+  "python": "3.13.11",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "requirements": {
+    "torch": "2.14.0",
+    "transformers": "5.17.0",
+    "numpy": "2.5.3",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1",
+    "datasketch": "2.0.0",
+    "matplotlib": "3.11.2",
+    "certifi": "2026.7.22",
+    "huggingface-hub": "1.31.0",
+    "pytest": "9.1.1"
+  },
+  "compute": "Apple M5 GPU through PyTorch MPS; 32 GB unified memory",
+  "verification_inference": "MPS for saved-run reconstruction; deterministic CPU for exact gate-export comparisons",
+  "timing": "Descriptive local wall time; some jobs ran concurrently."
+}

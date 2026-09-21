@@ -1,0 +1,18 @@
+{
+  "id": "cv_low_footprint_health_k80_s43_adapter",
+  "group": "cv_low_footprint",
+  "method": "adapter",
+  "seed": 43,
+  "domain": "health",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 65.47421476427562,
+    "accuracy": 70.07299270072993,
+    "auc": 0.7712703962703962
+  },
+  "test_n": 137,
+  "checkpoint_sha256": "718ba4303fcf9d4a1bf52e36461a6ceada1433b5379ddae1e450d9063887aef9",
+  "trainable_parameters": 1542,
+  "selection_or_training_performed": false
+}

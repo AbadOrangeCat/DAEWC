@@ -1,0 +1,9 @@
+{
+  "command": "python -m pytest -q",
+  "passed": 17,
+  "failed": 0,
+  "elapsed_seconds": 2.9,
+  "compile_command": "python -m compileall -q daewc scripts tests",
+  "compile_passed": true,
+  "recorded_utc": "2026-09-13T03:40:35.966857+00:00"
+}

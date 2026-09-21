@@ -1,0 +1,18 @@
+{
+  "id": "cv_reference_entertainment_k80_s43_lora",
+  "group": "cv_reference",
+  "method": "lora",
+  "seed": 43,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 60.21998984141317,
+    "accuracy": 66.8122270742358,
+    "auc": 0.6642525887808907
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "441a8d2de09ac82b2ba714c3f3d336f7e6c5b2e063114c6cf6fa25de3f249dfc",
+  "trainable_parameters": 8450,
+  "selection_or_training_performed": false
+}

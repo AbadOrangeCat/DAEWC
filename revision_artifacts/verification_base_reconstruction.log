@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "<frozen runpy>", line 229, in run_module
+  File "<frozen runpy>", line 88, in _run_code
+  File "daewc/verify.py", line 96, in <module>
+    verify(p.parse_args())
+    ~~~~~~^^^^^^^^^^^^^^^^
+  File "daewc/verify.py", line 82, in verify
+    assert error < 1e-5, (method, error)
+           ^^^^^^^^^^^^
+AssertionError: ('adapter', 1.2934207916259766e-05)

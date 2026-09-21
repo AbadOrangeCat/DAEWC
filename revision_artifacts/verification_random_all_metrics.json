@@ -1,0 +1,7 @@
+{
+  "verified_runs": 45,
+  "paired_budget_groups": 9,
+  "checkpoint_reconstructions": [],
+  "checkpoint_reconstruction_device": null,
+  "checks": "data and checkpoint SHA-256; split membership; strict label counts; paired samples; metric recomputation; CV fold isolation, candidate scores and selected configuration"
+}

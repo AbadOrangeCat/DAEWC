@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_entertainment_k80_s44_full",
+  "group": "fixed_reference",
+  "method": "full",
+  "seed": 44,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 56.89331751043569,
+    "accuracy": 59.67976710334789,
+    "auc": 0.7008872795036316
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "1b1daa1008bdbf87f1f9569e22226cfb6a113b9acff4535c7c3de09a96d89b71",
+  "trainable_parameters": 4369666,
+  "selection_or_training_performed": false
+}

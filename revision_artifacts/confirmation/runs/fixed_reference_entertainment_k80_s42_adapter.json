@@ -1,0 +1,18 @@
+{
+  "id": "fixed_reference_entertainment_k80_s42_adapter",
+  "group": "fixed_reference",
+  "method": "adapter",
+  "seed": 42,
+  "domain": "entertainment",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 56.951386419985454,
+    "accuracy": 60.747210092188254,
+    "auc": 0.6719183448743198
+  },
+  "test_n": 2061,
+  "checkpoint_sha256": "4eed6b939d32dffcaf44e02e8ca32df475e84a4cf00ee980989b7d050d6e8131",
+  "trainable_parameters": 8738,
+  "selection_or_training_performed": false
+}

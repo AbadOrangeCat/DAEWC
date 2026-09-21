@@ -1,0 +1,9 @@
+{
+  "analysis": "Paired uncertainty of smaller DAEWC against all seven reference methods and the width-2 adapter baseline on the second test. Report every comparison separately under fixed and internal-CV protocols.",
+  "metric": "Macro-F1 percentage-point difference; average domains equally within each seed, then average three seeds.",
+  "bootstrap": "2000 draws; sample three seeds with replacement, shared across domains; independently resample examples within each original domain and label class, pairing indices across all methods. Class counts and the three domains remain fixed.",
+  "interval": "Percentile 2.5 and 97.5; descriptive conditional uncertainty, no p-value or population-wide superiority guarantee.",
+  "random_seed": 20260913,
+  "timestamp_utc": "2026-09-13T02:10:10.357981+00:00",
+  "selection": "None; do not change fitted models, configuration, thresholds, or comparison set."
+}

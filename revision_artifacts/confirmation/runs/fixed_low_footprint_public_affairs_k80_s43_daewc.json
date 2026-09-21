@@ -1,0 +1,18 @@
+{
+  "id": "fixed_low_footprint_public_affairs_k80_s43_daewc",
+  "group": "fixed_low_footprint",
+  "method": "daewc",
+  "seed": 43,
+  "domain": "public_affairs",
+  "shots_per_class": 80,
+  "threshold": 0.5,
+  "scores": {
+    "macro_f1": 80.26497085320614,
+    "accuracy": 80.61224489795919,
+    "auc": 0.8537414965986395
+  },
+  "test_n": 98,
+  "checkpoint_sha256": "532daece0c5c713555d60410d3e94ee40c1f136f4374135684bf330072815998",
+  "trainable_parameters": 6154,
+  "selection_or_training_performed": false
+}

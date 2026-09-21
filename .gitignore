@@ -3,6 +3,13 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .venv/
-revision_artifacts/
-models/
+.idea/
+# Keep saved predictions, run records, data manifests, and tables under version control.
+# Model weights are distributed separately; their checksums remain in the repository.
+*.pt
+*.safetensors
+models/**/.cache/
 rerun/
+verification_output/
+overleaf_upload/
+manuscript/
