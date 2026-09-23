@@ -1,6 +1,5 @@
 {
   "algorithm": "SHA-256",
-  "scope": "v2.0.0 code, inputs, saved evidence, and verification tools. Weight archives are separate release attachments described by release/WEIGHTS_MANIFEST.json. Git internals, caches, and generated local outputs are excluded.",
   "files": [
     {
       "path": ".gitattributes",
@@ -79,13 +78,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 18898,
-      "sha256": "3c85ce6cb2db75c9258e2a60e34d2c2bbadbb1f617dfbe18a4efc3fd74b11e15"
+      "bytes": 19132,
+      "sha256": "fea6b93d6dab7a67ad7a1bf7bce2daef76622bdbd9bbd23462bfac97dcb33b9e"
     },
     {
       "path": "RELEASE_NOTES.md",
-      "bytes": 4628,
-      "sha256": "2b147703d93bbf233a5e60b197bb45b59bdc6563995a3c117f348a6d39146c13"
+      "bytes": 4695,
+      "sha256": "f1b8e9b5b01ee6de2238fba05ac82e824e770ba4565f649c639cf84eeaccb7e5"
     },
     {
       "path": "configs/bert_base.json",
@@ -254,18 +253,18 @@
     },
     {
       "path": "release/SHA256SUMS",
-      "bytes": 1483,
-      "sha256": "03adafbd99c2ab87686a945c56e42a381dba6bee480ce3f806232dd009a6cc32"
+      "bytes": 30287,
+      "sha256": "988a532666ba800318f750d0867f7083cd06b734d2f88ad64f3fa82d2de56513"
     },
     {
       "path": "release/VERIFICATION.json",
-      "bytes": 2323,
-      "sha256": "5297983c5c37c45c5f2aca8ae057ec7ef1c5df374c977f2d34d17d683b482c9d"
+      "bytes": 2606,
+      "sha256": "2d46b6a8903d8f71d37ccb0e3940472bb25999071b0b458077fe216da9b7bb8a"
     },
     {
       "path": "release/WEIGHTS_MANIFEST.json",
-      "bytes": 423177,
-      "sha256": "d985d7b57f34664286754b7dcbbf7a9896ae3c03c24f963fc9c2a2906fe43082"
+      "bytes": 515341,
+      "sha256": "b592b9eeda0f2a8b52215913a6cf66e66d979f0633bddd03cad40e90c35d8470"
     },
     {
       "path": "requirements.txt",
@@ -18034,8 +18033,8 @@
     },
     {
       "path": "scripts/download_weights.py",
-      "bytes": 6872,
-      "sha256": "ae8d0be03220f1d490ee7bfd54cb6af39c928802887bdb3ef961e0f55517880c"
+      "bytes": 8325,
+      "sha256": "2777a53264fe2e2463ca8c484329b563784c67bc193a66691f6eb3005eae768a"
     },
     {
       "path": "scripts/make_manifest.py",
@@ -18069,8 +18068,8 @@
     },
     {
       "path": "tests/test_weight_release.py",
-      "bytes": 2421,
-      "sha256": "6e490b6c5f4a1072259ee4f7dd8729158b56bcfb7a59c31ee937cab83c918191"
+      "bytes": 4150,
+      "sha256": "66d308c6296fe7d055dd06928dcd6398245363b43a8135120550ceca59c25e24"
     }
   ]
 }

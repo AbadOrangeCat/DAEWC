@@ -42,4 +42,4 @@ This release publishes the current implementation on `main` and supplies the mat
 
 ## Weight release
 
-All 1,355 archived weight files are supplied in 15 independent ZIP archives. Each archive is below 2 GiB. `SHA256SUMS` checks the downloads; `WEIGHTS_MANIFEST.json` lists every file and its original checksum. Restore them with `python scripts/download_weights.py`, then run `python scripts/download_weights.py --verify-only`. See README for extraction locations and full-checkpoint verification.
+All 1,355 archived weight files are supplied as 299 download parts, each at most 64 MiB. The downloader verifies and joins them into 15 ZIP archives before extraction. `SHA256SUMS` checks the download parts; `WEIGHTS_MANIFEST.json` lists every file and its original checksum. Restore them with `python scripts/download_weights.py`, then run `python scripts/download_weights.py --verify-only`. See README for extraction locations and full-checkpoint verification.

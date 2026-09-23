@@ -3,8 +3,8 @@
   "status": "passed",
   "implementation_tests": {
     "command": "python -m pytest -q -p no:cacheprovider tests",
-    "passed": 32,
-    "scope_change": "Two paper-prose tests archived; seven weight restoration cases added for checksum failures, unsafe paths, duplicate membership, and successful byte-for-byte restoration."
+    "passed": 35,
+    "scope_change": "Two paper-prose tests archived; ten weight restoration cases cover checksum failures, unsafe paths, duplicate membership, byte-for-byte restoration, ordered part reassembly, and preservation of existing files after a failed reassembly."
   },
   "saved_prediction_checks": {
     "report": "release/SAVED_RESULTS_VERIFICATION.json",
@@ -17,7 +17,7 @@
     "changed_files": 0,
     "baseline": "September 22 code-and-evidence file manifest; all experimental artifacts except current code-version metadata compared."
   },
-  "weights": "All 1,355 archived weights distributed in 15 v2.0.0 release ZIPs. Original files and every archived member verified against the recorded experiment SHA-256 hashes.",
+  "weights": "All 1,355 archived weights packaged into 15 ZIPs, distributed through 299 v2.0.0 download parts. Original files, ZIP members, download parts, and reassembled archives verified against their recorded SHA-256 hashes.",
   "manuscript": "Supplied separately; absent from this repository.",
   "git_tracking": "Evidence and model configuration files are no longer ignored. Weight files, caches, and local outputs remain ignored.",
   "upload_limits": {
@@ -48,9 +48,13 @@
     "files": 1355,
     "compressed_bytes": 19746360350,
     "uncompressed_bytes": 21735507427,
-    "maximum_asset_bytes": 1393440368,
+    "maximum_asset_bytes": 67108864,
     "all_original_and_archive_member_hashes_verified": true,
     "restored_files_verified": 1355,
-    "restored_full_release_check": "release/RESTORED_WEIGHTS_VERIFICATION.json"
+    "restored_full_release_check": "release/RESTORED_WEIGHTS_VERIFICATION.json",
+    "download_parts": 299,
+    "release_assets": 301,
+    "all_download_parts_and_reassembled_archives_verified": true,
+    "restored_from_parts_files_verified": 1355
   }
 }

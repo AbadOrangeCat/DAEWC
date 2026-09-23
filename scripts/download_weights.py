@@ -87,6 +87,46 @@ def download(archive, directory):
     raise RuntimeError('Download failed')
 
 
+def materialize_archive(archive, directory, local_only=False):
+    """Restore a ZIP from verified download parts, retaining only the complete ZIP."""
+    directory.mkdir(parents=True, exist_ok=True)
+    target = destination(directory, archive['name'])
+    if verified_file(target, archive):
+        return target
+    parts = archive.get('parts')
+    if not parts:
+        if local_only:
+            raise ValueError(f'Missing or changed local archive: {archive["name"]}')
+        return download(archive, directory)
+    paths = []
+    for part in parts:
+        if local_only:
+            path = destination(directory, part['name'])
+            if not verified_file(path, part):
+                raise ValueError(f'Missing or changed local part: {part["name"]}')
+        else:
+            path = download(part, directory)
+        paths.append(path)
+    descriptor, temp_name = tempfile.mkstemp(prefix='.archive-', dir=directory)
+    temporary = Path(temp_name)
+    try:
+        value = hashlib.sha256()
+        with os.fdopen(descriptor, 'wb') as output:
+            for path in paths:
+                with path.open('rb') as input_file:
+                    for block in iter(lambda: input_file.read(1024 * 1024), b''):
+                        value.update(block)
+                        output.write(block)
+        if temporary.stat().st_size != archive['bytes'] or value.hexdigest() != archive['sha256']:
+            raise ValueError(f'Reassembled archive checksum mismatch: {archive["name"]}')
+        temporary.replace(target)
+        for path in paths:
+            path.unlink()
+    finally:
+        temporary.unlink(missing_ok=True)
+    return target
+
+
 def restore(archive_path, archive, files, root):
     with zipfile.ZipFile(archive_path) as source:
         if sorted(source.namelist()) != sorted(archive['files']):
@@ -130,7 +170,7 @@ def main():
     parser.add_argument('--root', type=Path, default=project, help='Repository root to restore')
     parser.add_argument('--download-dir', type=Path, default=project / 'weights_downloads')
     parser.add_argument('--verify-only', action='store_true', help='Check restored weights without network access')
-    parser.add_argument('--local-only', action='store_true', help='Restore verified ZIP files already in --download-dir')
+    parser.add_argument('--local-only', action='store_true', help='Restore ZIP files or verified download parts already in --download-dir')
     args = parser.parse_args()
     manifest, files = load_manifest(args.manifest)
     if args.verify_only:
@@ -138,12 +178,7 @@ def main():
         return
     for index, archive in enumerate(manifest['archives'], 1):
         print(f'[{index}/{len(manifest["archives"])}] {archive["name"]}', flush=True)
-        if args.local_only:
-            path = destination(args.download_dir, archive['name'])
-            if not verified_file(path, archive):
-                raise ValueError(f'Missing or changed local archive: {archive["name"]}')
-        else:
-            path = download(archive, args.download_dir)
+        path = materialize_archive(archive, args.download_dir, args.local_only)
         restore(path, archive, files, args.root)
     verify_weights(args.root, files)
 

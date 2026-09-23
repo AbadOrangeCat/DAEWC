@@ -21,9 +21,9 @@ The second command checks complete planned run sets, frozen training code, data 
 
 ## Download the archived model weights
 
-The [v2.0.0 release](https://github.com/AbadOrangeCat/DAEWC/releases/tag/v2.0.0) provides 15 independent ZIP archives containing all 1,355 original weight files, including the initial models, source checkpoints, Fisher buffers, adapted models, sequential stages, and inference exports. The files occupy 21.74 GB after extraction. Allow approximately 43 GB of free disk space to retain both downloads and restored files.
+The [v2.0.0 release](https://github.com/AbadOrangeCat/DAEWC/releases/tag/v2.0.0) provides 299 small download parts that reconstruct 15 ZIP archives containing all 1,355 original weight files, including the initial models, source checkpoints, Fisher buffers, adapted models, sequential stages, and inference exports. The files occupy 21.74 GB after extraction. Allow approximately 45 GB of free disk space to retain both downloads and restored files.
 
-- [SHA-256 checksums for the download archives](https://github.com/AbadOrangeCat/DAEWC/releases/download/v2.0.0/SHA256SUMS)
+- [SHA-256 checksums for the download parts](https://github.com/AbadOrangeCat/DAEWC/releases/download/v2.0.0/SHA256SUMS)
 - [Archive membership and individual weight checksums](https://github.com/AbadOrangeCat/DAEWC/releases/download/v2.0.0/WEIGHTS_MANIFEST.json)
 
 From the repository root, download and restore all weights with:
@@ -33,16 +33,16 @@ python scripts/download_weights.py
 python scripts/download_weights.py --verify-only
 ```
 
-The downloader caches archives in `weights_downloads/`, verifies each archive, and extracts the original paths into `models/` and `revision_artifacts/` under the repository root. It checks every extracted file against the original experiment checksum. Interrupted downloads can resume. Existing correctly restored weights are retained. These weight and cache files are excluded from Git.
+The downloader checks each download part, joins it into its original ZIP archive, verifies the archive, and extracts the original paths into `models/` and `revision_artifacts/` under the repository root. It checks every extracted file against the original experiment checksum. Download parts are at most 64 MiB to keep transfers short and retryable. Completed ZIPs are cached in `weights_downloads/`; part files are removed only after successful archive verification. Interrupted downloads can resume. Existing correctly restored weights are retained. These weight and cache files are excluded from Git.
 
-For manual downloads, save all 15 ZIP files into `weights_downloads/`. Each ZIP is independently extractable. Verify the archives and restore them with:
+For manual downloads, save all 299 `.partNNN` files into `weights_downloads/`. Before restoration, optionally check the downloaded `SHA256SUMS` with `sha256sum -c SHA256SUMS` on Linux or `shasum -a 256 -c SHA256SUMS` on macOS. The following command automatically joins, verifies, and restores them:
 
 ```bash
 python scripts/download_weights.py --local-only
 python scripts/download_weights.py --verify-only
 ```
 
-To restore into another checkout, pass `--root /path/to/DAEWC`. To check a downloaded `SHA256SUMS` manually, run `sha256sum -c SHA256SUMS` on Linux or `shasum -a 256 -c SHA256SUMS` on macOS from the download directory.
+To restore into another checkout, pass `--root /path/to/DAEWC`.
 
 After restoring the weights, verify the complete experiment design and reconstruct primary-model predictions:
 
