@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "main_and_selection_final_models": {
+    "local": 288,
+    "budget_cv": 126,
+    "random": 45,
+    "bert_base": 63,
+    "low_footprint": 108,
+    "low_footprint_cv": 36
+  },
+  "core_code_sha256": "38c0b874770d9e0eaa1fb4cba95bf140b925c8e58edf28edfc68a99399a2ac56",
+  "data_sha256": "158e149cc627268a3590595dcb45d007e2b3afdcbe30a71554b83221fd73aac8",
+  "cross_protocol_paired_budget_groups": 36,
+  "source_checkpoint_and_fisher_imports_verified": 6,
+  "smaller_k80_absolute_source_change_max_pp": 0.8750674916853001,
+  "exact_serialized_exports": 36,
+  "objective_conditions_verified": 72,
+  "complete_second_test_comparisons": 16,
+  "scope": "Design completeness, shared samples, frozen code, exact source reuse, and headline claim checks. Detailed metric/checkpoint checks are in the accompanying verification reports."
+}

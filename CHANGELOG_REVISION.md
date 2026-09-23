@@ -11,6 +11,9 @@ This revision replaces the submitted efficacy evidence with executable, independ
 - Recorded all six target orders with three seeds, intermediate matrices, source-relative stage checkpoints, and separate source/older-target forgetting measures.
 - Added a smaller domain-module configuration, exact source-cache reuse, and a frozen post-fit second test of all comparison methods.
 - Added run-level predictions, parameter-name scopes, data identifiers, numerical configurations, costs, immutable model revisions, checksums and reconstruction tools.
-- Rewrote the English manuscript, conditional stability analysis, BibTeX references, architecture figure, tables, and six-section reviewer response.
 
-Historical scripts are retained in `legacy/`; their old headline scores are not revised-study results. This is a local revision. No public repository update or journal submission is implied.
+Historical scripts are preserved in Git history and the separate local archive; their old headline scores are not revised-study results. The versioned code and weight release is v2.0.0.
+
+On 24 September 2026, paper-only utilities and retired entry points were moved to the separate local archive. Training, evaluation, data-audit code, and numerical evidence are unchanged.
+
+The v2.0.0 release adds verified weight archives, a resumable downloader, extraction checks, and restoration instructions. No model is retrained and no numerical result changes.

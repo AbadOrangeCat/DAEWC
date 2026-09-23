@@ -6,7 +6,7 @@ The model predicts the supplied dataset labels. It does not retrieve evidence or
 
 ## Review the saved results
 
-This repository contains the revised implementation and saved results, including all **666 final single-target models**. It also retains the sequential experiments, mechanism study, post-fit second test, and the earlier excluded source repeat with its exclusion recorded. The manuscript is supplied separately. Model weights are omitted; their names and checksums are listed in `OMITTED_WEIGHTS.json`.
+This repository contains the revised implementation and saved results, including all **666 final single-target models**. It also retains the sequential experiments, mechanism study, post-fit second test, and the earlier excluded source repeat with its exclusion recorded. The manuscript is supplied separately. Model weights are distributed as [v2.0.0 release attachments](https://github.com/AbadOrangeCat/DAEWC/releases/tag/v2.0.0); their names and original checksums are recorded in `release/WEIGHTS_MANIFEST.json`.
 
 After installing the dependencies below, these commands check the release files and recompute the six final-model groups without downloading weights:
 
@@ -19,11 +19,61 @@ The second command checks complete planned run sets, frozen training code, data 
 
 `release/VERIFICATION.json` records the checks performed for this snapshot. See `RELEASE_NOTES.md` for its contents and GitHub upload instructions.
 
+## Download the archived model weights
+
+The [v2.0.0 release](https://github.com/AbadOrangeCat/DAEWC/releases/tag/v2.0.0) provides 15 independent ZIP archives containing all 1,355 original weight files, including the initial models, source checkpoints, Fisher buffers, adapted models, sequential stages, and inference exports. The files occupy 21.74 GB after extraction. Allow approximately 43 GB of free disk space to retain both downloads and restored files.
+
+- [SHA-256 checksums for the download archives](https://github.com/AbadOrangeCat/DAEWC/releases/download/v2.0.0/SHA256SUMS)
+- [Archive membership and individual weight checksums](https://github.com/AbadOrangeCat/DAEWC/releases/download/v2.0.0/WEIGHTS_MANIFEST.json)
+
+From the repository root, download and restore all weights with:
+
+```bash
+python scripts/download_weights.py
+python scripts/download_weights.py --verify-only
+```
+
+The downloader caches archives in `weights_downloads/`, verifies each archive, and extracts the original paths into `models/` and `revision_artifacts/` under the repository root. It checks every extracted file against the original experiment checksum. Interrupted downloads can resume. Existing correctly restored weights are retained. These weight and cache files are excluded from Git.
+
+For manual downloads, save all 15 ZIP files into `weights_downloads/`. Each ZIP is independently extractable. Verify the archives and restore them with:
+
+```bash
+python scripts/download_weights.py --local-only
+python scripts/download_weights.py --verify-only
+```
+
+To restore into another checkout, pass `--root /path/to/DAEWC`. To check a downloaded `SHA256SUMS` manually, run `sha256sum -c SHA256SUMS` on Linux or `shasum -a 256 -c SHA256SUMS` on macOS from the download directory.
+
+After restoring the weights, verify the complete experiment design and reconstruct primary-model predictions:
+
+```bash
+mkdir -p verification_output
+python scripts/verify_release.py --artifacts revision_artifacts --out verification_output/full_release.json
+python -m daewc.verify --data revision_artifacts/data --runs revision_artifacts/local --source revision_artifacts/local --config configs/local.json --model-path models/bert-tiny --device cpu --out verification_output/primary_checkpoints.json
+```
+
+The full release check uses the original checkpoint and Fisher hashes. The second command checks all primary checkpoint hashes and reconstructs one complete target test per method. The original primary runs used Apple MPS; small CPU floating-point differences are possible. Downloading only the initial pretrained models does not restore trained checkpoints.
+
 ## What changed
 
-The submitted scripts are preserved in `legacy/` and retired as entry points. Their results cannot support the revised paper: they used political test information in threshold or candidate selection and did not implement the described model. The revised manuscript does not reuse their numerical tables or CNN/LSTM claims.
+The original submitted scripts are retired and preserved in Git history and the separate local archive. They used political test information in threshold or candidate selection and did not implement the current model. Their numerical tables and CNN/LSTM claims are excluded from the revised results. The current entry points are the modules in `daewc/`.
 
 The primary political source is non-health LIAR, with an explicit binary label mapping and official split roles. The health target is LIAR's `health-care` subject subset. The two other targets use only the `title` fields of FakeNewsNet PolitiFact and GossipCop CSV files. The original ISOT and medical files are used for diagnostics only. The medical files are not identified as CONSTRAINT/Patwa data. The older PolitiFact full-text fake/real files are byte-identical and excluded.
+
+## Repository contents
+
+| Location | Purpose |
+| --- | --- |
+| `daewc/` | Model, training, evaluation, data auditing, and result summaries |
+| `configs/` | Frozen experiment settings |
+| `scripts/` | Model download, manifest creation, and release verification |
+| `tests/` | Model and protocol tests |
+| `Moredata/`, `news/`, `covid/` | Primary inputs and data-audit inputs |
+| `models/` | Model configurations and token vocabularies; weights downloaded separately |
+| `revision_artifacts/` | Saved predictions, experiment records, data, and statistical summaries |
+| `release/` and root manifests | File integrity and verification scope |
+
+The data-audit inputs and excluded exploratory records are retained because they are needed to reproduce the reported audits and inspect the experiment history. Paper sources, references, typesetting utilities, and retired training implementations are supplied separately.
 
 ## Environment
 
@@ -38,24 +88,26 @@ python -m pytest -q tests
 
 ## Reproduce the experiments
 
+Prepared data are included. Use a fresh `rerun/` directory for all training outputs because the saved result directories omit their trained weights. To repeat data preparation and diagnostics, use:
+
 Run these commands from the repository root. The preparation command downloads the original LIAR archive and requires the existing `Moredata/politifact_{real,fake}.csv` and `Moredata/gossipcop_{real,fake}.csv` inputs. Input hashes are recorded and should match the supplied release manifest. Missing fields or malformed rows are errors; the loader never guesses an input column or silently skips CSV errors.
 
 ```bash
-python -m daewc.data --data-root . --out revision_artifacts/data
-python -m daewc.audit --data-root . --prepared revision_artifacts/data --out revision_artifacts/audit
-python -m daewc.run --config configs/local.json --data revision_artifacts/data --out revision_artifacts/local
+python -m daewc.data --data-root . --out rerun/data
+python -m daewc.audit --data-root . --prepared rerun/data --out rerun/audit
+python -m daewc.run --config configs/local.json --data revision_artifacts/data --out rerun/local
 ```
 
 The primary run uses the pinned Google two-layer BERT checkpoint. Configurations are saved before test results are produced. Resume is refused if the configuration, processed data, or training code differs. Each result includes the selected procedure, exact labels, thresholds, trainable parameter names, elapsed training time, full-precision predictions, and a checkpoint checksum.
 
-To run the additional protocols, download the checkpoint named in the configuration, then pass its local directory as `MODEL_DIR` below. `MODEL_DIR` must contain `config.json`, `vocab.txt`, and `model.safetensors`; it is not a shell variable created automatically by this repository.
+After completing the fresh primary run, run additional protocols from its new source checkpoints. Download the initial checkpoint named in the configuration, then pass its local directory as `MODEL_DIR` below. `MODEL_DIR` must contain `config.json`, `vocab.txt`, and `model.safetensors`; it is not a shell variable created automatically by this repository.
 
 ```bash
-python -m daewc.sequential --config configs/local.json --data revision_artifacts/data --single revision_artifacts/local --out revision_artifacts/sequential --model-path MODEL_DIR
-python -m daewc.budget_cv --config configs/local.json --data revision_artifacts/data --single revision_artifacts/local --out revision_artifacts/budget_cv --model-path MODEL_DIR
-python -m daewc.mechanism_sweep --config configs/local.json --data revision_artifacts/data --single revision_artifacts/local --out revision_artifacts/mechanism --model-path MODEL_DIR
-python -m daewc.run --config configs/random_initialization.json --data revision_artifacts/data --out revision_artifacts/random
-python -m daewc.run --config configs/bert_base.json --data revision_artifacts/data --out revision_artifacts/bert_base
+python -m daewc.sequential --config configs/local.json --data revision_artifacts/data --single rerun/local --out rerun/sequential --model-path MODEL_DIR
+python -m daewc.budget_cv --config configs/local.json --data revision_artifacts/data --single rerun/local --out rerun/budget_cv --model-path MODEL_DIR
+python -m daewc.mechanism_sweep --config configs/local.json --data revision_artifacts/data --single rerun/local --out rerun/mechanism --model-path MODEL_DIR
+python -m daewc.run --config configs/random_initialization.json --data revision_artifacts/data --out rerun/random
+python -m daewc.run --config configs/bert_base.json --data revision_artifacts/data --out rerun/bert_base
 ```
 
 The fixed configuration uses one candidate and 80 updates. The budgeted cross-validation protocol uses two folds and three learning-rate multipliers for **every** method, then refits on all 2K labels. These protocols are reported separately. No target development labels enter training or selection. The mechanism sweep reports its complete 3-by-3 grid; it does not choose a replacement DAEWC configuration using test scores.
@@ -65,10 +117,10 @@ The fixed configuration uses one candidate and 80 updates. The budgeted cross-va
 The smaller configuration uses adapter width 2 and domain-vector width 4. It trains 6,154 parameters with the compact encoder, compared with 16,434 for the reference DAEWC and 8,450 for rank-8 LoRA. It is a separately identified exploratory extension. It reuses **exact** primary source checkpoints and Fisher buffers, with checksum provenance; it does not retrain a new source for the paired comparison.
 
 ```bash
-python -m daewc.reuse_source --config configs/low_footprint.json --source revision_artifacts/local --data revision_artifacts/data --out revision_artifacts/low_footprint --model-path MODEL_DIR
-python -m daewc.budget_cv --config configs/low_footprint.json --single revision_artifacts/low_footprint --data revision_artifacts/data --out revision_artifacts/low_footprint_cv --model-path MODEL_DIR
-python -m daewc.confirmatory --data revision_artifacts/data --artifacts revision_artifacts --configs configs --out revision_artifacts/confirmation --model-path MODEL_DIR --freeze-only
-python -m daewc.confirmatory --data revision_artifacts/data --artifacts revision_artifacts --configs configs --out revision_artifacts/confirmation --model-path MODEL_DIR
+python -m daewc.reuse_source --config configs/low_footprint.json --source rerun/local --data revision_artifacts/data --out rerun/low_footprint --model-path MODEL_DIR
+python -m daewc.budget_cv --config configs/low_footprint.json --single rerun/low_footprint --data revision_artifacts/data --out rerun/low_footprint_cv --model-path MODEL_DIR
+python -m daewc.confirmatory --data revision_artifacts/data --artifacts rerun --configs configs --out rerun/confirmation --model-path MODEL_DIR --freeze-only
+python -m daewc.confirmatory --data revision_artifacts/data --artifacts rerun --configs configs --out rerun/confirmation --model-path MODEL_DIR
 ```
 
 The second test uses the original target development partitions only after all compared K=80 models have been fitted. Its frozen plan includes all seven reference methods and both smaller methods under both selection protocols, for all domains and seeds. Its labels never enter adaptation, model selection, threshold fitting, or any subsequent model change. This analysis contains 162 post-fit evaluations; it does not add training runs or extra supervision.
@@ -88,16 +140,12 @@ Use the same summary command for the standard BERT, random-initialization, and s
 ```bash
 python -m daewc.verify_additional --artifacts revision_artifacts --data revision_artifacts/data --configs configs --confirmation --out revision_artifacts/verification_additional.json
 python -m daewc.stability_diagnostics --config configs/local.json --data revision_artifacts/data --runs revision_artifacts/local --model-path MODEL_DIR --out revision_artifacts/stability
-python scripts/build_tables.py --artifacts revision_artifacts --manuscript manuscript
-python scripts/draw_results.py --artifacts revision_artifacts --manuscript manuscript
-python scripts/draw_architecture.py --manuscript manuscript
 ```
 
 The second-test summary also computes the complete prespecified paired bootstrap comparisons:
 
 ```bash
 python -m daewc.second_test_summary --input revision_artifacts/confirmation --out revision_artifacts/tables/confirmation
-python scripts/build_extension_tables.py --artifacts revision_artifacts --manuscript manuscript
 ```
 
 The objective diagnostic checks the actual deterministic target loss and weighted parameter drift. It does not certify the integrated source-gradient bound or source F1. All 36 reference and all 36 smaller DAEWC runs satisfy the measured objective condition.
@@ -111,7 +159,7 @@ The signed retention measure is `source_after_f1 - source_before_f1`, in percent
 The smaller configuration also uses all six orders and three seeds, with all four sequential controls. It starts from the exact imported source checkpoints.
 
 ```bash
-python -m daewc.sequential --config configs/low_footprint.json --data revision_artifacts/data --single revision_artifacts/low_footprint --out revision_artifacts/sequential_low --model-path MODEL_DIR
+python -m daewc.sequential --config configs/low_footprint.json --data revision_artifacts/data --single rerun/low_footprint --out rerun/sequential_low --model-path MODEL_DIR
 ```
 
 ## Exact gate precomputation for inference
@@ -126,17 +174,17 @@ All 36 serialized exports were reloaded and checked against the original models 
 
 ## Artifacts and storage
 
-`revision_artifacts/` contains processed records and manifests, run JSON files, predictions, and tables. The archived training outputs also contain source checkpoints, Fisher buffers, and source-relative checkpoints; those weight files are omitted from this repository. Sequential checkpoints are incremental: reconstruction uses the source plus each earlier stage in order. A `training` record lists the exact parameter names in each checkpoint.
+`revision_artifacts/` contains processed records and manifests, run JSON files, predictions, and tables. The archived training outputs also contain source checkpoints, Fisher buffers, and source-relative checkpoints; those weight files are supplied as release attachments. Sequential checkpoints are incremental: reconstruction uses the source plus each earlier stage in order. A `training` record lists the exact parameter names in each checkpoint.
 
 Peak CUDA allocation is measured only on CUDA. On MPS, the process-lifetime resident-memory maximum is labelled as such and is not presented as a per-run GPU memory peak. Deployment storage counts parameter elements at four bytes each; optimizer states and Fisher buffers must be counted separately if they are retained for later training.
 
 ## Licenses and public release
 
-The repository's existing software license applies to its code. Dataset and pretrained-model licenses remain separate. Input transformations and checksums identify the releases used; the software license does not grant rights to redistribute third-party text. The revised code is prepared locally. A public release and permanent identifier must be created by the authors before claiming that an updated public archive is available.
+The repository's existing software license applies to its code. Dataset and pretrained-model licenses remain separate. Input transformations and checksums identify the releases used; the software license does not grant rights to redistribute third-party text. The versioned [v2.0.0 release](https://github.com/AbadOrangeCat/DAEWC/releases/tag/v2.0.0) identifies the code and associated weight archives.
 
 ## Rebuilding the complete revision
 
-The authors' full local archive includes the original model weights and trained checkpoints. This repository contains code, configurations, processed data, predictions, and result records, but omits `.pt` and `model.safetensors` files. Its omission manifest identifies those files. Use the complete archive to reconstruct the original saved predictions. To retrain from this repository, first obtain the pinned initial models and **use a fresh output directory**, such as `rerun/local`; existing result JSON files in `revision_artifacts/` must not be treated as retraining outputs without their matching weights. Downloading initial pretrained models does not recover fitted checkpoints.
+The matching GitHub release includes the original model weights and trained checkpoints. This repository contains code, configurations, processed data, predictions, and result records, but omits `.pt` and `model.safetensors` files. Its omission manifest identifies those files. Restore the release weights to reconstruct the original saved predictions. To retrain from this repository, first obtain the pinned initial models and **use a fresh output directory**, such as `rerun/local`; existing result JSON files in `revision_artifacts/` must not be treated as retraining outputs without their matching weights. Downloading initial pretrained models does not recover fitted checkpoints.
 
 For example, a fresh primary run is:
 
@@ -145,30 +193,16 @@ python scripts/download_models.py --out models
 python -m daewc.run --config configs/local.json --data revision_artifacts/data --out rerun/local --model-path models/bert-tiny
 ```
 
-The following full-archive checks require the corresponding trained weights. Manuscript build commands additionally require the separately supplied LaTeX sources in `manuscript/`:
+The following full-archive checks require the corresponding trained weights:
 
 ```bash
 python scripts/download_models.py --out models
 python scripts/verify_release.py --artifacts revision_artifacts
 python -m daewc.verify_additional --artifacts revision_artifacts --data revision_artifacts/data --configs configs --sequence-directory sequential_low --skip-mechanism --out revision_artifacts/verification_sequential_low.json
-python scripts/draw_parameter_comparison.py --artifacts revision_artifacts --manuscript manuscript
-python scripts/build_references.py --metadata-cache reference_sources --manuscript manuscript
-tectonic manuscript/manuscript.tex
-tectonic manuscript/manuscript_marked.tex
 ```
 
 `verify_release.py` requires the full snapshot because it checks source reuse and exported-weight hashes. It checks all final model counts, shared target identifiers across protocols, nested budgets, frozen training code, and the numerical claims about the smaller model. The detailed verification reports also recompute metrics and reconstruct representative checkpoints. Test the implementation with `python -m pytest -q`.
 
-## Manuscript synchronization and threshold checks
+## Threshold checks
 
 The verifier checks every prediction's threshold against the saved source-development threshold or the fixed target threshold of 0.5. It rejects duplicate test IDs, non-finite or out-of-range probabilities, and recomputes the pre-adaptation source baseline from the original predictions. For cross-validation runs, pass the source checkpoint directory explicitly with `--source`.
-
-`build_tables.py` also writes the three primary DAEWC source-change macros in `numbers.tex`. Use those macros in the results prose so the prose and tables round the same unrounded seed means. The verifier and reporting changes do not alter training or select new models from test scores.
-
-To prepare the revised manuscript for an existing Overleaf project:
-
-```bash
-python scripts/build_overleaf.py --manuscript manuscript --out overleaf_upload
-```
-
-This flattens the separately supplied LaTeX inputs into `DAEWC.tex`, copies the four figures, BibTeX file, Highlights, and original CAS class/style/icon dependencies, and writes a checksum manifest. Upload these files through Overleaf and use XeLaTeX. The script performs no upload, publication, or comment posting. Selection comments must be attached in the Overleaf editor.

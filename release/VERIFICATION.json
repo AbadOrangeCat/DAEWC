@@ -1,9 +1,10 @@
 {
-  "snapshot_date": "2026-09-22",
+  "snapshot_date": "2026-09-24",
   "status": "passed",
   "implementation_tests": {
     "command": "python -m pytest -q -p no:cacheprovider tests",
-    "passed": 27
+    "passed": 32,
+    "scope_change": "Two paper-prose tests archived; seven weight restoration cases added for checksum failures, unsafe paths, duplicate membership, and successful byte-for-byte restoration."
   },
   "saved_prediction_checks": {
     "report": "release/SAVED_RESULTS_VERIFICATION.json",
@@ -12,11 +13,11 @@
     "checkpoint_reconstructions_this_audit": 0
   },
   "unchanged_scientific_evidence": {
-    "compared_files": 3452,
+    "compared_files": 3550,
     "changed_files": 0,
-    "baseline": "Previous code-and-evidence bundle file manifest, retained in the local archive."
+    "baseline": "September 22 code-and-evidence file manifest; all experimental artifacts except current code-version metadata compared."
   },
-  "weights": "Omitted from this repository; see OMITTED_WEIGHTS.json. Historical full-archive verification reports do not assert that weights are present here.",
+  "weights": "All 1,355 archived weights distributed in 15 v2.0.0 release ZIPs. Original files and every archived member verified against the recorded experiment SHA-256 hashes.",
   "manuscript": "Supplied separately; absent from this repository.",
   "git_tracking": "Evidence and model configuration files are no longer ignored. Weight files, caches, and local outputs remain ignored.",
   "upload_limits": {
@@ -33,5 +34,23 @@
     ],
     "recommended_method": "Git or GitHub Desktop"
   },
-  "limits": "Saved-result verification checks recorded predictions and protocol arithmetic; it does not independently regenerate predictions or certify the scientific conclusions."
+  "limits": "Saved-result verification checks recorded predictions and protocol arithmetic; it does not independently regenerate predictions or certify the scientific conclusions.",
+  "source_completeness": {
+    "python_files_parsed": 27,
+    "unresolved_local_imports": 0,
+    "paper_artifact_files": 0,
+    "model_weight_files_in_repository": 0,
+    "omitted_weight_files_present_in_separate_archive_with_recorded_sizes": 1355,
+    "omitted_weight_bytes": 21735507427
+  },
+  "weight_archives": {
+    "archives": 15,
+    "files": 1355,
+    "compressed_bytes": 19746360350,
+    "uncompressed_bytes": 21735507427,
+    "maximum_asset_bytes": 1393440368,
+    "all_original_and_archive_member_hashes_verified": true,
+    "restored_files_verified": 1355,
+    "restored_full_release_check": "release/RESTORED_WEIGHTS_VERIFICATION.json"
+  }
 }

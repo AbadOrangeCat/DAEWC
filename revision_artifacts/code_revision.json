@@ -1,10 +1,10 @@
 {
-  "version": "2.0.0-revision",
-  "snapshot_date": "2026-09-22",
-  "base_commit": "5d8eed4b8f6737a1d83b12293f159bf63c0af7a7",
-  "working_tree_release_changes": true,
+  "version": "2.0.0",
+  "snapshot_date": "2026-09-24",
+  "base_commit": "c6daf68294c4f6c482b725f1cc042efb6355f311",
   "training_commit": "15547c97ec7df8c153c30ab3709a38f6c4e57ba9",
-  "publicly_pushed": false,
-  "release_identity": "MANIFEST_SHA256.json identifies the exact supplied working-tree files.",
-  "maintenance_note": "Current template/reference generators restored; explicit saved-prediction verification added; release documentation and portability metadata updated. Frozen training code and numerical experiment records are unchanged."
+  "release_identity": "The v2.0.0 tag and MANIFEST_SHA256.json identify the published code and evidence.",
+  "maintenance_note": "Experiment code and saved evidence published with verified original weight archives. Added download, restoration, and checksum tools; paper-only utilities and retired entry points remain separate. Frozen training code and numerical results are unchanged.",
+  "release_tag": "v2.0.0",
+  "branch": "main"
 }
