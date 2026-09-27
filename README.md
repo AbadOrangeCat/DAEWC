@@ -1,5 +1,4 @@
-# DAEWC revision 2.0.0
-
+# DAEWC
 This revision evaluates adaptation of a text classifier under a strict target-label budget. It implements one model with a residual adapter and learned domain feature gate after every BERT block. Elastic weight consolidation (EWC) and a proximity penalty apply only to the shared block biases and LayerNorm scales. The target optimizer receives no source examples, extra target development labels, or unlabelled pool.
 
 The model predicts the supplied dataset labels. It does not retrieve evidence or verify a statement against external facts. Known domain identity is required at inference.
