@@ -53,12 +53,6 @@ python -m daewc.verify --data revision_artifacts/data --runs revision_artifacts/
 
 The full release check uses the original checkpoint and Fisher hashes. The second command checks all primary checkpoint hashes and reconstructs one complete target test per method. The original primary runs used Apple MPS; small CPU floating-point differences are possible. Downloading only the initial pretrained models does not restore trained checkpoints.
 
-## What changed
-
-The original submitted scripts are retired and preserved in Git history and the separate local archive. They used political test information in threshold or candidate selection and did not implement the current model. Their numerical tables and CNN/LSTM claims are excluded from the revised results. The current entry points are the modules in `daewc/`.
-
-The primary political source is non-health LIAR, with an explicit binary label mapping and official split roles. The health target is LIAR's `health-care` subject subset. The two other targets use only the `title` fields of FakeNewsNet PolitiFact and GossipCop CSV files. The original ISOT and medical files are used for diagnostics only. The medical files are not identified as CONSTRAINT/Patwa data. The older PolitiFact full-text fake/real files are byte-identical and excluded.
-
 ## Repository contents
 
 | Location | Purpose |
